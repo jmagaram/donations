@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { type Organization } from "./types";
 
 interface OrganizationsViewProps {
@@ -8,6 +9,7 @@ const OrganizationsView = ({ organizations }: OrganizationsViewProps) => {
   return (
     <div>
       <h1>Organizations</h1>
+      <Link to="/orgs/add">Add New Organization</Link>
       <div className="org-table">
         <div className="org-header">Name</div>
         <div className="org-header">Tax Deductible</div>

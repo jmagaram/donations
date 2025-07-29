@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
 import OrganizationsContainer from "./OrganizationsContainer";
+import AddOrganization from "./AddOrganization";
 import "./App.css";
 import { useState } from "react";
 import { sampleData } from "./donationsData";
@@ -18,7 +19,16 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/orgs" element={<OrganizationsContainer donationsData={donationsData} setDonationsData={setDonationsData} />} />
+        <Route
+          path="/orgs"
+          element={
+            <OrganizationsContainer
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route path="/orgs/add" element={<AddOrganization />} />
       </Routes>
     </Router>
   );

@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
-import Organizations from "./Organizations";
+import OrganizationsContainer from "./OrganizationsContainer";
 import "./App.css";
 import { useState } from "react";
 import { sampleData } from "./donationsData";
@@ -18,7 +18,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/orgs" element={<Organizations />} />
+        <Route path="/orgs" element={<OrganizationsContainer donationsData={donationsData} setDonationsData={setDonationsData} />} />
       </Routes>
     </Router>
   );

@@ -3,8 +3,15 @@ import Header from "./Header";
 import Home from "./Home";
 import Organizations from "./Organizations";
 import "./App.css";
+import { useState } from "react";
+import { sampleData } from "./donationsData";
 
 function App() {
+  const [donationsData, setDonationsData] = useState(() => {
+    const saved = localStorage.getItem("donationsData");
+    return saved ? JSON.parse(saved) : sampleData();
+  });
+
   return (
     <Router>
       <Header />

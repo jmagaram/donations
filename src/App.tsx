@@ -5,11 +5,12 @@ import Organizations from "./Organizations";
 import "./App.css";
 import { useState } from "react";
 import { sampleData } from "./donationsData";
+import { DonationsDataSchema } from "./types";
 
 function App() {
   const [donationsData, setDonationsData] = useState(() => {
     const saved = localStorage.getItem("donationsData");
-    return saved ? JSON.parse(saved) : sampleData();
+    return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 
   return (

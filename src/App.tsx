@@ -7,7 +7,7 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
-import AddOrg from "./AddOrganization";
+import AddOrg from "./AddOrg";
 // import OrganizationsDetailsView from "./OrganizationsDetailsView"; // No longer used directly
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import "./App.css";
@@ -17,8 +17,6 @@ import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
 import type { AddOrgForm } from "./organization";
 
-// ...removed OrganizationDetailsRoute, now using OrganizationDetailsComponent...
-
 const AppContent = () => {
   const navigate = useNavigate();
   const [donationsData, setDonationsData] = useState(() => {
@@ -26,7 +24,7 @@ const AppContent = () => {
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 
-  const handleAddOrganization = (formData: AddOrgForm) => {
+  const handleAddOrg = (formData: AddOrgForm) => {
     const newOrganization = create(formData);
     const updatedData = addOrganization(donationsData, newOrganization);
     setDonationsData(updatedData);
@@ -47,10 +45,7 @@ const AppContent = () => {
             />
           }
         />
-        <Route
-          path="/orgs/add"
-          element={<AddOrg onAddOrg={handleAddOrganization} />}
-        />
+        <Route path="/orgs/add" element={<AddOrg onAddOrg={handleAddOrg} />} />
         <Route
           path="/orgs/:id"
           element={

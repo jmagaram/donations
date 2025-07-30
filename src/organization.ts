@@ -2,27 +2,27 @@ import { z } from "zod";
 import { type Org } from "./types";
 import { nanoid } from "nanoid";
 
-export const OrgAddFormFieldsSchema = z.object({
+export const OrgUpsertFieldsSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   taxDeductible: z.boolean(),
   notes: z.string(),
 });
 
-export type OrgAddFormFields = z.infer<typeof OrgAddFormFieldsSchema>;
+export type OrgUpsertFields = z.infer<typeof OrgUpsertFieldsSchema>;
 
-export const defaultFormFields: OrgAddFormFields = {
+export const defaultFields: OrgUpsertFields = {
   name: "",
   taxDeductible: true,
   notes: "",
 };
 
-export const create = (params: OrgAddFormFields): Org => ({
+export const create = (params: OrgUpsertFields): Org => ({
   ...params,
   id: nanoid(),
   modified: Date.now(),
 });
 
-export const edit = (params: OrgAddFormFields & { id: string }): Org => ({
+export const edit = (params: OrgUpsertFields & { id: string }): Org => ({
   ...params,
   modified: Date.now(),
 });

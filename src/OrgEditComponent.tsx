@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import OrgUpsertForm from "./OrgUpsertForm";
 import type { DonationsData, Org } from "./types";
-import { edit, type OrgAddFormFields } from "./organization";
+import { edit, type OrgUpsertFields } from "./organization";
 import { orgUpdate } from "./donationsData";
 
 interface OrgEditComponentProps {
@@ -22,7 +22,7 @@ const OrgEditComponent = ({
     return <div>Organization not found.</div>;
   }
 
-  const handleEditOrg = (formData: OrgAddFormFields) => {
+  const handleEditOrg = (formData: OrgUpsertFields) => {
     if (!organization) return;
     const updatedOrg = edit({ ...formData, id: organization.id });
     const newData = orgUpdate(donationsData, updatedOrg);

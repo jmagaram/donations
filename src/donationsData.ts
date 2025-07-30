@@ -67,17 +67,17 @@ const sampleDataArray = [
   },
   {
     name: "Friendship Circle",
-    taxdeductible: true,
+    taxDeductible: true,
     notes: "Families with special needs children",
   },
   {
     name: "Rainier Prep",
-    taxdeductible: true,
+    taxDeductible: true,
     notes: "Charter school in Seattle",
   },
   {
     name: "AIPAC",
-    taxdeductible: false,
+    taxDeductible: false,
     notes: "American Israel Public Affairs Committee",
   },
 ];

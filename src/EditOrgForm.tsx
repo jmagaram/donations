@@ -1,12 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AddOrgFormSchema } from "./organization";
-import type { AddOrgForm } from "./organization";
+import { AddOrgFormFieldsSchema } from "./organization";
+import type { AddOrgFormFields } from "./organization";
 
 interface EditOrgFormProps {
-  organization: AddOrgForm;
-  onEditOrg: (formData: AddOrgForm) => void;
+  organization: AddOrgFormFields;
+  onEditOrg: (formData: AddOrgFormFields) => void;
 }
 
 const EditOrgForm = ({ organization, onEditOrg }: EditOrgFormProps) => {
@@ -15,8 +15,8 @@ const EditOrgForm = ({ organization, onEditOrg }: EditOrgFormProps) => {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<AddOrgForm>({
-    resolver: zodResolver(AddOrgFormSchema),
+  } = useForm<AddOrgFormFields>({
+    resolver: zodResolver(AddOrgFormFieldsSchema),
     defaultValues: organization,
   });
 
@@ -26,7 +26,7 @@ const EditOrgForm = ({ organization, onEditOrg }: EditOrgFormProps) => {
     reset(organization);
   }, [organization, reset]);
 
-  const onSubmit = (data: AddOrgForm) => {
+  const onSubmit = (data: AddOrgFormFields) => {
     onEditOrg(data);
   };
 

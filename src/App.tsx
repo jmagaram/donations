@@ -15,7 +15,7 @@ import { useState } from "react";
 import { sampleData, addOrganization } from "./donationsData";
 import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
-import type { AddOrgForm } from "./organization";
+import type { AddOrgFormFields } from "./organization";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -24,7 +24,7 @@ const AppContent = () => {
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 
-  const handleAddOrg = (formData: AddOrgForm) => {
+  const handleAddOrg = (formData: AddOrgFormFields) => {
     const newOrganization = create(formData);
     const updatedData = addOrganization(donationsData, newOrganization);
     setDonationsData(updatedData);

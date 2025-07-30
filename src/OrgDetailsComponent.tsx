@@ -8,7 +8,10 @@ interface OrgDetailsComponentProps {
   setDonationsData: (data: DonationsData) => void;
 }
 
-const OrgDetailsComponent = ({ donationsData, setDonationsData }: OrgDetailsComponentProps) => {
+const OrgDetailsComponent = ({
+  donationsData,
+  setDonationsData,
+}: OrgDetailsComponentProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -22,7 +25,10 @@ const OrgDetailsComponent = ({ donationsData, setDonationsData }: OrgDetailsComp
       setDonationsData(updatedData);
       navigate("/");
     } catch (error) {
-      console.error("Failed to delete organization:", error);
+      window.alert(
+        "Failed to delete organization: " +
+          (error instanceof Error ? error.message : error)
+      );
     }
   };
 

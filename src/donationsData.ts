@@ -67,6 +67,20 @@ export const donationAdd = (
   };
 };
 
+export const donationUpdate = (
+  data: DonationsData,
+  donation: Donation
+): DonationsData | undefined => {
+  const idx = data.donations.findIndex((d) => d.id === donation.id);
+  if (idx === -1) return undefined;
+  const donations = [...data.donations];
+  donations[idx] = donation;
+  return {
+    ...data,
+    donations,
+  };
+};
+
 const sampleDataArray = [
   {
     name: "Hillel",

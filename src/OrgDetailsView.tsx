@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { DonationsData } from "./types";
 
 interface OrgDetailsViewProps {
@@ -62,7 +63,9 @@ const OrgDetailsView = ({
             {donations.map((donation) => (
               <div key={donation.id} className="donation-row">
                 <div className="donation-date">
-                  {formatDate(donation.timestamp)}
+                  <Link to={`/donations/${donation.id}/edit`}>
+                    {formatDate(donation.timestamp)}
+                  </Link>
                 </div>
                 <div className="donation-amount">
                   {formatAmount(donation.amount)}

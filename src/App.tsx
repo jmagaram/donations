@@ -11,6 +11,7 @@ import OrgUpsertForm from "./OrgUpsertForm";
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import OrgEditComponent from "./OrgEditComponent";
 import DonationUpsertForm from "./DonationUpsertForm";
+import DonationEditComponent from "./DonationEditComponent";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, orgAdd, donationAdd } from "./donationsData";
@@ -87,6 +88,15 @@ const AppContent = () => {
           path="/orgs/:id/edit"
           element={
             <OrgEditComponent
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/donations/:donationId/edit"
+          element={
+            <DonationEditComponent
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

@@ -22,7 +22,8 @@ const DonationUpsertForm = ({
   donationsData,
 }: DonationUpsertFormProps) => {
   const [searchParams] = useSearchParams();
-  const orgId = searchParams.get("org") || "";
+  const orgId =
+    mode === "edit" ? defaultValues.orgId : searchParams.get("org") || "";
   const orgName = donationsData?.orgs.find((o) => o.id === orgId)?.name;
   const formDefaultValues = {
     ...defaultValues,
@@ -53,7 +54,7 @@ const DonationUpsertForm = ({
   if (!orgId || !orgName) {
     return (
       <div>
-        <h1>Add New Donation</h1>
+        <h1>{mode === "edit" ? "Edit Donation" : "Add New Donation"}</h1>
         <div style={{ color: "red", margin: "1em 0" }}>
           The organization {orgId || "(none)"} was not found.
         </div>

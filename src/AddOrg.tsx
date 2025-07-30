@@ -3,11 +3,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AddOrgFormSchema } from "./organization";
 import type { AddOrgForm } from "./organization";
 
-type AddOrgProps = {
+type AddOrgFormProps = {
   onAddOrg: (data: AddOrgForm) => void;
 };
 
-const AddOrg = ({ onAddOrg: onAddOrganization }: AddOrgProps) => {
+const AddOrgForm = ({ onAddOrg: onAddOrganization }: AddOrgFormProps) => {
   const {
     register,
     handleSubmit,
@@ -55,4 +55,4 @@ const AddOrg = ({ onAddOrg: onAddOrganization }: AddOrgProps) => {
   );
 };
 
-export default AddOrg;
+export default AddOrgForm;

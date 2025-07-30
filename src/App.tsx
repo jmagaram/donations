@@ -7,7 +7,7 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
-import AddOrg from "./AddOrg";
+import AddOrgForm from "./AddOrg";
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import EditOrgComponent from "./EditOrgComponent";
 import "./App.css";
@@ -45,7 +45,10 @@ const AppContent = () => {
             />
           }
         />
-        <Route path="/orgs/add" element={<AddOrg onAddOrg={handleAddOrg} />} />
+        <Route
+          path="/orgs/add"
+          element={<AddOrgForm onAddOrg={handleAddOrg} />}
+        />
         <Route
           path="/orgs/:id"
           element={

@@ -49,6 +49,10 @@ const AppContent = () => {
             <AddOrganization onAddOrganization={handleAddOrganization} />
           }
         />
+        <Route
+          path="/orgs/id/:id"
+          element={<div>Organization Details Placeholder</div>}
+        />
       </Routes>
     </>
   );

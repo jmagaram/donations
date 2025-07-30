@@ -1,3 +1,4 @@
+import React from "react";
 import { Link } from "react-router-dom";
 import { type Organization } from "./types";
 
@@ -15,11 +16,13 @@ const OrganizationsView = ({ organizations }: OrganizationsViewProps) => {
         <div className="org-header">Tax Deductible</div>
         <div className="org-header">Notes</div>
         {organizations.map((org) => (
-          <>
-            <div key={`${org.id}-name`} className="org-cell">{org.name}</div>
-            <div key={`${org.id}-tax`} className="org-cell">{org.taxDeductible ? "Yes" : "No"}</div>
-            <div key={`${org.id}-notes`} className="org-cell">{org.notes || "-"}</div>
-          </>
+          <React.Fragment key={org.id}>
+            <div className="org-cell">
+              <Link to={`/orgs/${org.id}`}>{org.name}</Link>
+            </div>
+            <div className="org-cell">{org.taxDeductible ? "Yes" : "No"}</div>
+            <div className="org-cell">{org.notes || "-"}</div>
+          </React.Fragment>
         ))}
       </div>
     </div>

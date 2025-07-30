@@ -80,19 +80,19 @@ const OrgDetailsView = ({
         )}
       </div>
 
-      <div style={{ marginTop: "1em" }}>
+      <div className="org-details-toolbar">
         <button onClick={() => onAdd(organization.id)}>Add donation</button>
-        <button
-          onClick={() => onEdit(organization.id)}
-          style={{ marginLeft: "0.5em" }}
-        >
+        <button onClick={() => onEdit(organization.id)}>
           Edit organization
         </button>
         <button
-          onClick={() => onDelete(organization.id)}
-          style={{ marginLeft: "0.5em", color: "red" }}
+          onClick={() => {
+            if (window.confirm("Delete org and donations?")) {
+              onDelete(organization.id);
+            }
+          }}
         >
-          Delete
+          Delete all
         </button>
       </div>
     </div>

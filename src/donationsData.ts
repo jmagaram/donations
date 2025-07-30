@@ -39,13 +39,17 @@ export const orgUpdate = (
 };
 
 export const orgDelete = (data: DonationsData, id: string): DonationsData => {
-  const orgIndex = data.orgs.findIndex((org) => org.id === id);
-  if (orgIndex === -1) {
+  const orgExists = data.orgs.some((org) => org.id === id);
+  const donationExists = data.donations.some(
+    (donation) => donation.orgId === id
+  );
+  if (!orgExists && !donationExists) {
     return data;
   }
   return {
     ...data,
     orgs: data.orgs.filter((org) => org.id !== id),
+    donations: data.donations.filter((donation) => donation.orgId !== id),
   };
 };
 

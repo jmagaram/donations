@@ -1,6 +1,5 @@
-import React from "react";
 import { useParams } from "react-router-dom";
-import OrganizationsDetailsView from "./OrganizationsDetailsView";
+import OrgDetailsView from "./OrganizationsDetailsView";
 import type { DonationsData, Organization } from "./types";
 
 interface OrgDetailsComponentProps {
@@ -29,7 +28,7 @@ const OrgDetailsComponent = ({ donationsData }: OrgDetailsComponentProps) => {
   }
 
   return (
-    <OrganizationsDetailsView
+    <OrgDetailsView
       organization={organization}
       onDelete={handleDelete}
       onEdit={handleEdit}

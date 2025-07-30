@@ -2,11 +2,11 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { type Organization } from "./types";
 
-interface OrgViewProps {
+interface OrgsViewProps {
   organizations: Organization[];
 }
 
-const OrgView = ({ organizations }: OrgViewProps) => {
+const OrgsView = ({ organizations }: OrgsViewProps) => {
   return (
     <div>
       <h1>Organizations</h1>
@@ -29,4 +29,4 @@ const OrgView = ({ organizations }: OrgViewProps) => {
   );
 };
 
-export default OrgView;
+export default OrgsView;

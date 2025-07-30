@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
-import OrganizationsContainer from "./OrganizationsContainer";
+import OrgsContainer from "./OrganizationsContainer";
 import AddOrganization from "./AddOrganization";
 // import OrganizationsDetailsView from "./OrganizationsDetailsView"; // No longer used directly
 import OrgDetailsComponent from "./OrganizationDetailsComponent";
@@ -41,7 +41,7 @@ const AppContent = () => {
         <Route
           path="/orgs"
           element={
-            <OrganizationsContainer
+            <OrgsContainer
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

@@ -1,15 +1,13 @@
 import { type DonationsData } from "./types";
-import OrgView from "./OrganizationsView";
+import OrgsView from "./OrganizationsView";
 
-interface OrganizationsContainerProps {
+interface OrgsContainerProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
 }
 
-const OrganizationsContainer = ({
-  donationsData,
-}: OrganizationsContainerProps) => {
-  return <OrgView organizations={donationsData.organizations} />;
+const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
+  return <OrgsView organizations={donationsData.organizations} />;
 };
 
-export default OrganizationsContainer;
+export default OrgsContainer;

@@ -1,17 +1,16 @@
-import React from "react";
 import type { Organization } from "./types";
 
-interface OrganizationsDetailsViewProps {
+interface OrgDetailsViewProps {
   organization: Organization;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
 }
 
-const OrganizationsDetailsView = ({
+const OrgDetailsView = ({
   organization,
   onDelete,
   onEdit,
-}: OrganizationsDetailsViewProps) => {
+}: OrgDetailsViewProps) => {
   return (
     <div>
       <h1>Organization Details</h1>
@@ -39,4 +38,4 @@ const OrganizationsDetailsView = ({
   );
 };
 
-export default OrganizationsDetailsView;
+export default OrgDetailsView;

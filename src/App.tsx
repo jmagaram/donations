@@ -9,7 +9,7 @@ import Home from "./Home";
 import OrganizationsContainer from "./OrganizationsContainer";
 import AddOrganization from "./AddOrganization";
 // import OrganizationsDetailsView from "./OrganizationsDetailsView"; // No longer used directly
-import OrganizationDetailsComponent from "./OrganizationDetailsComponent";
+import OrgDetailsComponent from "./OrganizationDetailsComponent";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, addOrganization } from "./donationsData";
@@ -55,9 +55,7 @@ const AppContent = () => {
         />
         <Route
           path="/orgs/:id"
-          element={
-            <OrganizationDetailsComponent donationsData={donationsData} />
-          }
+          element={<OrgDetailsComponent donationsData={donationsData} />}
         />
       </Routes>
     </>

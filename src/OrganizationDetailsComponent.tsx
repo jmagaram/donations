@@ -3,13 +3,11 @@ import { useParams } from "react-router-dom";
 import OrganizationsDetailsView from "./OrganizationsDetailsView";
 import type { DonationsData, Organization } from "./types";
 
-interface OrganizationDetailsComponentProps {
+interface OrgDetailsComponentProps {
   donationsData: DonationsData;
 }
 
-const OrganizationDetailsComponent = ({
-  donationsData,
-}: OrganizationDetailsComponentProps) => {
+const OrgDetailsComponent = ({ donationsData }: OrgDetailsComponentProps) => {
   const { id } = useParams<{ id: string }>();
 
   const organization = donationsData.organizations.find(
@@ -39,4 +37,4 @@ const OrganizationDetailsComponent = ({
   );
 };
 
-export default OrganizationDetailsComponent;
+export default OrgDetailsComponent;

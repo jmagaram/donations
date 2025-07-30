@@ -1,5 +1,5 @@
 import { type DonationsData } from "./types";
-import OrganizationsView from "./OrganizationsView";
+import OrgView from "./OrganizationsView";
 
 interface OrganizationsContainerProps {
   donationsData: DonationsData;
@@ -9,7 +9,7 @@ interface OrganizationsContainerProps {
 const OrganizationsContainer = ({
   donationsData,
 }: OrganizationsContainerProps) => {
-  return <OrganizationsView organizations={donationsData.organizations} />;
+  return <OrgView organizations={donationsData.organizations} />;
 };
 
 export default OrganizationsContainer;

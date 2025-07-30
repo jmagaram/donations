@@ -1,6 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import EditOrgForm from "./EditOrgForm";
 import type { DonationsData, Organization } from "./types";
+import { edit, type AddOrgForm } from "./organization";
+import { updateOrganization } from "./donationsData";
 
 interface EditOrgComponentProps {
   donationsData: DonationsData;
@@ -22,7 +24,11 @@ const EditOrgComponent = ({
     return <div>Organization not found.</div>;
   }
 
-  const handleEditOrg = (updatedOrg: Organization) => {
+  const handleEditOrg = (formData: AddOrgForm) => {
+    if (!organization) return;
+    const updatedOrg = edit({ ...formData, id: organization.id });
+    const newData = updateOrganization(donationsData, updatedOrg);
+    setDonationsData(newData);
     navigate("/orgs/" + updatedOrg.id);
   };
 

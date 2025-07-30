@@ -15,3 +15,8 @@ export const create = (params: AddOrgForm): Organization => ({
   id: nanoid(),
   modified: Date.now(),
 });
+
+export const edit = (params: AddOrgForm & { id: string }): Organization => ({
+  ...params,
+  modified: Date.now(),
+});

@@ -15,24 +15,26 @@ export const addOrganization = (
   };
 };
 
-// export const updateOrganization = (
-//   data: DonationsData,
-//   updatedOrg: Organization
-// ): DonationsData => {
-//   const organizationIndex = data.organizations.findIndex(org => org.id === updatedOrg.id);
+export const updateOrganization = (
+  data: DonationsData,
+  updatedOrg: Organization
+): DonationsData => {
+  const organizationIndex = data.organizations.findIndex(
+    (org) => org.id === updatedOrg.id
+  );
 
-//   if (organizationIndex === -1) {
-//     throw new Error(`Organization with id "${updatedOrg.id}" not found`);
-//   }
+  if (organizationIndex === -1) {
+    throw new Error(`Organization with id "${updatedOrg.id}" not found`);
+  }
 
-//   const organizations = [...data.organizations];
-//   organizations[organizationIndex] = updatedOrg;
+  const organizations = [...data.organizations];
+  organizations[organizationIndex] = updatedOrg;
 
-//   return {
-//     ...data,
-//     organizations,
-//   };
-// };
+  return {
+    ...data,
+    organizations,
+  };
+};
 
 export const deleteOrganization = (
   data: DonationsData,

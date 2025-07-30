@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import EditOrgForm from "./EditOrgForm";
+import UpsertOrgForm from "./UpsertOrgForm";
 import type { DonationsData, Organization } from "./types";
 import { edit, type AddOrgFormFields } from "./organization";
 import { updateOrganization } from "./donationsData";
@@ -32,7 +32,13 @@ const EditOrgComponent = ({
     navigate("/orgs/" + updatedOrg.id);
   };
 
-  return <EditOrgForm organization={organization} onEditOrg={handleEditOrg} />;
+  return (
+    <UpsertOrgForm
+      defaultValues={organization}
+      onSubmit={handleEditOrg}
+      mode="edit"
+    />
+  );
 };
 
 export default EditOrgComponent;

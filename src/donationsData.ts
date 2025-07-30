@@ -70,12 +70,12 @@ const sampleDataArray = [
     notes: "Jewish student life on campus",
     donations: [
       {
-        timestamp: "1999-05-01",
+        date: "1999-05-01",
         amount: 500,
         kind: "paid" as const,
       },
       {
-        timestamp: "2012-07-03",
+        date: "2012-07-03",
         amount: 1200,
         kind: "pledge" as const,
       },
@@ -87,37 +87,37 @@ const sampleDataArray = [
     notes: "Helping injured IDF soldiers",
     donations: [
       {
-        timestamp: "2013-04-06",
+        date: "2013-04-06",
         amount: 2000,
         kind: "paid" as const,
       },
       {
-        timestamp: "2014-07-03",
+        date: "2014-07-03",
         amount: 3000,
         kind: "paid" as const,
       },
       {
-        timestamp: "2015-07-03",
+        date: "2015-07-03",
         amount: 5000,
         kind: "paid" as const,
       },
       {
-        timestamp: "2018-07-03",
+        date: "2018-07-03",
         amount: 5500,
         kind: "paid" as const,
       },
       {
-        timestamp: "2019-07-03",
+        date: "2019-07-03",
         amount: 5500,
         kind: "paid" as const,
       },
       {
-        timestamp: "2020-07-03",
+        date: "2020-07-03",
         amount: 6500,
         kind: "paid" as const,
       },
       {
-        timestamp: "2021-07-03",
+        date: "2021-07-03",
         amount: 6500,
         kind: "pledge" as const,
       },
@@ -148,7 +148,6 @@ export const sampleData = (): DonationsData => {
       org.donations.forEach((donation) => {
         const newDonation = createDonation({
           ...donation,
-          timestamp: new Date(donation.timestamp).getTime(),
           notes: "",
           orgId: newOrg.id,
         });

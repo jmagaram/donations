@@ -30,7 +30,7 @@ const OrgDetailsComponent = ({
   };
 
   const handleAdd = (orgId: string) => {
-    console.log("Add donation for org:", orgId);
+    navigate(`/donations/add?org=${orgId}`);
   };
 
   if (!organization) {

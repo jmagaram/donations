@@ -10,12 +10,14 @@ import OrgsContainer from "./OrgsContainer";
 import OrgUpsertForm from "./OrgUpsertForm";
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import OrgEditComponent from "./OrgEditComponent";
+import DonationUpsertForm from "./DonationUpsertForm";
 import "./App.css";
 import { useState } from "react";
-import { sampleData, orgAdd } from "./donationsData";
+import { sampleData, orgAdd, donationAdd } from "./donationsData";
 import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
 import type { OrgUpsertFields } from "./organization";
+import { createDonation, type DonationUpsertFields } from "./donation";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -31,6 +33,17 @@ const AppContent = () => {
     const updatedData = orgAdd(donationsData, newOrganization);
     setDonationsData(updatedData);
     navigate("/orgs");
+  };
+
+  const handleAddDonation = (formData: DonationUpsertFields) => {
+    const newDonation = createDonation(formData);
+    const updatedData = donationAdd(donationsData, newDonation);
+    if (updatedData === undefined) {
+      alert("Failed to add donation: organization not found.");
+    } else {
+      setDonationsData(updatedData);
+      navigate(`/orgs/${newDonation.orgId}`);
+    }
   };
 
   return (
@@ -50,6 +63,16 @@ const AppContent = () => {
         <Route
           path="/orgs/add"
           element={<OrgUpsertForm onSubmit={handleAddOrg} mode="add" />}
+        />
+        <Route
+          path="/donations/add"
+          element={
+            <DonationUpsertForm
+              onSubmit={handleAddDonation}
+              mode="add"
+              donationsData={donationsData}
+            />
+          }
         />
         <Route
           path="/orgs/:id"

@@ -4,7 +4,7 @@ import { nanoid } from "nanoid";
 
 export const DonationUpsertFieldsSchema = z.object({
   orgId: z.string().trim().length(21),
-  timestamp: z.number().min(0),
+  date: z.string().min(10), // YYYY-MM-DD
   amount: z.number().min(0),
   kind: z.enum(["idea", "pledge", "paid"]),
   notes: z.string(),
@@ -14,7 +14,7 @@ export type DonationUpsertFields = z.infer<typeof DonationUpsertFieldsSchema>;
 
 export const defaultFields: DonationUpsertFields = {
   orgId: "",
-  timestamp: Date.now(),
+  date: new Date().toISOString().slice(0, 10),
   amount: 0,
   kind: "paid",
   notes: "",
@@ -22,6 +22,7 @@ export const defaultFields: DonationUpsertFields = {
 
 export const createDonation = (params: DonationUpsertFields): Donation => ({
   ...params,
+  timestamp: new Date(params.date).getTime(),
   id: nanoid(),
   modified: Date.now(),
 });
@@ -30,6 +31,7 @@ export const editDonation = (
   params: DonationUpsertFields & { id: string }
 ): Donation => ({
   ...params,
+  timestamp: new Date(params.date).getTime(),
   modified: Date.now(),
 });
 

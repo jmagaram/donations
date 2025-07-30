@@ -50,7 +50,6 @@ const DonationUpsertForm = ({
     onSubmit(data);
   };
 
-
   if (!orgId || !orgName) {
     return (
       <div>
@@ -93,7 +92,7 @@ const DonationUpsertForm = ({
 
         <div>
           <label htmlFor="date">Date:</label>
-          <input id="date" {...register("date")} />
+          <input id="date" type="date" {...register("date")} />
           {errors.date && <span>{errors.date.message}</span>}
         </div>
 

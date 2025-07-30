@@ -1,5 +1,5 @@
 import { create } from "./organization";
-import type { Donation, DonationsData, Org } from "./types";
+import { type Donation, type DonationsData, type Org } from "./types";
 import { createDonation } from "./donation";
 
 export const empty = (): DonationsData => ({
@@ -70,13 +70,12 @@ const sampleDataArray = [
     notes: "Jewish student life on campus",
     donations: [
       {
-        timestamp: new Date("1999-05-01").getTime(),
+        timestamp: "1999-05-01",
         amount: 500,
         kind: "paid" as const,
-        notes: "First donation to Hillel",
       },
       {
-        timestamp: new Date("2012-07-03").getTime(),
+        timestamp: "2012-07-03",
         amount: 1200,
         kind: "pledge" as const,
       },
@@ -86,6 +85,43 @@ const sampleDataArray = [
     name: "Brothers for Life",
     taxDeductible: true,
     notes: "Helping injured IDF soldiers",
+    donations: [
+      {
+        timestamp: "2013-04-06",
+        amount: 2000,
+        kind: "paid" as const,
+      },
+      {
+        timestamp: "2014-07-03",
+        amount: 3000,
+        kind: "paid" as const,
+      },
+      {
+        timestamp: "2015-07-03",
+        amount: 5000,
+        kind: "paid" as const,
+      },
+      {
+        timestamp: "2018-07-03",
+        amount: 5500,
+        kind: "paid" as const,
+      },
+      {
+        timestamp: "2019-07-03",
+        amount: 5500,
+        kind: "paid" as const,
+      },
+      {
+        timestamp: "2020-07-03",
+        amount: 6500,
+        kind: "paid" as const,
+      },
+      {
+        timestamp: "2021-07-03",
+        amount: 6500,
+        kind: "pledge" as const,
+      },
+    ],
   },
   {
     name: "Friendship Circle",
@@ -112,7 +148,8 @@ export const sampleData = (): DonationsData => {
       org.donations.forEach((donation) => {
         const newDonation = createDonation({
           ...donation,
-          notes: donation.notes ?? "",
+          timestamp: new Date(donation.timestamp).getTime(),
+          notes: "",
           orgId: newOrg.id,
         });
         result.donations.push(newDonation);

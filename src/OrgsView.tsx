@@ -1,28 +1,19 @@
-import React from "react";
 import { Link } from "react-router-dom";
-import { type Org } from "./types";
+import { type DonationsData } from "./types";
+import OrgCard from "./OrgCard";
 
 interface OrgsViewProps {
-  orgs: Org[];
+  donationsData: DonationsData;
 }
 
-const OrgsView = ({ orgs: organizations }: OrgsViewProps) => {
+const OrgsView = ({ donationsData }: OrgsViewProps) => {
   return (
     <div>
       <h1>Organizations</h1>
       <Link to="/orgs/add">Add New Organization</Link>
-      <div className="org-table">
-        <div className="org-header">Name</div>
-        <div className="org-header">Tax Deductible</div>
-        <div className="org-header">Notes</div>
-        {organizations.map((org) => (
-          <React.Fragment key={org.id}>
-            <div className="org-cell">
-              <Link to={`/orgs/${org.id}`}>{org.name}</Link>
-            </div>
-            <div className="org-cell">{org.taxDeductible ? "Yes" : "No"}</div>
-            <div className="org-cell">{org.notes || "-"}</div>
-          </React.Fragment>
+      <div className="org-cards">
+        {donationsData.orgs.map((org) => (
+          <OrgCard key={org.id} data={donationsData} orgId={org.id} />
         ))}
       </div>
     </div>

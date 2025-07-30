@@ -7,7 +7,7 @@ interface OrgsContainerProps {
 }
 
 const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
-  return <OrgsView orgs={donationsData.orgs} />;
+  return <OrgsView donationsData={donationsData} />;
 };
 
 export default OrgsContainer;

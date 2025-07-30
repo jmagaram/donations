@@ -23,7 +23,7 @@ const OrgCard = ({ data, orgId }: OrgCardProps) => {
   return (
     <div className="org-card">
       <div className="org-card__name">
-        <Link to={`/org/${org.id}`}>{org.name}</Link>
+        <Link to={`/orgs/${org.id}`}>{org.name}</Link>
       </div>
       {!org.taxDeductible && (
         <div className="org-card__not-tax-deductible">

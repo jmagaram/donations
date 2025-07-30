@@ -14,7 +14,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const [filter, setFilter] = useState("");
   const [sortOrder, setSortOrder] = useState<SortOrder>("Recent first");
 
-  const filteredOrgs = donationsData.orgs.filter(org => 
+  const filteredOrgs = donationsData.orgs.filter((org) =>
     org.name.toLowerCase().includes(filter.toLowerCase())
   );
 
@@ -23,21 +23,19 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
       return a.name.localeCompare(b.name);
     } else {
       // Recent first
-      const aDonations = donationsData.donations.filter(d => d.orgId === a.id);
-      const bDonations = donationsData.donations.filter(d => d.orgId === b.id);
-      const aRecency = recency(a, aDonations);
-      const bRecency = recency(b, bDonations);
+      const aRecency = recency(a.id, donationsData);
+      const bRecency = recency(b.id, donationsData);
       return bRecency - aRecency; // Descending order (most recent first)
     }
   });
 
   const sortedAndFilteredData: DonationsData = {
     ...donationsData,
-    orgs: sortedOrgs
+    orgs: sortedOrgs,
   };
 
   return (
-    <OrgsView 
+    <OrgsView
       donationsData={sortedAndFilteredData}
       currentFilter={filter}
       textFilterChanged={setFilter}

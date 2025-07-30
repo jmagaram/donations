@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { type Donation, type Org } from "./types";
+import { type DonationsData, type Org } from "./types";
 import { nanoid } from "nanoid";
 import { recency as donationRecency } from "./donation";
 
@@ -28,7 +28,14 @@ export const edit = (params: OrgUpsertFields & { id: string }): Org => ({
   modified: Date.now(),
 });
 
-export const recency = (org: Org, donations: Donation[]): number => {
+// Returns the most recent date for an org, considering its own modified date and all its donations
+export const recency = (
+  orgId: string,
+  donationsData: DonationsData
+): number => {
+  const org = donationsData.orgs.find((o) => o.id === orgId);
+  if (!org) return 0;
+  const donations = donationsData.donations.filter((d) => d.orgId === orgId);
   return Math.max(
     org.modified,
     ...donations.map((donation) => donationRecency(donation))

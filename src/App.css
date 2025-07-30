@@ -16,6 +16,10 @@
   white-space: nowrap;
 }
 
+.org-card__donation-amount{
+  text-align: right;
+}
+
 .org-card__donation--older {
   grid-column: 1 / -1;
   text-align:left;

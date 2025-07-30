@@ -45,15 +45,13 @@ const OrgDetailsView = ({
       <div>
         <strong>Notes:</strong> {organization.notes || "-"}
       </div>
-
       <div style={{ marginTop: "2em" }}>
-        <h2>Donations</h2>
         {donations.length > 0 ? (
           <div className="donations-grid">
-            <div className="donations-header">
+            <div className="donation-row donation-header">
               <div>Date</div>
               <div>Amount</div>
-              <div>Type</div>
+              <div>Kind</div>
               <div>Notes</div>
             </div>
             {donations.map((donation) => (

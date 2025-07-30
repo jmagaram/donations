@@ -8,8 +8,8 @@ import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
 import AddOrg from "./AddOrg";
-// import OrganizationsDetailsView from "./OrganizationsDetailsView"; // No longer used directly
 import OrgDetailsComponent from "./OrgDetailsComponent";
+import EditOrgComponent from "./EditOrgComponent";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, addOrganization } from "./donationsData";
@@ -50,6 +50,15 @@ const AppContent = () => {
           path="/orgs/:id"
           element={
             <OrgDetailsComponent
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/orgs/:id/edit"
+          element={
+            <EditOrgComponent
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

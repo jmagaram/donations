@@ -33,8 +33,7 @@ const OrgDetailsComponent = ({
   };
 
   const handleEdit = (orgId: string) => {
-    // TODO: Implement edit functionality
-    console.log("Edit organization:", orgId);
+    navigate(`/orgs/${orgId}/edit`);
   };
 
   if (!organization) {

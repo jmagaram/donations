@@ -24,7 +24,6 @@ const OrgDetailsView = ({
       <div>
         <strong>Notes:</strong> {organization.notes || "-"}
       </div>
-      {/* Add donations list here in the future */}
       <div style={{ marginTop: "1em" }}>
         <button onClick={() => onEdit(organization.id)}>Edit</button>
         <button

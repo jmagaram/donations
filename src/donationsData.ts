@@ -15,6 +15,22 @@ export const addOrganization = (
   };
 };
 
+export const deleteOrganization = (
+  data: DonationsData,
+  id: string
+): DonationsData => {
+  const organizationIndex = data.organizations.findIndex(org => org.id === id);
+  
+  if (organizationIndex === -1) {
+    throw new Error(`Organization with id "${id}" not found`);
+  }
+  
+  return {
+    ...data,
+    organizations: data.organizations.filter(org => org.id !== id),
+  };
+};
+
 const sampleDataArray = [
   {
     name: "Hillel",

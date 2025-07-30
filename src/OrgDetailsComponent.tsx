@@ -1,12 +1,14 @@
 import { useParams } from "react-router-dom";
 import OrgDetailsView from "./OrgDetailsView";
+import { deleteOrganization } from "./donationsData";
 import type { DonationsData, Organization } from "./types";
 
 interface OrgDetailsComponentProps {
   donationsData: DonationsData;
+  setDonationsData: (data: DonationsData) => void;
 }
 
-const OrgDetailsComponent = ({ donationsData }: OrgDetailsComponentProps) => {
+const OrgDetailsComponent = ({ donationsData, setDonationsData }: OrgDetailsComponentProps) => {
   const { id } = useParams<{ id: string }>();
 
   const organization = donationsData.organizations.find(
@@ -14,8 +16,12 @@ const OrgDetailsComponent = ({ donationsData }: OrgDetailsComponentProps) => {
   );
 
   const handleDelete = (orgId: string) => {
-    // TODO: Implement delete functionality
-    console.log("Delete organization:", orgId);
+    try {
+      const updatedData = deleteOrganization(donationsData, orgId);
+      setDonationsData(updatedData);
+    } catch (error) {
+      console.error("Failed to delete organization:", error);
+    }
   };
 
   const handleEdit = (orgId: string) => {

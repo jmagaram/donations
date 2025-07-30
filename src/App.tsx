@@ -55,7 +55,7 @@ const AppContent = () => {
         />
         <Route
           path="/orgs/:id"
-          element={<OrgDetailsComponent donationsData={donationsData} />}
+          element={<OrgDetailsComponent donationsData={donationsData} setDonationsData={setDonationsData} />}
         />
       </Routes>
     </>

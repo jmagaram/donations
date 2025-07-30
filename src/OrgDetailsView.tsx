@@ -4,12 +4,14 @@ interface OrgDetailsViewProps {
   organization: Org;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
+  onAdd: (orgId: string) => void;
 }
 
 const OrgDetailsView = ({
   organization,
   onDelete,
   onEdit,
+  onAdd,
 }: OrgDetailsViewProps) => {
   return (
     <div>
@@ -25,7 +27,8 @@ const OrgDetailsView = ({
         <strong>Notes:</strong> {organization.notes || "-"}
       </div>
       <div style={{ marginTop: "1em" }}>
-        <button onClick={() => onEdit(organization.id)}>Edit</button>
+        <button onClick={() => onAdd(organization.id)}>Add Donation</button>
+        <button onClick={() => onEdit(organization.id)} style={{ marginLeft: "0.5em" }}>Edit</button>
         <button
           onClick={() => onDelete(organization.id)}
           style={{ marginLeft: "0.5em", color: "red" }}

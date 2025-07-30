@@ -29,6 +29,10 @@ const OrgDetailsComponent = ({
     navigate(`/orgs/${orgId}/edit`);
   };
 
+  const handleAdd = (orgId: string) => {
+    console.log("Add donation for org:", orgId);
+  };
+
   if (!organization) {
     return <div>Organization not found.</div>;
   }
@@ -38,6 +42,7 @@ const OrgDetailsComponent = ({
       organization={organization}
       onDelete={handleDelete}
       onEdit={handleEdit}
+      onAdd={handleAdd}
     />
   );
 };

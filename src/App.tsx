@@ -7,7 +7,7 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
-import AddOrgForm from "./AddOrg";
+import AddOrgForm from "./AddOrgForm";
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import EditOrgComponent from "./EditOrgComponent";
 import "./App.css";

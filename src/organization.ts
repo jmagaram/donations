@@ -28,7 +28,6 @@ export const edit = (params: OrgUpsertFields & { id: string }): Org => ({
   modified: Date.now(),
 });
 
-// Returns the most recent date for an org, considering its own modified date and all its donations
 export const recency = (
   orgId: string,
   donationsData: DonationsData
@@ -39,5 +38,28 @@ export const recency = (
   return Math.max(
     org.modified,
     ...donations.map((donation) => donationRecency(donation))
+  );
+};
+
+export const textMatch = (org: Org, filter: string): boolean => {
+  // Split filter into keywords by spaces and commas, remove empty strings, lowercase all
+  const filterKeywords = filter
+    .split(/[\s,]+/)
+    .map((k) => k.trim().toLowerCase())
+    .filter((k) => k.length > 0);
+
+  // If no filter keywords, everything matches
+  if (filterKeywords.length === 0) return true;
+
+  // Get org keywords from name and notes, split by spaces and commas, lowercase all
+  const orgKeywords = [org.name, org.notes]
+    .join(" ")
+    .split(/[\s,]+/)
+    .map((k) => k.trim().toLowerCase())
+    .filter((k) => k.length > 0);
+
+  // Match if any filter keyword is contained within any org keyword
+  return filterKeywords.some((filterKeyword) =>
+    orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword))
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { type DonationsData } from "./types";
-import { recency } from "./organization";
+import { recency, textMatch } from "./organization";
 import OrgsView from "./OrgsView";
 
 type SortOrder = "Recent first" | "Alphabetical";
@@ -15,14 +15,13 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const [sortOrder, setSortOrder] = useState<SortOrder>("Recent first");
 
   const filteredOrgs = donationsData.orgs.filter((org) =>
-    org.name.toLowerCase().includes(filter.toLowerCase())
+    textMatch(org, filter)
   );
 
   const sortedOrgs = [...filteredOrgs].sort((a, b) => {
     if (sortOrder === "Alphabetical") {
       return a.name.localeCompare(b.name);
     } else {
-      // Recent first
       const aRecency = recency(a.id, donationsData);
       const bRecency = recency(b.id, donationsData);
       return bRecency - aRecency; // Descending order (most recent first)

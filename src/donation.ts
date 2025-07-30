@@ -35,3 +35,14 @@ export const editDonation = (
 
 export const recency = (donation: Donation): number =>
   Math.max(donation.modified, donation.timestamp);
+
+// Amount match $5400.24
+// Timestamp: January 1, 2024
+// Kind: pledge
+// Notes: Event at Dena's house
+// Pledge Dena - is this an AND or an OR?
+// Amount > $1000 or < $500
+// Date between 2024 and 2025
+// export const textMatch = (donation: Donation, filter: string): boolean => {
+//   return true;
+// };

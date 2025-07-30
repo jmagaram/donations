@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import OrgDetailsView from "./OrgDetailsView";
 import { deleteOrganization } from "./donationsData";
 import type { DonationsData, Organization } from "./types";
@@ -10,6 +10,7 @@ interface OrgDetailsComponentProps {
 
 const OrgDetailsComponent = ({ donationsData, setDonationsData }: OrgDetailsComponentProps) => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
 
   const organization = donationsData.organizations.find(
     (org: Organization) => org.id === id
@@ -19,6 +20,7 @@ const OrgDetailsComponent = ({ donationsData, setDonationsData }: OrgDetailsComp
     try {
       const updatedData = deleteOrganization(donationsData, orgId);
       setDonationsData(updatedData);
+      navigate("/");
     } catch (error) {
       console.error("Failed to delete organization:", error);
     }

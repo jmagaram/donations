@@ -1,21 +1,34 @@
+.org-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem; 
+}
+
+.org-card__donations-grid {
+  display: grid;
+  grid-template-columns: max-content max-content max-content;
+  gap: 0rem 0.25rem;
+}
+
+.org-card__donation-date,
+.org-card__donation-amount,
+.org-card__donation-kind {
+  white-space: nowrap;
+}
+
+.org-card__donation--older {
+  grid-column: 1 / -1;
+  text-align:left;
+  color: #888;
+  font-style: italic;
+}
+
+.org-card__notes {
+  white-space: pre-line;
+}
+
 nav {
   display: flex;
   align-items: center;
   gap: 1rem;
-}
-
-.org-table {
-  display: grid;
-  grid-template-columns: 2fr 1fr 2fr;
-  gap: 1px;
-}
-
-.org-header {
-  background-color: #f3f4f6;
-  font-weight: bold;
-  border-bottom: 1px solid #d1d5db;
-}
-
-.org-cell {
-  border-bottom: 1px solid #e5e7eb;
 }

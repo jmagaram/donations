@@ -20,6 +20,8 @@ import type { OrgUpsertFields } from "./organization";
 const AppContent = () => {
   const navigate = useNavigate();
   const [donationsData, setDonationsData] = useState(() => {
+    // const m = sampleData();
+    // localStorage.setItem("donationsData", JSON.stringify(m));
     const saved = localStorage.getItem("donationsData");
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });

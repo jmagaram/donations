@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AddOrgFormFieldsSchema } from "./organization";
+import { AddOrgFormFieldsSchema, defaultFormFields } from "./organization";
 import type { AddOrgFormFields } from "./organization";
 
 interface UpsertOrgFormProps {
@@ -12,7 +12,7 @@ interface UpsertOrgFormProps {
 
 const UpsertOrgForm = ({
   onSubmit,
-  defaultValues = { name: "", taxDeductible: false, notes: "" },
+  defaultValues = defaultFormFields,
   mode = "add",
 }: UpsertOrgFormProps) => {
   const {
@@ -25,12 +25,10 @@ const UpsertOrgForm = ({
     defaultValues,
   });
 
-  // Only reset form if in edit mode and defaultValues change
   React.useEffect(() => {
     if (mode === "edit") {
       reset(defaultValues);
     }
-    // Do not call reset in add mode to avoid infinite loop
   }, [defaultValues, reset, mode]);
 
   const handleFormSubmit = (data: AddOrgFormFields) => {

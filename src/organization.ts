@@ -10,6 +10,12 @@ export const AddOrgFormFieldsSchema = z.object({
 
 export type AddOrgFormFields = z.infer<typeof AddOrgFormFieldsSchema>;
 
+export const defaultFormFields: AddOrgFormFields = {
+  name: "",
+  taxDeductible: true,
+  notes: "",
+};
+
 export const create = (params: AddOrgFormFields): Organization => ({
   ...params,
   id: nanoid(),

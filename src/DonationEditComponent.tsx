@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import DonationUpsertForm from "./DonationUpsertForm";
 import type { DonationsData } from "./types";
-import { donationUpdate } from "./donationsData";
+import { donationDelete, donationUpdate } from "./donationsData";
 import { editDonation } from "./donation";
 import type { DonationUpsertFields } from "./donation";
 
@@ -43,10 +43,23 @@ const DonationEditComponent = ({
     navigate("/orgs/" + updatedDonation.orgId);
   };
 
+  const handleDeleteDonation = () => {
+    if (!donation) return;
+    if (!donationId) return;
+    const updatedData = donationDelete(donationsData, donationId);
+    if (!updatedData) {
+      alert("Failed to delete donation: not found.");
+      return;
+    }
+    setDonationsData(updatedData);
+    navigate("/orgs/" + donation.orgId);
+  };
+
   return (
     <DonationUpsertForm
       defaultValues={defaultValues}
       onSubmit={handleEditDonation}
+      onDelete={handleDeleteDonation}
       mode="edit"
       donationsData={donationsData}
     />

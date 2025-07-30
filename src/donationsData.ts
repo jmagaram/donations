@@ -81,6 +81,20 @@ export const donationUpdate = (
   };
 };
 
+export const donationDelete = (
+  data: DonationsData,
+  donationId: string
+): DonationsData => {
+  const donationExists = data.donations.some((d) => d.id === donationId);
+  if (!donationExists) {
+    return data;
+  }
+  return {
+    ...data,
+    donations: data.donations.filter((d) => d.id !== donationId),
+  };
+};
+
 const sampleDataArray = [
   {
     name: "Hillel",

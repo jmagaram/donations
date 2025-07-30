@@ -4,6 +4,12 @@
   margin-top: 1em;
 }
 
+.donation-details-toolbar {
+  display: flex;
+  gap: 0.5em;
+  margin-top: 1em;
+}
+
 .org-details-section {
   margin-top: 1em;
 }

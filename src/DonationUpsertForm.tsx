@@ -8,20 +8,23 @@ import type { DonationsData } from "./types";
 
 interface DonationUpsertFormProps {
   onSubmit: (formData: DonationUpsertFields) => void;
+  onDelete?: () => void;
   defaultValues?: DonationUpsertFields;
   mode?: "add" | "edit";
   donationsData?: DonationsData;
 }
 
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 const DonationUpsertForm = ({
   onSubmit,
+  onDelete,
   defaultValues = defaultFields,
   mode = "add",
   donationsData,
 }: DonationUpsertFormProps) => {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const orgId =
     mode === "edit" ? defaultValues.orgId : searchParams.get("org") || "";
   const orgName = donationsData?.orgs.find((o) => o.id === orgId)?.name;
@@ -33,7 +36,7 @@ const DonationUpsertForm = ({
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isDirty },
     reset,
   } = useForm<DonationUpsertFields>({
     resolver: zodResolver(DonationUpsertFieldsSchema),
@@ -47,7 +50,10 @@ const DonationUpsertForm = ({
   }, [defaultValues, reset, mode]);
 
   const handleFormSubmit = (data: DonationUpsertFields) => {
-    console.log("Submitting donation form with data:", data);
+    if (mode === "edit" && !isDirty) {
+      navigate(-1);
+      return;
+    }
     onSubmit(data);
   };
 
@@ -101,10 +107,27 @@ const DonationUpsertForm = ({
           <label htmlFor="notes">Notes:</label>
           <textarea id="notes" {...register("notes")} />
         </div>
-
-        <button type="submit">
-          {mode === "edit" ? "Save Changes" : "Add Donation"}
-        </button>
+        <div className="donation-details-toolbar">
+          <button type="submit">
+            {mode === "edit" ? "Save Changes" : "Add Donation"}
+          </button>
+          <button type="button" onClick={() => navigate(-1)}>
+            Cancel
+          </button>
+          {onDelete && mode === "edit" && (
+            <button
+              type="button"
+              onClick={() => {
+                if (window.confirm("Really want to delete?")) {
+                  onDelete();
+                }
+              }}
+              style={{ marginLeft: "0.5em" }}
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </form>
     </div>
   );

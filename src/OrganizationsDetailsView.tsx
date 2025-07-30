@@ -2,7 +2,7 @@ import React from "react";
 import type { Organization } from "./types";
 
 interface OrganizationsDetailsViewProps {
-  organization: Organization | undefined;
+  organization: Organization;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
 }
@@ -12,10 +12,6 @@ const OrganizationsDetailsView = ({
   onDelete,
   onEdit,
 }: OrganizationsDetailsViewProps) => {
-  if (!organization) {
-    return <div>Organization not found.</div>;
-  }
-
   return (
     <div>
       <h1>Organization Details</h1>

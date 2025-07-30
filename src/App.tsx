@@ -3,17 +3,53 @@ import {
   Routes,
   Route,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
 import OrganizationsContainer from "./OrganizationsContainer";
 import AddOrganization from "./AddOrganization";
+import OrganizationsDetailsView from "./OrganizationsDetailsView";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, addOrganization } from "./donationsData";
 import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
 import type { AddOrganizationForm } from "./organization";
+
+const OrganizationDetailsRoute = ({
+  donationsData,
+}: {
+  donationsData: any;
+}) => {
+  const { id } = useParams<{ id: string }>();
+
+  const organization = donationsData.organizations.find(
+    (org: any) => org.id === id
+  );
+
+  const handleDelete = (orgId: string) => {
+    // TODO: Implement delete functionality
+    console.log("Delete organization:", orgId);
+  };
+
+  const handleEdit = (orgId: string) => {
+    // TODO: Implement edit functionality
+    console.log("Edit organization:", orgId);
+  };
+
+  if (!organization) {
+    return <div>Organization not found.</div>;
+  }
+
+  return (
+    <OrganizationsDetailsView
+      organization={organization}
+      onDelete={handleDelete}
+      onEdit={handleEdit}
+    />
+  );
+};
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -50,8 +86,8 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/orgs/id/:id"
-          element={<div>Organization Details Placeholder</div>}
+          path="/orgs/:id"
+          element={<OrganizationDetailsRoute donationsData={donationsData} />}
         />
       </Routes>
     </>

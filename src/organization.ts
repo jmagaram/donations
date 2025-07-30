@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { type Org } from "./types";
+import { type Donation, type Org } from "./types";
 import { nanoid } from "nanoid";
+import { recency as donationRecency } from "./donation";
 
 export const OrgUpsertFieldsSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
@@ -26,3 +27,10 @@ export const edit = (params: OrgUpsertFields & { id: string }): Org => ({
   ...params,
   modified: Date.now(),
 });
+
+export const recency = (org: Org, donations: Donation[]): number => {
+  return Math.max(
+    org.modified,
+    ...donations.map((donation) => donationRecency(donation))
+  );
+};

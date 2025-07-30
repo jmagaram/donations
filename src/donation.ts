@@ -32,3 +32,6 @@ export const editDonation = (
   ...params,
   modified: Date.now(),
 });
+
+export const recency = (donation: Donation): number =>
+  Math.max(donation.modified, donation.timestamp);

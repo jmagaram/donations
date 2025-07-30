@@ -22,10 +22,7 @@ const EditOrgComponent = ({
     return <div>Organization not found.</div>;
   }
 
-  // You can implement handleEditOrg to update the organization and call setDonationsData
   const handleEditOrg = (updatedOrg: Organization) => {
-    // TODO: Implement update logic and call setDonationsData
-    // Example: setDonationsData(updateOrganization(donationsData, updatedOrg));
     navigate("/orgs/" + updatedOrg.id);
   };
 

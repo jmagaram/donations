@@ -38,14 +38,19 @@ const OrgDetailsView = ({
   return (
     <div>
       <h1>{organization.name}</h1>
-      <div>
-        <strong>Tax Deductible:</strong>{" "}
-        {organization.taxDeductible ? "Yes" : "No"}
+      <div className="org-details-section">
+        <div className="org-details-header">Tax status</div>
+        <div className="org-details-content">
+          {organization.taxDeductible ? "Tax-deductible" : "NOT tax-deductible"}
+        </div>
+        {organization.notes.trim() !== "" && (
+          <>
+            <div className="org-details-header">Notes</div>
+            <div className="org-details-content">{organization.notes}</div>
+          </>
+        )}
       </div>
-      <div>
-        <strong>Notes:</strong> {organization.notes || "-"}
-      </div>
-      <div style={{ marginTop: "2em" }}>
+      <div className="org-details-section">
         {donations.length > 0 ? (
           <div className="donations-grid">
             <div className="donation-row donation-header">
@@ -68,17 +73,20 @@ const OrgDetailsView = ({
             ))}
           </div>
         ) : (
-          <p>No donations yet.</p>
+          <div className="org-details-section">
+            <div className="org-details-header">Donations</div>
+            <div className="org-details-content">None</div>
+          </div>
         )}
       </div>
 
       <div style={{ marginTop: "1em" }}>
-        <button onClick={() => onAdd(organization.id)}>Add Donation</button>
+        <button onClick={() => onAdd(organization.id)}>Add donation</button>
         <button
           onClick={() => onEdit(organization.id)}
           style={{ marginLeft: "0.5em" }}
         >
-          Edit
+          Edit organization
         </button>
         <button
           onClick={() => onDelete(organization.id)}

@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import OrgDetailsView from "./OrgDetailsView";
-import { deleteOrganization } from "./donationsData";
+import { deleteOrg } from "./donationsData";
 import type { DonationsData, Organization } from "./types";
 
 interface OrgDetailsComponentProps {
@@ -21,7 +21,7 @@ const OrgDetailsComponent = ({
 
   const handleDelete = (orgId: string) => {
     try {
-      const updatedData = deleteOrganization(donationsData, orgId);
+      const updatedData = deleteOrg(donationsData, orgId);
       setDonationsData(updatedData);
       navigate("/");
     } catch (error) {

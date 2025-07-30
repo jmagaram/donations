@@ -5,7 +5,7 @@ export const empty = () => ({
   organizations: [],
 });
 
-export const addOrganization = (
+export const addOrg = (
   data: DonationsData,
   organization: Organization
 ): DonationsData => {
@@ -15,16 +15,16 @@ export const addOrganization = (
   };
 };
 
-export const updateOrganization = (
+export const updateOrg = (
   data: DonationsData,
   updatedOrg: Organization
-): DonationsData => {
+): DonationsData | undefined => {
   const organizationIndex = data.organizations.findIndex(
     (org) => org.id === updatedOrg.id
   );
 
   if (organizationIndex === -1) {
-    throw new Error(`Organization with id "${updatedOrg.id}" not found`);
+    return undefined;
   }
 
   const organizations = [...data.organizations];
@@ -36,10 +36,7 @@ export const updateOrganization = (
   };
 };
 
-export const deleteOrganization = (
-  data: DonationsData,
-  id: string
-): DonationsData => {
+export const deleteOrg = (data: DonationsData, id: string): DonationsData => {
   const organizationIndex = data.organizations.findIndex(
     (org) => org.id === id
   );
@@ -84,7 +81,7 @@ const sampleDataArray = [
 
 export const sampleData = (): DonationsData => {
   return sampleDataArray.reduce<DonationsData>(
-    (data, org) => addOrganization(data, create(org)),
+    (data, org) => addOrg(data, create(org)),
     empty()
   );
 };

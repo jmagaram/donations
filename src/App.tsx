@@ -12,7 +12,7 @@ import OrgDetailsComponent from "./OrgDetailsComponent";
 import EditOrgComponent from "./EditOrgComponent";
 import "./App.css";
 import { useState } from "react";
-import { sampleData, addOrganization } from "./donationsData";
+import { sampleData, addOrg } from "./donationsData";
 import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
 import type { AddOrgFormFields } from "./organization";
@@ -26,7 +26,7 @@ const AppContent = () => {
 
   const handleAddOrg = (formData: AddOrgFormFields) => {
     const newOrganization = create(formData);
-    const updatedData = addOrganization(donationsData, newOrganization);
+    const updatedData = addOrg(donationsData, newOrganization);
     setDonationsData(updatedData);
     navigate("/orgs");
   };

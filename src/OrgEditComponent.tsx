@@ -1,33 +1,31 @@
 import { useParams, useNavigate } from "react-router-dom";
-import UpsertOrgForm from "./UpsertOrgForm";
-import type { DonationsData, Organization } from "./types";
-import { edit, type AddOrgFormFields } from "./organization";
-import { updateOrg } from "./donationsData";
+import OrgUpsertForm from "./OrgUpsertForm";
+import type { DonationsData, Org } from "./types";
+import { edit, type OrgAddFormFields } from "./organization";
+import { orgUpdate } from "./donationsData";
 
-interface EditOrgComponentProps {
+interface OrgEditComponentProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
 }
 
-const EditOrgComponent = ({
+const OrgEditComponent = ({
   donationsData,
   setDonationsData,
-}: EditOrgComponentProps) => {
+}: OrgEditComponentProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const organization = donationsData.organizations.find(
-    (org: Organization) => org.id === id
-  );
+  const organization = donationsData.orgs.find((org: Org) => org.id === id);
 
   if (!organization) {
     return <div>Organization not found.</div>;
   }
 
-  const handleEditOrg = (formData: AddOrgFormFields) => {
+  const handleEditOrg = (formData: OrgAddFormFields) => {
     if (!organization) return;
     const updatedOrg = edit({ ...formData, id: organization.id });
-    const newData = updateOrg(donationsData, updatedOrg);
+    const newData = orgUpdate(donationsData, updatedOrg);
     if (!newData) {
       alert("Failed to update organization: not found.");
       return;
@@ -37,7 +35,7 @@ const EditOrgComponent = ({
   };
 
   return (
-    <UpsertOrgForm
+    <OrgUpsertForm
       defaultValues={organization}
       onSubmit={handleEditOrg}
       mode="edit"
@@ -45,4 +43,4 @@ const EditOrgComponent = ({
   );
 };
 
-export default EditOrgComponent;
+export default OrgEditComponent;

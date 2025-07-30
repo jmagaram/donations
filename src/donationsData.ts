@@ -1,53 +1,41 @@
 import { create } from "./organization";
-import type { DonationsData, Organization } from "./types";
+import type { DonationsData, Org } from "./types";
 
-export const empty = () => ({
-  organizations: [],
+export const empty = (): DonationsData => ({
+  orgs: [],
 });
 
-export const addOrg = (
-  data: DonationsData,
-  organization: Organization
-): DonationsData => {
+export const orgAdd = (data: DonationsData, org: Org): DonationsData => {
   return {
     ...data,
-    organizations: [...data.organizations, organization],
+    orgs: [...data.orgs, org],
   };
 };
 
-export const updateOrg = (
+export const orgUpdate = (
   data: DonationsData,
-  updatedOrg: Organization
+  org: Org
 ): DonationsData | undefined => {
-  const organizationIndex = data.organizations.findIndex(
-    (org) => org.id === updatedOrg.id
-  );
-
-  if (organizationIndex === -1) {
+  const orgIndex = data.orgs.findIndex((org) => org.id === org.id);
+  if (orgIndex === -1) {
     return undefined;
   }
-
-  const organizations = [...data.organizations];
-  organizations[organizationIndex] = updatedOrg;
-
+  const orgs = [...data.orgs];
+  orgs[orgIndex] = org;
   return {
     ...data,
-    organizations,
+    orgs: orgs,
   };
 };
 
-export const deleteOrg = (data: DonationsData, id: string): DonationsData => {
-  const organizationIndex = data.organizations.findIndex(
-    (org) => org.id === id
-  );
-
-  if (organizationIndex === -1) {
-    throw new Error(`Organization with id "${id}" not found`);
+export const orgDelete = (data: DonationsData, id: string): DonationsData => {
+  const orgIndex = data.orgs.findIndex((org) => org.id === id);
+  if (orgIndex === -1) {
+    return data;
   }
-
   return {
     ...data,
-    organizations: data.organizations.filter((org) => org.id !== id),
+    orgs: data.orgs.filter((org) => org.id !== id),
   };
 };
 
@@ -81,7 +69,7 @@ const sampleDataArray = [
 
 export const sampleData = (): DonationsData => {
   return sampleDataArray.reduce<DonationsData>(
-    (data, org) => addOrg(data, create(org)),
+    (data, org) => orgAdd(data, create(org)),
     empty()
   );
 };

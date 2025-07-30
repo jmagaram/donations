@@ -1,12 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { type Organization } from "./types";
+import { type Org } from "./types";
 
 interface OrgsViewProps {
-  organizations: Organization[];
+  orgs: Org[];
 }
 
-const OrgsView = ({ organizations }: OrgsViewProps) => {
+const OrgsView = ({ orgs: organizations }: OrgsViewProps) => {
   return (
     <div>
       <h1>Organizations</h1>

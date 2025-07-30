@@ -7,15 +7,15 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
-import UpsertOrgForm from "./UpsertOrgForm";
+import OrgUpsertForm from "./OrgUpsertForm";
 import OrgDetailsComponent from "./OrgDetailsComponent";
-import EditOrgComponent from "./EditOrgComponent";
+import OrgEditComponent from "./OrgEditComponent";
 import "./App.css";
 import { useState } from "react";
-import { sampleData, addOrg } from "./donationsData";
+import { sampleData, orgAdd } from "./donationsData";
 import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
-import type { AddOrgFormFields } from "./organization";
+import type { OrgAddFormFields } from "./organization";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -24,9 +24,9 @@ const AppContent = () => {
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 
-  const handleAddOrg = (formData: AddOrgFormFields) => {
+  const handleAddOrg = (formData: OrgAddFormFields) => {
     const newOrganization = create(formData);
-    const updatedData = addOrg(donationsData, newOrganization);
+    const updatedData = orgAdd(donationsData, newOrganization);
     setDonationsData(updatedData);
     navigate("/orgs");
   };
@@ -47,7 +47,7 @@ const AppContent = () => {
         />
         <Route
           path="/orgs/add"
-          element={<UpsertOrgForm onSubmit={handleAddOrg} mode="add" />}
+          element={<OrgUpsertForm onSubmit={handleAddOrg} mode="add" />}
         />
         <Route
           path="/orgs/:id"
@@ -61,7 +61,7 @@ const AppContent = () => {
         <Route
           path="/orgs/:id/edit"
           element={
-            <EditOrgComponent
+            <OrgEditComponent
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

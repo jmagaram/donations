@@ -1,7 +1,7 @@
-import type { Organization } from "./types";
+import type { Org } from "./types";
 
 interface OrgDetailsViewProps {
-  organization: Organization;
+  organization: Org;
   onDelete: (id: string) => void;
   onEdit: (id: string) => void;
 }

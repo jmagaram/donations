@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import OrgDetailsView from "./OrgDetailsView";
-import { deleteOrg } from "./donationsData";
-import type { DonationsData, Organization } from "./types";
+import { orgDelete } from "./donationsData";
+import type { DonationsData, Org } from "./types";
 
 interface OrgDetailsComponentProps {
   donationsData: DonationsData;
@@ -15,21 +15,14 @@ const OrgDetailsComponent = ({
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const organization = donationsData.organizations.find(
-    (org: Organization) => org.id === id
-  );
+  const organization = donationsData.orgs.find((org: Org) => org.id === id);
 
   const handleDelete = (orgId: string) => {
-    try {
-      const updatedData = deleteOrg(donationsData, orgId);
+    const updatedData = orgDelete(donationsData, orgId);
+    if (updatedData !== donationsData) {
       setDonationsData(updatedData);
-      navigate("/");
-    } catch (error) {
-      window.alert(
-        "Failed to delete organization: " +
-          (error instanceof Error ? error.message : error)
-      );
     }
+    navigate("/");
   };
 
   const handleEdit = (orgId: string) => {

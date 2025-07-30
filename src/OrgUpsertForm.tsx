@@ -1,27 +1,27 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AddOrgFormFieldsSchema, defaultFormFields } from "./organization";
-import type { AddOrgFormFields } from "./organization";
+import { OrgAddFormFieldsSchema, defaultFormFields } from "./organization";
+import type { OrgAddFormFields } from "./organization";
 
-interface UpsertOrgFormProps {
-  onSubmit: (formData: AddOrgFormFields) => void;
-  defaultValues?: AddOrgFormFields;
+interface OrgUpsertFormProps {
+  onSubmit: (formData: OrgAddFormFields) => void;
+  defaultValues?: OrgAddFormFields;
   mode?: "add" | "edit";
 }
 
-const UpsertOrgForm = ({
+const OrgUpsertForm = ({
   onSubmit,
   defaultValues = defaultFormFields,
   mode = "add",
-}: UpsertOrgFormProps) => {
+}: OrgUpsertFormProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<AddOrgFormFields>({
-    resolver: zodResolver(AddOrgFormFieldsSchema),
+  } = useForm<OrgAddFormFields>({
+    resolver: zodResolver(OrgAddFormFieldsSchema),
     defaultValues,
   });
 
@@ -31,7 +31,7 @@ const UpsertOrgForm = ({
     }
   }, [defaultValues, reset, mode]);
 
-  const handleFormSubmit = (data: AddOrgFormFields) => {
+  const handleFormSubmit = (data: OrgAddFormFields) => {
     onSubmit(data);
   };
 
@@ -67,4 +67,4 @@ const UpsertOrgForm = ({
   );
 };
 
-export default UpsertOrgForm;
+export default OrgUpsertForm;

@@ -7,7 +7,7 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
-import AddOrganization from "./AddOrganization";
+import AddOrg from "./AddOrganization";
 // import OrganizationsDetailsView from "./OrganizationsDetailsView"; // No longer used directly
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import "./App.css";
@@ -15,7 +15,7 @@ import { useState } from "react";
 import { sampleData, addOrganization } from "./donationsData";
 import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
-import type { AddOrganizationForm } from "./organization";
+import type { AddOrgForm } from "./organization";
 
 // ...removed OrganizationDetailsRoute, now using OrganizationDetailsComponent...
 
@@ -26,7 +26,7 @@ const AppContent = () => {
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 
-  const handleAddOrganization = (formData: AddOrganizationForm) => {
+  const handleAddOrganization = (formData: AddOrgForm) => {
     const newOrganization = create(formData);
     const updatedData = addOrganization(donationsData, newOrganization);
     setDonationsData(updatedData);
@@ -49,13 +49,16 @@ const AppContent = () => {
         />
         <Route
           path="/orgs/add"
-          element={
-            <AddOrganization onAddOrganization={handleAddOrganization} />
-          }
+          element={<AddOrg onAddOrg={handleAddOrganization} />}
         />
         <Route
           path="/orgs/:id"
-          element={<OrgDetailsComponent donationsData={donationsData} setDonationsData={setDonationsData} />}
+          element={
+            <OrgDetailsComponent
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
         />
       </Routes>
     </>

@@ -1,19 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AddOrganizationFormSchema } from "./organization";
-import type { AddOrganizationForm } from "./organization";
+import { AddOrgFormSchema } from "./organization";
+import type { AddOrgForm } from "./organization";
 
-type AddOrganizationProps = {
-  onAddOrganization: (data: AddOrganizationForm) => void;
+type AddOrgProps = {
+  onAddOrg: (data: AddOrgForm) => void;
 };
 
-const AddOrganization = ({ onAddOrganization }: AddOrganizationProps) => {
+const AddOrg = ({ onAddOrg: onAddOrganization }: AddOrgProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<AddOrganizationForm>({
-    resolver: zodResolver(AddOrganizationFormSchema),
+  } = useForm<AddOrgForm>({
+    resolver: zodResolver(AddOrgFormSchema),
     defaultValues: {
       name: "",
       taxDeductible: false,
@@ -21,7 +21,7 @@ const AddOrganization = ({ onAddOrganization }: AddOrganizationProps) => {
     },
   });
 
-  const onSubmit = (data: AddOrganizationForm) => {
+  const onSubmit = (data: AddOrgForm) => {
     onAddOrganization(data);
   };
 
@@ -55,4 +55,4 @@ const AddOrganization = ({ onAddOrganization }: AddOrganizationProps) => {
   );
 };
 
-export default AddOrganization;
+export default AddOrg;

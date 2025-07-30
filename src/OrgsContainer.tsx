@@ -1,5 +1,5 @@
 import { type DonationsData } from "./types";
-import OrgsView from "./OrganizationsView";
+import OrgsView from "./OrgsView";
 
 interface OrgsContainerProps {
   donationsData: DonationsData;

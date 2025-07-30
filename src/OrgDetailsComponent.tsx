@@ -1,5 +1,5 @@
 import { useParams } from "react-router-dom";
-import OrgDetailsView from "./OrganizationsDetailsView";
+import OrgDetailsView from "./OrgDetailsView";
 import type { DonationsData, Organization } from "./types";
 
 interface OrgDetailsComponentProps {

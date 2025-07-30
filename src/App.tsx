@@ -6,10 +6,10 @@ import {
 } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
-import OrgsContainer from "./OrganizationsContainer";
+import OrgsContainer from "./OrgsContainer";
 import AddOrganization from "./AddOrganization";
 // import OrganizationsDetailsView from "./OrganizationsDetailsView"; // No longer used directly
-import OrgDetailsComponent from "./OrganizationDetailsComponent";
+import OrgDetailsComponent from "./OrgDetailsComponent";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, addOrganization } from "./donationsData";

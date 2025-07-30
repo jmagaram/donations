@@ -1,22 +1,19 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { AddOrganizationFormSchema } from "./organization";
+import type { AddOrganizationForm } from "./organization";
 
-const AddOrganizationSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  taxDeductible: z.boolean(),
-  notes: z.string(),
-});
+type AddOrganizationProps = {
+  onAddOrganization: (data: AddOrganizationForm) => void;
+};
 
-type AddOrganizationForm = z.infer<typeof AddOrganizationSchema>;
-
-const AddOrganization = () => {
+const AddOrganization = ({ onAddOrganization }: AddOrganizationProps) => {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<AddOrganizationForm>({
-    resolver: zodResolver(AddOrganizationSchema),
+    resolver: zodResolver(AddOrganizationFormSchema),
     defaultValues: {
       name: "",
       taxDeductible: false,
@@ -25,8 +22,7 @@ const AddOrganization = () => {
   });
 
   const onSubmit = (data: AddOrganizationForm) => {
-    console.log("Form data:", data);
-    // TODO: Handle form submission
+    onAddOrganization(data);
   };
 
   return (
@@ -35,11 +31,7 @@ const AddOrganization = () => {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <label htmlFor="name">Name:</label>
-          <input
-            id="name"
-            type="text"
-            {...register("name")}
-          />
+          <input id="name" type="text" {...register("name")} />
           {errors.name && <span>{errors.name.message}</span>}
         </div>
 
@@ -54,10 +46,7 @@ const AddOrganization = () => {
 
         <div>
           <label htmlFor="notes">Notes:</label>
-          <textarea
-            id="notes"
-            {...register("notes")}
-          />
+          <textarea id="notes" {...register("notes")} />
         </div>
 
         <button type="submit">Add Organization</button>

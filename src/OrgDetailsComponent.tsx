@@ -39,7 +39,8 @@ const OrgDetailsComponent = ({
 
   return (
     <OrgDetailsView
-      organization={organization}
+      donationsData={donationsData}
+      orgId={id!}
       onDelete={handleDelete}
       onEdit={handleEdit}
       onAdd={handleAdd}

@@ -20,12 +20,10 @@ export const defaultFields: OrgUpsertFields = {
 export const create = (params: OrgUpsertFields): Org => ({
   ...params,
   id: nanoid(),
-  modified: Date.now(),
 });
 
 export const edit = (params: OrgUpsertFields & { id: string }): Org => ({
   ...params,
-  modified: Date.now(),
 });
 
 export const recency = (
@@ -35,10 +33,8 @@ export const recency = (
   const org = donationsData.orgs.find((o) => o.id === orgId);
   if (!org) return 0;
   const donations = donationsData.donations.filter((d) => d.orgId === orgId);
-  return Math.max(
-    org.modified,
-    ...donations.map((donation) => donationRecency(donation))
-  );
+  const donationRecencies = donations.map((donation) => donationRecency(donation));
+  return donationRecencies.length > 0 ? Math.max(...donationRecencies) : 0;
 };
 
 export const textMatch = (org: Org, filter: string): boolean => {

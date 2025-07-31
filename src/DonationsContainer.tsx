@@ -26,10 +26,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     return org?.name || "Unknown Organization";
   };
 
-  // Format date and amount
   const formatDate = (timestamp: number) => {
     return new Date(timestamp).toISOString().split("T")[0];
   };
+
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",

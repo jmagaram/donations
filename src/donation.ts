@@ -24,7 +24,6 @@ export const createDonation = (params: DonationUpsertFields): Donation => ({
   ...params,
   timestamp: new Date(params.date).getTime(),
   id: nanoid(),
-  modified: Date.now(),
 });
 
 export const editDonation = (
@@ -32,11 +31,10 @@ export const editDonation = (
 ): Donation => ({
   ...params,
   timestamp: new Date(params.date).getTime(),
-  modified: Date.now(),
 });
 
 export const recency = (donation: Donation): number =>
-  Math.max(donation.modified, donation.timestamp);
+  donation.timestamp;
 
 const FILLER_WORDS = new Set([
   "the",

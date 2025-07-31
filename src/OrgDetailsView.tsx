@@ -37,17 +37,17 @@ const OrgDetailsView = ({
   }
 
   return (
-    <div>
+    <div className="org-details">
       <h1>{organization.name}</h1>
-      <div className="org-details-section">
-        <div className="org-details-header">Tax status</div>
-        <div className="org-details-content">
+      <div className="section">
+        <div className="header">Tax status</div>
+        <div className="content">
           {organization.taxDeductible ? "Tax-deductible" : "NOT tax-deductible"}
         </div>
         {organization.webSite && (
           <>
-            <div className="org-details-header">Website</div>
-            <div className="org-details-content">
+            <div className="header">Website</div>
+            <div className="content">
               <a
                 href={organization.webSite}
                 target="_blank"
@@ -60,41 +60,41 @@ const OrgDetailsView = ({
         )}
         {organization.notes.trim() !== "" && (
           <>
-            <div className="org-details-header">Notes</div>
-            <div className="org-details-content">{organization.notes}</div>
+            <div className="header">Notes</div>
+            <div className="content">{organization.notes}</div>
           </>
         )}
       </div>
-      <div className="org-details-section">
+      <div className="section">
         {donations.length > 0 ? (
-          <div className="org-details-donation-grid">
-            <div className="org-details-donation-row org-details-donation-header">
+          <div className="donation-grid">
+            <div className="row header">
               <div>Date</div>
               <div>Amount</div>
               <div>Kind</div>
               <div>Notes</div>
             </div>
             {donations.map((donation) => (
-              <div key={donation.id} className="org-details-donation-row">
-                <div className="org-details-donation-date">
+              <div key={donation.id} className="row">
+                <div className="date">
                   <Link to={`/donations/${donation.id}/edit`}>
                     {formatDate(donation.timestamp)}
                   </Link>
                 </div>
-                <div className="org-details-donation-amount">
+                <div className="amount">
                   {formatAmount(donation.amount)}
                 </div>
-                <div className="org-details-donation-kind">{donation.kind}</div>
-                <div className="org-details-donation-notes">
+                <div className="kind">{donation.kind}</div>
+                <div className="notes">
                   {donation.notes || "-"}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="org-details-section">
-            <div className="org-details-header">Donations</div>
-            <div className="org-details-content">None</div>
+          <div className="section">
+            <div className="header">Donations</div>
+            <div className="content">None</div>
           </div>
         )}
       </div>

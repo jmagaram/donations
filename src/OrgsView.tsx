@@ -29,22 +29,22 @@ const OrgsView = ({
         />
       </div>
       <div className="orgs-grid">
-        <div className="orgs-grid-header">
-          <div className="orgs-grid-header-name">Name</div>
-          <div className="orgs-grid-header-tax">Tax Deductible</div>
-          <div className="orgs-grid-header-notes">Notes</div>
+        <div className="header">
+          <div className="name">Name</div>
+          <div className="tax">Tax Deductible</div>
+          <div className="notes">Notes</div>
         </div>
         {orgs
           .sort((a, b) => a.name.localeCompare(b.name))
           .map((org) => (
-            <div key={org.id} className="orgs-grid-row">
-              <div className="orgs-grid-name">
+            <div key={org.id} className="row">
+              <div className="name">
                 <Link to={`/orgs/${org.id}`}>{org.name}</Link>
               </div>
-              <div className="orgs-grid-tax">
+              <div className="tax">
                 {org.taxDeductible ? "Yes" : "No"}
               </div>
-              <div className="orgs-grid-notes">{org.notes}</div>
+              <div className="notes">{org.notes}</div>
             </div>
           ))}
       </div>

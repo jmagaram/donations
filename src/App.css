@@ -18,18 +18,9 @@
   gap:0.25em;
 }
 
-.form-field #kind { 
-  width:fit-content;
-}
-
-.form-field #date {
-  width: fit-content;
-}
-
-.form-field #amount {
-  width: fit-content;
-}
-
+.form-field #kind,
+.form-field #date,
+.form-field #amount,
 .form-field #taxDeductible {
   width: fit-content;
 }
@@ -49,52 +40,52 @@
   align-items: flex-start;
 }
 
-.org-details-section {
+.org-details > .section {
   margin-top: 1em;
 }
 
-.org-details-header {
+.org-details .header {
   font-weight: bold;
 }
 
-.org-details-content {
+.org-details .content {
   margin-bottom: 1em;
   white-space: pre-wrap;
 }
 
-.org-details-donation-header {
+.org-details .donation-grid > .header {
   font-weight: bold;
 }
 
-.org-details-donation-grid {
+.org-details .donation-grid {
   display: grid;
   grid-template-columns: auto auto auto 1fr ;
   gap: 0.25rem 0.25rem;
 }
 
-.org-details-donation-row {
+.org-details .donation-grid > .row {
   display: contents;
 }
 
-.org-details-donation-row > div {
+.org-details .donation-grid > .row > div {
   border-bottom: 1px solid #eee;
 }
 
-.org-details-donation-date {
+.org-details .donation-grid .date {
   white-space: nowrap;
 }
 
-.org-details-donation-amount {
+.org-details .donation-grid .amount {
   text-align: right;
   white-space: nowrap;
 }
 
-.org-details-donation-kind {
+.org-details .donation-grid .kind {
   text-transform: capitalize;
   white-space: nowrap;
 }
 
-.org-details-donation-notes {
+.org-details .donation-grid .notes {
   overflow-wrap: break-word;
   white-space:pre-line;
 }
@@ -117,28 +108,28 @@ nav {
   }
 }
 
-.donations-grid-header {
+.donations-grid > .header {
   display: contents;
   font-weight: bold;
 }
 
-.donations-grid-row {
+.donations-grid > .row {
   display: contents;
 }
 
-.donations-grid-row > div {
+.donations-grid > .row > div {
   border-bottom: 1px solid #eee;
 }
 
-.donations-grid-row > .donations-grid-amount{
+.donations-grid > .row > .amount {
   text-align:right;
 }
 
-.donations-grid-row > .donations-grid-kind {
+.donations-grid > .row > .kind {
   text-transform: capitalize;
 }
 
-.donations-grid-row > .donations-grid-notes {
+.donations-grid > .row > .notes {
   white-space: pre-line;
 }
 
@@ -148,29 +139,29 @@ nav {
   gap: 0.25rem 0.25rem;
 }
 
-.orgs-grid-header {
+.orgs-grid > .header {
   display: contents;
   font-weight: bold;
 }
 
-.orgs-grid-header-name,
-.orgs-grid-header-tax,
-.orgs-grid-header-notes {
+.orgs-grid > .header > .name,
+.orgs-grid > .header > .tax,
+.orgs-grid > .header > .notes {
   border-bottom: 1px solid #eee;
 }
 
-.orgs-grid-row {
+.orgs-grid > .row {
   display: contents;
 }
 
-.orgs-grid-row > div {
+.orgs-grid > .row > div {
   border-bottom: 1px solid #eee;
 }
 
-.orgs-grid-tax {
+.orgs-grid .tax {
   text-align: center;
 }
 
-.orgs-grid-notes {
+.orgs-grid .notes {
   white-space: pre-line;
 }

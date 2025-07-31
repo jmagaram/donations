@@ -7,15 +7,49 @@ export const empty = (): DonationsData => ({
   donations: [],
 });
 
-export const orgAdd = (
-  data: DonationsData,
-  org: Org
-): DonationsData | undefined => {
-  const exists = data.orgs.some(
-    (o) =>
-      o.id === org.id ||
-      o.name.toLowerCase().trim() === org.name.toLowerCase().trim()
+const findOrgById = (
+  data: Readonly<DonationsData>,
+  id: string
+): Org | undefined => data.orgs.find((org) => org.id === id);
+
+const findDonationById = (
+  data: Readonly<DonationsData>,
+  id: string
+): Donation | undefined =>
+  data.donations.find((donation) => donation.id === id);
+
+const orgExistsById = (data: Readonly<DonationsData>, id: string): boolean =>
+  findOrgById(data, id) !== undefined;
+
+const donationExistsById = (
+  data: Readonly<DonationsData>,
+  id: string
+): boolean => findDonationById(data, id) !== undefined;
+
+const orgExistsByName = (
+  data: Readonly<DonationsData>,
+  name: string
+): boolean =>
+  data.orgs.some(
+    (org) => org.name.toLowerCase().trim() === name.toLowerCase().trim()
   );
+
+const replaceItemAtIndex = <T>(array: T[], index: number, item: T): T[] => {
+  const newArray = [...array];
+  newArray[index] = item;
+  return newArray;
+};
+
+const removeItemById = <T extends { id: string }>(
+  array: T[],
+  id: string
+): T[] => array.filter((item) => item.id !== id);
+
+export const orgAdd = (
+  data: Readonly<DonationsData>,
+  org: Readonly<Org>
+): DonationsData | undefined => {
+  const exists = orgExistsById(data, org.id) || orgExistsByName(data, org.name);
   if (exists) {
     return undefined;
   }
@@ -26,8 +60,8 @@ export const orgAdd = (
 };
 
 export const orgUpdate = (
-  data: DonationsData,
-  org: Org
+  data: Readonly<DonationsData>,
+  org: Readonly<Org>
 ): DonationsData | undefined => {
   const orgIndex = data.orgs.findIndex(
     (existingOrg) => existingOrg.id === org.id
@@ -35,16 +69,17 @@ export const orgUpdate = (
   if (orgIndex === -1) {
     return undefined;
   }
-  const orgs = [...data.orgs];
-  orgs[orgIndex] = org;
   return {
     ...data,
-    orgs: orgs,
+    orgs: replaceItemAtIndex(data.orgs, orgIndex, org),
   };
 };
 
-export const orgDelete = (data: DonationsData, id: string): DonationsData => {
-  const orgExists = data.orgs.some((org) => org.id === id);
+export const orgDelete = (
+  data: Readonly<DonationsData>,
+  id: string
+): DonationsData => {
+  const orgExists = orgExistsById(data, id);
   const donationExists = data.donations.some(
     (donation) => donation.orgId === id
   );
@@ -53,17 +88,17 @@ export const orgDelete = (data: DonationsData, id: string): DonationsData => {
   }
   return {
     ...data,
-    orgs: data.orgs.filter((org) => org.id !== id),
+    orgs: removeItemById(data.orgs, id),
     donations: data.donations.filter((donation) => donation.orgId !== id),
   };
 };
 
 export const donationAdd = (
-  data: DonationsData,
-  donation: Donation
+  data: Readonly<DonationsData>,
+  donation: Readonly<Donation>
 ): DonationsData | undefined => {
-  const orgExists = data.orgs.some((org) => org.id === donation.orgId);
-  const donationExists = data.donations.some((d) => d.id === donation.id);
+  const orgExists = orgExistsById(data, donation.orgId);
+  const donationExists = donationExistsById(data, donation.id);
   if (!orgExists || donationExists) {
     return undefined;
   }
@@ -74,30 +109,30 @@ export const donationAdd = (
 };
 
 export const donationUpdate = (
-  data: DonationsData,
-  donation: Donation
+  data: Readonly<DonationsData>,
+  donation: Readonly<Donation>
 ): DonationsData | undefined => {
-  const idx = data.donations.findIndex((d) => d.id === donation.id);
-  if (idx === -1) return undefined;
-  const donations = [...data.donations];
-  donations[idx] = donation;
+  const donationIndex = data.donations.findIndex((d) => d.id === donation.id);
+  if (donationIndex === -1) return undefined;
+  const orgExists = orgExistsById(data, donation.orgId);
+  if (!orgExists) return undefined;
   return {
     ...data,
-    donations,
+    donations: replaceItemAtIndex(data.donations, donationIndex, donation),
   };
 };
 
 export const donationDelete = (
-  data: DonationsData,
+  data: Readonly<DonationsData>,
   donationId: string
 ): DonationsData => {
-  const donationExists = data.donations.some((d) => d.id === donationId);
+  const donationExists = donationExistsById(data, donationId);
   if (!donationExists) {
     return data;
   }
   return {
     ...data,
-    donations: data.donations.filter((d) => d.id !== donationId),
+    donations: removeItemById(data.donations, donationId),
   };
 };
 
@@ -181,17 +216,17 @@ const sampleDataArray = [
 export const sampleData = (): DonationsData => {
   return sampleDataArray.reduce<DonationsData>((data, org) => {
     const newOrg = { ...org, id: nanoid() };
-    const result = orgAdd(data, newOrg)!;
-    if (org.donations) {
-      org.donations.forEach((donation) => {
-        const newDonation = createDonation({
-          ...donation,
-          notes: "",
-          orgId: newOrg.id,
-        });
-        result.donations.push(newDonation);
+    const dataWithOrg = orgAdd(data, newOrg);
+    if (!dataWithOrg) return data;
+    if (!org.donations) return dataWithOrg;
+    return org.donations.reduce<DonationsData>((currentData, donation) => {
+      const newDonation = createDonation({
+        ...donation,
+        notes: "",
+        orgId: newOrg.id,
       });
-    }
-    return result;
+      const result = donationAdd(currentData, newDonation);
+      return result ?? currentData;
+    }, dataWithOrg);
   }, empty());
 };

@@ -36,7 +36,6 @@ const OrgUpsertForm = ({
 
   const handleFormSubmit = (data: OrgUpsertFields) => {
     if (mode === "edit" && !isDirty) {
-      console.log("No changes made, not submitting.");
       navigate(-1);
       return;
     }

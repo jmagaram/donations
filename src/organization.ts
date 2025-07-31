@@ -33,28 +33,26 @@ export const recency = (
   const org = donationsData.orgs.find((o) => o.id === orgId);
   if (!org) return 0;
   const donations = donationsData.donations.filter((d) => d.orgId === orgId);
-  const donationRecencies = donations.map((donation) => donationRecency(donation));
+  const donationRecencies = donations.map((donation) =>
+    donationRecency(donation)
+  );
   return donationRecencies.length > 0 ? Math.max(...donationRecencies) : 0;
 };
 
 export const textMatch = (org: Org, filter: string): boolean => {
-  // Split filter into keywords by spaces and commas, remove empty strings, lowercase all
   const filterKeywords = filter
     .split(/[\s,]+/)
     .map((k) => k.trim().toLowerCase())
     .filter((k) => k.length > 0);
 
-  // If no filter keywords, everything matches
   if (filterKeywords.length === 0) return true;
 
-  // Get org keywords from name and notes, split by spaces and commas, lowercase all
   const orgKeywords = [org.name, org.notes]
     .join(" ")
     .split(/[\s,]+/)
     .map((k) => k.trim().toLowerCase())
     .filter((k) => k.length > 0);
 
-  // Match if any filter keyword is contained within any org keyword
   return filterKeywords.some((filterKeyword) =>
     orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword))
   );

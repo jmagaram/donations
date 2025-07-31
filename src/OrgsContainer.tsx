@@ -11,9 +11,9 @@ interface OrgsContainerProps {
 const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const [filter, setFilter] = useState("");
 
-  const filteredOrgs = donationsData.orgs.filter((org) =>
-    textMatch(org, filter)
-  );
+  const filteredOrgs = donationsData.orgs
+    .filter((org) => textMatch(org, filter))
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   return (
     <OrgsView

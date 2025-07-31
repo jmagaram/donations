@@ -120,20 +120,19 @@ const DonationsView = ({
             </option>
           ))}
         </select>
-        <label htmlFor="filter">Filter:</label>
         <input
           type="search"
           id="filter"
           value={currentFilter}
           onChange={(e) => textFilterChanged(e.target.value)}
-          placeholder="Search donations..."
+          placeholder="Search"
         />
         <button
           type="button"
           onClick={onClearFilters}
           style={{ marginLeft: "1rem" }}
         >
-          Clear Filters
+          Remove filters
         </button>
       </div>
       <div className="donations-page-grid">

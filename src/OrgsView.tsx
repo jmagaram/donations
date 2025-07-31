@@ -18,7 +18,7 @@ const OrgsView = ({
       <h1>Organizations</h1>
       <div className="toolbar">
         <button type="button" onClick={() => navigate("/orgs/add")}>
-          Add New Organization
+          New organization
         </button>
         <input
           type="search"

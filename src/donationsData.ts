@@ -1,6 +1,6 @@
-import { create } from "./organization";
 import { type Donation, type DonationsData, type Org } from "./types";
 import { createDonation } from "./donation";
+import { nanoid } from "nanoid";
 
 export const empty = (): DonationsData => ({
   orgs: [],
@@ -176,7 +176,7 @@ const sampleDataArray = [
 
 export const sampleData = (): DonationsData => {
   return sampleDataArray.reduce<DonationsData>((data, org) => {
-    const newOrg = create(org);
+    const newOrg = { ...org, id: nanoid() };
     const result = orgAdd(data, newOrg);
     if (org.donations) {
       org.donations.forEach((donation) => {

@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { type DonationsData, type Org } from "./types";
-import { nanoid } from "nanoid";
 import { recency as donationRecency } from "./donation";
 
 export const OrgUpsertFieldsSchema = z.object({
@@ -16,15 +15,6 @@ export const defaultFields: OrgUpsertFields = {
   taxDeductible: true,
   notes: "",
 };
-
-export const create = (params: OrgUpsertFields): Org => ({
-  ...params,
-  id: nanoid(),
-});
-
-export const edit = (params: OrgUpsertFields & { id: string }): Org => ({
-  ...params,
-});
 
 export const recency = (
   orgId: string,

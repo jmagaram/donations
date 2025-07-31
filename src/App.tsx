@@ -16,10 +16,10 @@ import DonationEditComponent from "./DonationEditComponent";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, orgAdd, donationAdd } from "./donationsData";
-import { create } from "./organization";
 import { DonationsDataSchema } from "./types";
 import type { OrgUpsertFields } from "./organization";
 import { createDonation, type DonationUpsertFields } from "./donation";
+import { nanoid } from "nanoid";
 
 const AppContent = () => {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ const AppContent = () => {
   });
 
   const handleAddOrg = (formData: OrgUpsertFields) => {
-    const newOrganization = create(formData);
+    const newOrganization = { ...formData, id: nanoid() };
     const updatedData = orgAdd(donationsData, newOrganization);
     setDonationsData(updatedData);
     navigate("/orgs");

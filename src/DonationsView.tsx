@@ -28,14 +28,9 @@ const DonationsView = ({
     }).format(amount);
   };
 
-  const formatTimestamp = (timestamp: number) => {
-    return new Date(timestamp).toISOString().split("T")[0];
-  };
-
   return (
     <div>
       <h1>Donations</h1>
-      <Link to="/donations/add">Add New Donation</Link>
       <div>
         <label htmlFor="filter">Filter:</label>
         <input

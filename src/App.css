@@ -128,3 +128,7 @@ nav {
 .donations-page-grid-row > div:nth-child(2) {
   text-align: right;
 }
+
+.donations-page-grid-row > div:nth-child(4) {
+  text-transform: capitalize;
+}

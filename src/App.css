@@ -70,7 +70,7 @@
 
 .donations-row {
   font-weight: bold;
-  border-bottom: 1px solid #ccc;
+  border-bottom: 1px solid #eee;
 }
 
 .donation-row {
@@ -104,4 +104,27 @@ nav {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.donations-page-grid {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto 2fr;
+  gap: 0.25rem 0.25rem;
+}
+
+.donations-page-grid-header {
+  display: contents;
+  font-weight: bold;
+}
+
+.donations-page-grid-row {
+  display: contents;
+}
+
+.donations-page-grid-row > div {
+  border-bottom: 1px solid #eee;
+}
+
+.donations-page-grid-row > div:nth-child(2) {
+  text-align: right;
 }

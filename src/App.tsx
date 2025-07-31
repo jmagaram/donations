@@ -7,6 +7,7 @@ import {
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
+import DonationsContainer from "./DonationsContainer";
 import OrgUpsertForm from "./OrgUpsertForm";
 import OrgDetailsComponent from "./OrgDetailsComponent";
 import OrgEditComponent from "./OrgEditComponent";
@@ -56,6 +57,15 @@ const AppContent = () => {
           path="/orgs"
           element={
             <OrgsContainer
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/donations"
+          element={
+            <DonationsContainer
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

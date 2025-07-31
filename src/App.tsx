@@ -9,10 +9,10 @@ import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
 import DonationsContainer from "./DonationsContainer";
 import OrgUpsertForm from "./OrgUpsertForm";
-import OrgDetailsComponent from "./OrgDetailsComponent";
-import OrgEditComponent from "./OrgEditComponent";
+import OrgDetailsContainer from "./OrgDetailsContainer";
+import OrgEditContainer from "./OrgEditContainer";
 import DonationUpsertForm from "./DonationUpsertForm";
-import DonationEditComponent from "./DonationEditComponent";
+import DonationEditContainer from "./DonationEditContainer";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, orgAdd, donationAdd, empty } from "./donationsData";
@@ -108,7 +108,7 @@ const AppContent = () => {
         <Route
           path="/orgs/:id"
           element={
-            <OrgDetailsComponent
+            <OrgDetailsContainer
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />
@@ -117,7 +117,7 @@ const AppContent = () => {
         <Route
           path="/orgs/:id/edit"
           element={
-            <OrgEditComponent
+            <OrgEditContainer
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />
@@ -126,7 +126,7 @@ const AppContent = () => {
         <Route
           path="/donations/:donationId/edit"
           element={
-            <DonationEditComponent
+            <DonationEditContainer
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

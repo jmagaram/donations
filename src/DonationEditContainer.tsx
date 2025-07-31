@@ -11,15 +11,15 @@ import {
 import { editDonation } from "./donation";
 import type { DonationUpsertFields } from "./donation";
 
-interface DonationEditComponentProps {
+interface DonationEditContainerProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
 }
 
-const DonationEditComponent = ({
+const DonationEditContainer = ({
   donationsData,
   setDonationsData,
-}: DonationEditComponentProps) => {
+}: DonationEditContainerProps) => {
   const { donationId } = useParams<{ donationId: string }>();
   const navigate = useNavigate();
   const [error, setError] = useState<string | undefined>(undefined);
@@ -86,4 +86,4 @@ const DonationEditComponent = ({
   );
 };
 
-export default DonationEditComponent;
+export default DonationEditContainer;

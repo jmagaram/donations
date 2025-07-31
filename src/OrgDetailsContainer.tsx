@@ -3,15 +3,15 @@ import OrgDetailsView from "./OrgDetailsView";
 import { orgDelete } from "./donationsData";
 import type { DonationsData, Org } from "./types";
 
-interface OrgDetailsComponentProps {
+interface OrgDetailsContainerProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
 }
 
-const OrgDetailsComponent = ({
+const OrgDetailsContainer = ({
   donationsData,
   setDonationsData,
-}: OrgDetailsComponentProps) => {
+}: OrgDetailsContainerProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -48,4 +48,4 @@ const OrgDetailsComponent = ({
   );
 };
 
-export default OrgDetailsComponent;
+export default OrgDetailsContainer;

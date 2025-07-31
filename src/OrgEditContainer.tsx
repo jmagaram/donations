@@ -5,15 +5,15 @@ import type { DonationsData } from "./types";
 import { type OrgUpsertFields } from "./organization";
 import { orgUpdate, findOrgById } from "./donationsData";
 
-interface OrgEditComponentProps {
+interface OrgEditContainerProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
 }
 
-const OrgEditComponent = ({
+const OrgEditContainer = ({
   donationsData,
   setDonationsData,
-}: OrgEditComponentProps) => {
+}: OrgEditContainerProps) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [error, setError] = React.useState<string | undefined>();
@@ -48,4 +48,4 @@ const OrgEditComponent = ({
   );
 };
 
-export default OrgEditComponent;
+export default OrgEditContainer;

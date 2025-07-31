@@ -61,6 +61,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       id: donation.id,
       date: formatDate(donation.timestamp),
       amount: formatAmount(donation.amount),
+      orgId: donation.orgId,
       orgName: getOrgName(donation.orgId),
       kind: donation.kind,
       notes: donation.notes,

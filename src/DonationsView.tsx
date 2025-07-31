@@ -4,6 +4,7 @@ export interface DonationDisplay {
   id: string;
   date: string;
   amount: string;
+  orgId: string;
   orgName: string;
   kind: string;
   notes: string;
@@ -152,7 +153,9 @@ const DonationsView = ({
               <Link to={`/donations/${donation.id}/edit`}>{donation.date}</Link>
             </div>
             <div>{donation.amount}</div>
-            <div>{donation.orgName}</div>
+            <div>
+              <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
+            </div>
             <div>{donation.kind}</div>
             <div>{donation.notes}</div>
           </div>

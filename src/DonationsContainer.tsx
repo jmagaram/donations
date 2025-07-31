@@ -83,7 +83,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const handleClearFilters = () => {
     setFilter("");
-    setYearFrom(maxYear);
+    setYearFrom(Math.max(minYear, maxYear - 5));
     setYearTo(maxYear);
     setAmountMin(0);
     setAmountMax(Number.POSITIVE_INFINITY);

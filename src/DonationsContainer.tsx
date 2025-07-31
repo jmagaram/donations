@@ -84,6 +84,14 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     }
   };
 
+  const handleClearFilters = () => {
+    setFilter("");
+    setYearFrom(maxYear);
+    setYearTo(maxYear);
+    setAmountMin(0);
+    setAmountMax(Number.POSITIVE_INFINITY);
+  };
+
   return (
     <DonationsView
       donations={donations}
@@ -97,6 +105,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       amountMin={amountMin}
       amountMax={amountMax}
       amountFilterChanged={handleAmountFilterChanged}
+      onClearFilters={handleClearFilters}
     />
   );
 };

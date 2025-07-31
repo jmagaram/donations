@@ -21,6 +21,7 @@ interface DonationsViewProps {
   amountMin: number;
   amountMax: number;
   amountFilterChanged: (min: number, max: number) => void;
+  onClearFilters: () => void;
 }
 
 const DonationsView = ({
@@ -35,6 +36,7 @@ const DonationsView = ({
   amountMin,
   amountMax,
   amountFilterChanged,
+  onClearFilters,
 }: DonationsViewProps) => {
   const yearOptions = [];
   for (let y = maxYear; y >= minYear; y--) {
@@ -127,6 +129,13 @@ const DonationsView = ({
           onChange={(e) => textFilterChanged(e.target.value)}
           placeholder="Search donations..."
         />
+        <button
+          type="button"
+          onClick={onClearFilters}
+          style={{ marginLeft: "1rem" }}
+        >
+          Clear Filters
+        </button>
       </div>
       <hr />
       <div className="donations-page-grid">

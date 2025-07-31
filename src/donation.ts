@@ -33,25 +33,7 @@ export const editDonation = (
   timestamp: new Date(params.date).getTime(),
 });
 
-export const recency = (donation: Donation): number =>
-  donation.timestamp;
-
-const FILLER_WORDS = new Set([
-  "the",
-  "a",
-  "an",
-  "to",
-  "and",
-  "of",
-  "in",
-  "at",
-  "on",
-  "for",
-  "with",
-  "by",
-  "is",
-  "it",
-]);
+export const recency = (donation: Donation): number => donation.timestamp;
 
 /**
  * Returns true if any filter word (ignoring filler words) is a substring of any target word from donation or org fields.
@@ -65,10 +47,7 @@ export function donationTextMatch(
   org: { name: string; notes: string }
 ): boolean {
   function getWords(text: string): string[] {
-    return text
-      .toLowerCase()
-      .split(/[ ,]+/)
-      .filter((w) => w && !FILLER_WORDS.has(w));
+    return text.toLowerCase().split(/[ ,]+/);
   }
 
   const filterWords = getWords(filter);

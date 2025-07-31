@@ -44,7 +44,6 @@ const OrgUpsertForm = ({
           <input id="name" type="text" {...register("name")} />
           {errors.name && <span>{errors.name.message}</span>}
         </div>
-
         <div>
           <label htmlFor="taxDeductible">Tax Deductible:</label>
           <input
@@ -53,15 +52,15 @@ const OrgUpsertForm = ({
             {...register("taxDeductible")}
           />
         </div>
-
         <div>
           <label htmlFor="notes">Notes:</label>
           <textarea id="notes" {...register("notes")} />
         </div>
-
-        <button type="submit">
-          {mode === "edit" ? "Save Changes" : "Add Organization"}
-        </button>
+        <div className="item-toolbar">
+          <button type="submit">
+            {mode === "edit" ? "Save Changes" : "Add Organization"}
+          </button>
+        </div>
       </form>
     </div>
   );

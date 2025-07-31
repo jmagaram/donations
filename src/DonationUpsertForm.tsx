@@ -107,7 +107,7 @@ const DonationUpsertForm = ({
           <label htmlFor="notes">Notes:</label>
           <textarea id="notes" {...register("notes")} />
         </div>
-        <div className="donation-details-toolbar">
+        <div className="item-toolbar">
           <button type="submit">
             {mode === "edit" ? "Save Changes" : "Add Donation"}
           </button>

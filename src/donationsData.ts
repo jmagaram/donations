@@ -240,3 +240,13 @@ export const sampleData = (): DonationsData | undefined => {
 
   return result;
 };
+
+export const tryCreateSampleData = () => {
+  const result = sampleData();
+  if (result === undefined) {
+    alert("Failed to load sample data; using empty data instead.");
+    return empty();
+  } else {
+    return result;
+  }
+};

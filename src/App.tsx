@@ -8,18 +8,8 @@ import OrgUpsertContainer from "./OrgUpsertContainer";
 import DonationUpsertContainer from "./DonationUpsertContainer";
 import "./App.css";
 import { useState } from "react";
-import { sampleData, empty } from "./donationsData";
+import { tryCreateSampleData } from "./donationsData";
 import { type DonationsData, DonationsDataSchema } from "./types";
-
-const tryCreateSampleData = () => {
-  const result = sampleData();
-  if (result === undefined) {
-    alert("Failed to load sample data; using empty data instead.");
-    return empty();
-  } else {
-    return result;
-  }
-};
 
 const AppContent = () => {
   const [donationsData, setDonationsData] = useState<DonationsData>(() => {

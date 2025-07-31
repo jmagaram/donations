@@ -45,24 +45,27 @@ const OrgUpsertForm = ({
 
   return (
     <div>
-      <h1>{mode === "edit" ? "Edit Organization" : "Add New Organization"}</h1>
+      <h1>{mode === "edit" ? "Edit organization" : "New organization"}</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <div>
-          <label htmlFor="name">Name:</label>
+        <div className="form-field">
+          <label htmlFor="name">Name</label>
           <input id="name" type="text" {...register("name")} />
           {errors.name && <span>{errors.name.message}</span>}
         </div>
-        <div>
-          <label htmlFor="taxDeductible">Tax Deductible:</label>
-          <input
+        <div className="form-field">
+          <label htmlFor="taxDeductible">Tax status</label>
+          <select
             id="taxDeductible"
-            type="checkbox"
-            {...register("taxDeductible")}
-          />
+            {...register("taxDeductible", { setValueAs: (v) => v === "true" })}
+            defaultValue={defaultValues.taxDeductible ? "true" : "false"}
+          >
+            <option value="true">Tax-deductible</option>
+            <option value="false">Not tax-deductible</option>
+          </select>
         </div>
-        <div>
-          <label htmlFor="notes">Notes:</label>
-          <textarea id="notes" {...register("notes")} />
+        <div className="form-field">
+          <label htmlFor="notes">Notes</label>
+          <textarea id="notes" rows={5} {...register("notes")} />
         </div>
         <div className="item-toolbar">
           <button type="submit">

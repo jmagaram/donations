@@ -70,14 +70,17 @@ const DonationUpsertForm = ({
 
   return (
     <div>
-      <h1>{mode === "edit" ? "Edit Donation" : "Add New Donation"}</h1>
-      <div style={{ marginBottom: "1em" }}>
-        <strong>Organization:</strong> {orgName}
-      </div>
+      <h1>{mode === "edit" ? "Edit donation" : "New donation"}</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <input type="hidden" {...register("orgId")} />
-        <div>
-          <label htmlFor="amount">Amount:</label>
+        <div className="form-field">
+          <label htmlFor="name">Organization</label>
+          <div>
+            <strong>{orgName}</strong>
+          </div>
+        </div>
+        <div className="form-field">
+          <label htmlFor="amount">Amount</label>
           <input
             id="amount"
             type="number"
@@ -86,9 +89,8 @@ const DonationUpsertForm = ({
           />
           {errors.amount && <span>{errors.amount.message}</span>}
         </div>
-
-        <div>
-          <label htmlFor="kind">Type:</label>
+        <div className="form-field">
+          <label htmlFor="kind">Type</label>
           <select id="kind" {...register("kind")}>
             <option value="idea">Idea</option>
             <option value="pledge">Pledge</option>
@@ -96,16 +98,14 @@ const DonationUpsertForm = ({
           </select>
           {errors.kind && <span>{errors.kind.message}</span>}
         </div>
-
-        <div>
-          <label htmlFor="date">Date:</label>
+        <div className="form-field">
+          <label htmlFor="date">Date</label>
           <input id="date" type="date" {...register("date")} />
           {errors.date && <span>{errors.date.message}</span>}
         </div>
-
-        <div>
-          <label htmlFor="notes">Notes:</label>
-          <textarea id="notes" {...register("notes")} />
+        <div className="form-field">
+          <label htmlFor="notes">Notes</label>
+          <textarea id="notes" rows={5} {...register("notes")} />
         </div>
         <div className="item-toolbar">
           <button type="submit">

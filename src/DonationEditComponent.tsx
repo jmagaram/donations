@@ -1,7 +1,13 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import DonationUpsertForm from "./DonationUpsertForm";
 import type { DonationsData } from "./types";
-import { donationDelete, donationUpdate } from "./donationsData";
+import {
+  donationDelete,
+  donationUpdate,
+  findDonationById,
+  findOrgById,
+} from "./donationsData";
 import { editDonation } from "./donation";
 import type { DonationUpsertFields } from "./donation";
 
@@ -16,11 +22,16 @@ const DonationEditComponent = ({
 }: DonationEditComponentProps) => {
   const { donationId } = useParams<{ donationId: string }>();
   const navigate = useNavigate();
+  const [error, setError] = useState<string | undefined>(undefined);
 
-  const donation = donationsData.donations.find((d) => d.id === donationId);
+  if (!donationId) {
+    return <div>No donation ID provided in the page URL.</div>;
+  }
+
+  const donation = findDonationById(donationsData, donationId);
 
   if (!donation) {
-    return <div>Donation not found.</div>;
+    return <div>Donation with ID {donationId} not found.</div>;
   }
 
   const defaultValues = {
@@ -32,37 +43,46 @@ const DonationEditComponent = ({
   };
 
   const handleEditDonation = (formData: DonationUpsertFields) => {
+    setError(undefined);
+
     if (!donation) return;
+
+    const targetOrg = findOrgById(donationsData, formData.orgId);
+    if (!targetOrg) {
+      setError("The selected organization no longer exists.");
+      return;
+    }
+
     const updatedDonation = editDonation({ ...formData, id: donation.id });
     const newData = donationUpdate(donationsData, updatedDonation);
     if (!newData) {
-      alert("Failed to update donation: not found.");
+      setError(
+        "Failed to update the donation. Either the donation does not exist, or the organization was not found. Go back to the Home page, reload data, and try again."
+      );
       return;
     }
+
     setDonationsData(newData);
     navigate("/orgs/" + updatedDonation.orgId);
   };
 
   const handleDeleteDonation = () => {
-    if (!donation) return;
-    if (!donationId) return;
     const updatedData = donationDelete(donationsData, donationId);
-    if (!updatedData) {
-      alert("Failed to delete donation: not found.");
-      return;
-    }
     setDonationsData(updatedData);
     navigate("/orgs/" + donation.orgId);
   };
 
   return (
-    <DonationUpsertForm
-      defaultValues={defaultValues}
-      onSubmit={handleEditDonation}
-      onDelete={handleDeleteDonation}
-      mode="edit"
-      donationsData={donationsData}
-    />
+    <div>
+      {error && <div className="errorBox">{error}</div>}
+      <DonationUpsertForm
+        defaultValues={defaultValues}
+        onSubmit={handleEditDonation}
+        onDelete={handleDeleteDonation}
+        mode="edit"
+        donationsData={donationsData}
+      />
+    </div>
   );
 };
 

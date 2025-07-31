@@ -165,3 +165,12 @@ nav {
 .orgs-grid .notes {
   white-space: pre-line;
 }
+
+.errorBox {
+  color: red;
+  margin: 1em 0;
+  padding: 0.5em;
+  border: 1px solid red;
+  border-radius: 4px;
+  background-color: #ffeaea;
+}

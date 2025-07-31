@@ -7,12 +7,12 @@ export const empty = (): DonationsData => ({
   donations: [],
 });
 
-const findOrgById = (
+export const findOrgById = (
   data: Readonly<DonationsData>,
   id: string
 ): Org | undefined => data.orgs.find((org) => org.id === id);
 
-const findDonationById = (
+export const findDonationById = (
   data: Readonly<DonationsData>,
   id: string
 ): Donation | undefined =>

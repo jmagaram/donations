@@ -1,12 +1,12 @@
 import { z } from "zod";
-import { type DonationsData, type Org } from "./types";
+import { type DonationsData, type Org, OrgNameSchema, OrgTaxDeductibleSchema, OrgWebSiteSchema, OrgNotesSchema } from "./types";
 import { recency as donationRecency } from "./donation";
 
 export const OrgUpsertFieldsSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  taxDeductible: z.boolean(),
-  webSite: z.url().optional().or(z.literal("")),
-  notes: z.string(),
+  name: OrgNameSchema.min(1, "Name is required"),
+  taxDeductible: OrgTaxDeductibleSchema,
+  webSite: OrgWebSiteSchema.or(z.literal("")),
+  notes: OrgNotesSchema,
 });
 
 export type OrgUpsertFields = z.infer<typeof OrgUpsertFieldsSchema>;

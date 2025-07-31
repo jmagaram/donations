@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { type Donation, OrgIdSchema } from "./types";
+import { type Donation, OrgIdSchema, DonationAmountSchema, DonationKindSchema, DonationNotesSchema, DonationDateSchema } from "./types";
 import { nanoid } from "nanoid";
 
 export const DonationUpsertFieldsSchema = z.object({
   orgId: OrgIdSchema.min(1, "Please select an organization"),
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Please enter a valid date in YYYY-MM-DD format"),
-  amount: z.number().min(0),
-  kind: z.enum(["idea", "pledge", "paid"]),
-  notes: z.string(),
+  date: DonationDateSchema,
+  amount: DonationAmountSchema,
+  kind: DonationKindSchema,
+  notes: DonationNotesSchema,
 });
 
 export type DonationUpsertFields = z.infer<typeof DonationUpsertFieldsSchema>;

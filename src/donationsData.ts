@@ -181,7 +181,7 @@ const sampleDataArray = [
 export const sampleData = (): DonationsData => {
   return sampleDataArray.reduce<DonationsData>((data, org) => {
     const newOrg = { ...org, id: nanoid() };
-    const result = orgAdd(data, newOrg);
+    const result = orgAdd(data, newOrg)!;
     if (org.donations) {
       org.donations.forEach((donation) => {
         const newDonation = createDonation({

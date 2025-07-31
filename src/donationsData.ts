@@ -215,18 +215,19 @@ const sampleDataArray = [
 
 export const sampleData = (): DonationsData | undefined => {
   let result = empty();
-  
+
   for (const org of sampleDataArray) {
     const newOrg = { ...org, id: nanoid() };
     const dataWithOrg = orgAdd(result, newOrg);
     if (!dataWithOrg) return undefined;
-    
+
     result = dataWithOrg;
-    
+
     if (org.donations) {
       for (const donation of org.donations) {
         const newDonation = createDonation({
           ...donation,
+          date: new Date(donation.date),
           notes: "",
           orgId: newOrg.id,
         });
@@ -236,6 +237,6 @@ export const sampleData = (): DonationsData | undefined => {
       }
     }
   }
-  
+
   return result;
 };

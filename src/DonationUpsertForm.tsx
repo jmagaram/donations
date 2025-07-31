@@ -106,7 +106,7 @@ const DonationUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="date">Date</label>
-          <input id="date" type="date" {...register("date")} />
+          <input id="date" type="date" {...register("date", { valueAsDate: true })} />
           {errors.date && <span>{errors.date.message}</span>}
         </div>
         <div className="form-field">

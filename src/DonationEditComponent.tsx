@@ -36,7 +36,7 @@ const DonationEditComponent = ({
 
   const defaultValues = {
     orgId: donation.orgId,
-    date: new Date(donation.timestamp).toISOString().slice(0, 10),
+    date: new Date(donation.timestamp),
     amount: donation.amount,
     kind: donation.kind,
     notes: donation.notes,

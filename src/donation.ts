@@ -21,7 +21,7 @@ export type DonationUpsertFields = z.infer<typeof DonationUpsertFieldsSchema>;
 
 export const defaultFields: DonationUpsertFields = {
   orgId: "",
-  date: new Date().toISOString().slice(0, 10),
+  date: new Date(),
   amount: 0,
   kind: "paid",
   notes: "",
@@ -29,7 +29,7 @@ export const defaultFields: DonationUpsertFields = {
 
 export const createDonation = (params: DonationUpsertFields): Donation => ({
   ...params,
-  timestamp: new Date(params.date).getTime(),
+  timestamp: params.date.getTime(),
   id: nanoid(),
 });
 
@@ -37,7 +37,7 @@ export const editDonation = (
   params: DonationUpsertFields & { id: string }
 ): Donation => ({
   ...params,
-  timestamp: new Date(params.date).getTime(),
+  timestamp: params.date.getTime(),
 });
 
 export const donationTextMatch = (

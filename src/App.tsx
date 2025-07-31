@@ -34,10 +34,10 @@ const tryCreateSampleData = () => {
 const AppContent = () => {
   const navigate = useNavigate();
   const [donationsData, setDonationsData] = useState<DonationsData>(() => {
-    const forceResetOfSampleData = false;
+    const FORCE_RESET_SAMPLE_DATA = false;
     const DONATIONS_DATA_KEY = "donationsData";
     const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
-    if (forceResetOfSampleData || !saved) {
+    if (FORCE_RESET_SAMPLE_DATA || !saved) {
       const data = tryCreateSampleData();
       sessionStorage.setItem(DONATIONS_DATA_KEY, JSON.stringify(data));
       return data;

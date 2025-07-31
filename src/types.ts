@@ -5,7 +5,7 @@ export const IdSchema = z.string().trim().length(21);
 export const OrgIdSchema = z.string().trim().length(21);
 
 export const DonationAmountSchema = z.number().min(0);
-export const DonationKindSchema = z.enum(["idea", "pledge", "paid"]);
+export const DonationKindSchema = z.enum(["idea", "pledge", "paid", "unknown"]);
 export const DonationNotesSchema = z.string();
 export const DonationDateSchema = z.date();
 export const TimestampSchema = z.number().min(0);

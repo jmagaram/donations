@@ -106,6 +106,7 @@ const DonationUpsertForm = ({
             <option value="idea">Idea</option>
             <option value="pledge">Pledge</option>
             <option value="paid">Paid</option>
+            <option value="unknown">Unknown</option>
           </select>
           {errors.kind && <span>{errors.kind.message}</span>}
         </div>

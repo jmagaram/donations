@@ -1,37 +1,68 @@
 import { Link } from "react-router-dom";
-import { type DonationsData } from "./types";
+
+export interface DonationDisplay {
+  id: string;
+  date: string;
+  amount: string;
+  orgName: string;
+  kind: string;
+  notes: string;
+}
 
 interface DonationsViewProps {
-  donationsData: DonationsData;
+  donations: DonationDisplay[];
   currentFilter: string;
   textFilterChanged: (filter: string) => void;
+  yearFrom: number;
+  yearTo: number;
+  minYear: number;
+  maxYear: number;
+  yearFilterChanged: (from: number, to: number) => void;
 }
 
 const DonationsView = ({
-  donationsData,
+  donations,
   currentFilter,
   textFilterChanged,
+  yearFrom,
+  yearTo,
+  minYear,
+  maxYear,
+  yearFilterChanged,
 }: DonationsViewProps) => {
-  const getOrgName = (orgId: string) => {
-    const org = donationsData.orgs.find((o) => o.id === orgId);
-    return org?.name || "Unknown Organization";
-  };
-
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toISOString().split("T")[0];
-  };
-
-  const formatAmount = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const yearOptions = [];
+  for (let y = maxYear; y >= minYear; y--) {
+    yearOptions.push(y);
+  }
 
   return (
     <div>
       <h1>Donations</h1>
-      <div>
+      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+        <label htmlFor="year-from">From:</label>
+        <select
+          id="year-from"
+          value={yearFrom}
+          onChange={(e) => yearFilterChanged(Number(e.target.value), yearTo)}
+        >
+          {yearOptions.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="year-to">To:</label>
+        <select
+          id="year-to"
+          value={yearTo}
+          onChange={(e) => yearFilterChanged(yearFrom, Number(e.target.value))}
+        >
+          {yearOptions.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </select>
         <label htmlFor="filter">Filter:</label>
         <input
           type="search"
@@ -50,15 +81,13 @@ const DonationsView = ({
           <div>Kind</div>
           <div>Notes</div>
         </div>
-        {donationsData.donations.map((donation) => (
+        {donations.map((donation) => (
           <div key={donation.id} className="donations-page-grid-row">
             <div>
-              <Link to={`/donations/${donation.id}/edit`}>
-                {formatDate(donation.timestamp)}
-              </Link>
+              <Link to={`/donations/${donation.id}/edit`}>{donation.date}</Link>
             </div>
-            <div>{formatAmount(donation.amount)}</div>
-            <div>{getOrgName(donation.orgId)}</div>
+            <div>{donation.amount}</div>
+            <div>{donation.orgName}</div>
             <div>{donation.kind}</div>
             <div>{donation.notes}</div>
           </div>

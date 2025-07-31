@@ -18,6 +18,9 @@ interface DonationsViewProps {
   minYear: number;
   maxYear: number;
   yearFilterChanged: (from: number, to: number) => void;
+  amountMin: number;
+  amountMax: number;
+  amountFilterChanged: (min: number, max: number) => void;
 }
 
 const DonationsView = ({
@@ -29,10 +32,33 @@ const DonationsView = ({
   minYear,
   maxYear,
   yearFilterChanged,
+  amountMin,
+  amountMax,
+  amountFilterChanged,
 }: DonationsViewProps) => {
   const yearOptions = [];
   for (let y = maxYear; y >= minYear; y--) {
     yearOptions.push(y);
+  }
+
+  const amountOptions = [
+    0,
+    100,
+    200,
+    300,
+    400,
+    500,
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    Number.POSITIVE_INFINITY,
+  ];
+
+  function formatAmountOption(val: number) {
+    if (val === Number.POSITIVE_INFINITY) return "Unlimited";
+    return `$${val.toLocaleString()}`;
   }
 
   return (
@@ -63,6 +89,36 @@ const DonationsView = ({
             </option>
           ))}
         </select>
+
+        <label htmlFor="amount-min">Min:</label>
+        <select
+          id="amount-min"
+          value={amountMin}
+          onChange={(e) =>
+            amountFilterChanged(Number(e.target.value), amountMax)
+          }
+        >
+          {amountOptions.map((a) => (
+            <option key={a} value={a}>
+              {formatAmountOption(a)}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="amount-max">Max:</label>
+        <select
+          id="amount-max"
+          value={amountMax}
+          onChange={(e) =>
+            amountFilterChanged(amountMin, Number(e.target.value))
+          }
+        >
+          {amountOptions.map((a) => (
+            <option key={a} value={a}>
+              {formatAmountOption(a)}
+            </option>
+          ))}
+        </select>
+
         <label htmlFor="filter">Filter:</label>
         <input
           type="search"

@@ -37,11 +37,20 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     }).format(amount);
   };
 
-  // Prepare and sort donations for display, filter by year
+  const [amountMin, setAmountMin] = useState(0);
+  const [amountMax, setAmountMax] = useState(Number.POSITIVE_INFINITY);
+
+  // Prepare and sort donations for display, filter by year and amount
   const donations: DonationDisplay[] = [...donationsData.donations]
     .filter((d) => {
       const year = new Date(d.timestamp).getFullYear();
-      return year >= yearFrom && year <= yearTo;
+      const amt = d.amount;
+      return (
+        year >= yearFrom &&
+        year <= yearTo &&
+        amt >= amountMin &&
+        (amountMax === Number.POSITIVE_INFINITY || amt <= amountMax)
+      );
     })
     .sort((a, b) => b.timestamp - a.timestamp)
     .map((donation) => ({
@@ -64,6 +73,17 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     }
   };
 
+  const handleAmountFilterChanged = (min: number, max: number) => {
+    // Ensure min <= max
+    if (min > max) {
+      setAmountMin(max);
+      setAmountMax(min);
+    } else {
+      setAmountMin(min);
+      setAmountMax(max);
+    }
+  };
+
   return (
     <DonationsView
       donations={donations}
@@ -74,6 +94,9 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       minYear={minYear}
       maxYear={maxYear}
       yearFilterChanged={handleYearFilterChanged}
+      amountMin={amountMin}
+      amountMax={amountMax}
+      amountFilterChanged={handleAmountFilterChanged}
     />
   );
 };

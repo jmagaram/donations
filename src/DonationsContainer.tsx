@@ -16,8 +16,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   );
   const minYear = Math.min(...years);
   const maxYear = Math.max(...years);
-  // Default: most recent year
-  const [yearFrom, setYearFrom] = useState(maxYear);
+  const [yearFrom, setYearFrom] = useState(Math.max(minYear, maxYear - 5));
   const [yearTo, setYearTo] = useState(maxYear);
 
   // Helper to get org name by id
@@ -63,7 +62,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     }));
 
   const handleYearFilterChanged = (from: number, to: number) => {
-    // Ensure from <= to
     if (from > to) {
       setYearFrom(to);
       setYearTo(from);
@@ -74,7 +72,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   };
 
   const handleAmountFilterChanged = (min: number, max: number) => {
-    // Ensure min <= max
     if (min > max) {
       setAmountMin(max);
       setAmountMax(min);

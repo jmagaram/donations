@@ -24,24 +24,34 @@ import { nanoid } from "nanoid";
 const AppContent = () => {
   const navigate = useNavigate();
   const [donationsData, setDonationsData] = useState(() => {
-    // const m = sampleData();
-    // localStorage.setItem("donationsData", JSON.stringify(m));
-    const saved = sessionStorage.getItem("donationsData");
+    const resetSampleData = false;
+    if (resetSampleData) {
+      const data = sampleData();
+      localStorage.setItem("donationsData", JSON.stringify(data));
+    }
+    const DONATIONS_DATA_KEY = "donationsData";
+    const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 
   const handleAddOrg = (formData: OrgUpsertFields) => {
     const newOrganization = { ...formData, id: nanoid() };
     const updatedData = orgAdd(donationsData, newOrganization);
-    setDonationsData(updatedData);
-    navigate("/orgs");
+    if (updatedData === undefined) {
+      alert("Could not add organization: already exists.");
+    } else {
+      setDonationsData(updatedData);
+      navigate("/orgs");
+    }
   };
 
   const handleAddDonation = (formData: DonationUpsertFields) => {
     const newDonation = createDonation(formData);
     const updatedData = donationAdd(donationsData, newDonation);
     if (updatedData === undefined) {
-      alert("Failed to add donation: organization not found.");
+      alert(
+        "Failed to add donation: organization was not found, or a donation with the smae ID already exists."
+      );
     } else {
       setDonationsData(updatedData);
       navigate(`/orgs/${newDonation.orgId}`);

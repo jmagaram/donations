@@ -11,7 +11,6 @@ interface DonationsContainerProps {
 const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const [filter, setFilter] = useState("");
 
-  // Get all years from donation timestamps
   const years = donationsData.donations.map((d) =>
     new Date(d.timestamp).getFullYear()
   );
@@ -20,7 +19,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const [yearFrom, setYearFrom] = useState(new Date().getFullYear() - 5);
   const [yearTo, setYearTo] = useState(maxYear);
 
-  // Helper to get org name by id
   const getOrgName = (orgId: string) => {
     const org = donationsData.orgs.find((o) => o.id === orgId);
     return org?.name || "Unknown Organization";
@@ -114,12 +112,3 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 };
 
 export default DonationsContainer;
-
-// date filter
-// amount filter
-// org name or notes filter
-// donation notes filter
-
-// From: 2024 to 2026
-// Value: $200 to $5000
-// Text: Brothers

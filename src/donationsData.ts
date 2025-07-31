@@ -7,14 +7,17 @@ export const empty = (): DonationsData => ({
   donations: [],
 });
 
-export const orgAdd = (data: DonationsData, org: Org): DonationsData => {
+export const orgAdd = (
+  data: DonationsData,
+  org: Org
+): DonationsData | undefined => {
   const exists = data.orgs.some(
     (o) =>
       o.id === org.id ||
       o.name.toLowerCase().trim() === org.name.toLowerCase().trim()
   );
   if (exists) {
-    return data;
+    return undefined;
   }
   return {
     ...data,
@@ -60,7 +63,8 @@ export const donationAdd = (
   donation: Donation
 ): DonationsData | undefined => {
   const orgExists = data.orgs.some((org) => org.id === donation.orgId);
-  if (!orgExists) {
+  const donationExists = data.donations.some((d) => d.id === donation.id);
+  if (!orgExists || donationExists) {
     return undefined;
   }
   return {

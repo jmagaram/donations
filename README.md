@@ -2,8 +2,12 @@
 
 ## Purpose
 
-A web app for tracking a family's personal donations to various tax-deductible and non-tax-deductible organizations. Features:
+A web app for tracking a family's personal donations to various tax-deductible and non-tax-deductible organizations.
 
+## Features
+
+- Track list of organizations (name, tax-status, notes)
+- Track donations (date, amount, notes, kind like pledge, budget, or paid)
 - Simple reports for analysis and tax preparation
 - Export (for spreadsheet analysis)
 - Simple searching by name, amount, date, etc.
@@ -13,5 +17,5 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## Technology
 
-React
+React  
 TypeScript

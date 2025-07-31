@@ -143,8 +143,8 @@ const DonationsView = ({
           </button>
         </div>
       </div>
-      <div className="donations-page-grid">
-        <div className="donations-page-grid-header">
+      <div className="donations-grid">
+        <div className="donations-grid-header">
           <div>Date</div>
           <div>Amount</div>
           <div>Organization</div>
@@ -152,16 +152,16 @@ const DonationsView = ({
           <div className="hide-on-mobile">Notes</div>
         </div>
         {donations.map((donation) => (
-          <div key={donation.id} className="donations-page-grid-row">
+          <div key={donation.id} className="donations-grid-row">
             <div>
               <Link to={`/donations/${donation.id}/edit`}>{donation.date}</Link>
             </div>
-            <div className="donations-page-grid-amount">{donation.amount}</div>
+            <div className="donations-grid-amount">{donation.amount}</div>
             <div>
               <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
             </div>
-            <div className="donations-page-grid-kind">{donation.kind}</div>
-            <div className="donations-page-grid-notes hide-on-mobile">
+            <div className="donations-grid-kind">{donation.kind}</div>
+            <div className="donations-grid-notes hide-on-mobile">
               {donation.notes}
             </div>
           </div>

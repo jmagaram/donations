@@ -48,7 +48,11 @@ const OrgDetailsView = ({
           <>
             <div className="org-details-header">Website</div>
             <div className="org-details-content">
-              <a href={organization.webSite} target="_blank" rel="noopener noreferrer">
+              <a
+                href={organization.webSite}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 {organization.webSite}
               </a>
             </div>
@@ -63,25 +67,27 @@ const OrgDetailsView = ({
       </div>
       <div className="org-details-section">
         {donations.length > 0 ? (
-          <div className="donations-grid">
-            <div className="donation-row donation-header">
+          <div className="org-details-donation-grid">
+            <div className="org-details-donation-row org-details-donation-header">
               <div>Date</div>
               <div>Amount</div>
               <div>Kind</div>
               <div>Notes</div>
             </div>
             {donations.map((donation) => (
-              <div key={donation.id} className="donation-row">
-                <div className="donation-date">
+              <div key={donation.id} className="org-details-donation-row">
+                <div className="org-details-donation-date">
                   <Link to={`/donations/${donation.id}/edit`}>
                     {formatDate(donation.timestamp)}
                   </Link>
                 </div>
-                <div className="donation-amount">
+                <div className="org-details-donation-amount">
                   {formatAmount(donation.amount)}
                 </div>
-                <div className="donation-kind">{donation.kind}</div>
-                <div className="donation-notes">{donation.notes || "-"}</div>
+                <div className="org-details-donation-kind">{donation.kind}</div>
+                <div className="org-details-donation-notes">
+                  {donation.notes || "-"}
+                </div>
               </div>
             ))}
           </div>

@@ -1,25 +1,15 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  useNavigate,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
 import OrgsContainer from "./OrgsContainer";
 import DonationsContainer from "./DonationsContainer";
-import OrgUpsertForm from "./OrgUpsertForm";
 import OrgDetailsContainer from "./OrgDetailsContainer";
-import OrgEditContainer from "./OrgUpsertContainer";
-import DonationUpsertForm from "./DonationUpsertForm";
-import DonationEditContainer from "./DonationUpsertContainer";
+import OrgUpsertContainer from "./OrgUpsertContainer";
+import DonationUpsertContainer from "./DonationUpsertContainer";
 import "./App.css";
 import { useState } from "react";
-import { sampleData, orgAdd, donationAdd, empty } from "./donationsData";
+import { sampleData, empty } from "./donationsData";
 import { type DonationsData, DonationsDataSchema } from "./types";
-import type { OrgUpsertFields } from "./organization";
-import { createDonation, type DonationUpsertFields } from "./donation";
-import { nanoid } from "nanoid";
 
 const tryCreateSampleData = () => {
   const result = sampleData();
@@ -32,7 +22,6 @@ const tryCreateSampleData = () => {
 };
 
 const AppContent = () => {
-  const navigate = useNavigate();
   const [donationsData, setDonationsData] = useState<DonationsData>(() => {
     const FORCE_RESET_SAMPLE_DATA = false;
     const DONATIONS_DATA_KEY = "donationsData";
@@ -46,44 +35,11 @@ const AppContent = () => {
     }
   });
 
-  const handleAddOrg = (formData: OrgUpsertFields) => {
-    const newOrganization = { ...formData, id: nanoid() };
-    const updatedData = orgAdd(donationsData, newOrganization);
-    if (updatedData === undefined) {
-      alert(
-        "Could not add organization; an organization with the same name might already exist."
-      );
-    } else {
-      setDonationsData(updatedData);
-      navigate("/orgs");
-    }
-  };
-
-  const handleAddDonation = (formData: DonationUpsertFields) => {
-    const newDonation = createDonation(formData);
-    const updatedData = donationAdd(donationsData, newDonation);
-    if (updatedData === undefined) {
-      alert("Failed to add donation");
-    } else {
-      setDonationsData(updatedData);
-      navigate(`/orgs/${newDonation.orgId}`);
-    }
-  };
-
   return (
     <>
       <Header />
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route
-          path="/orgs"
-          element={
-            <OrgsContainer
-              donationsData={donationsData}
-              setDonationsData={setDonationsData}
-            />
-          }
-        />
         <Route
           path="/donations"
           element={
@@ -94,16 +50,38 @@ const AppContent = () => {
           }
         />
         <Route
-          path="/orgs/add"
-          element={<OrgUpsertForm onSubmit={handleAddOrg} mode="add" />}
-        />
-        <Route
           path="/donations/add"
           element={
-            <DonationUpsertForm
-              onSubmit={handleAddDonation}
-              mode="add"
+            <DonationUpsertContainer
               donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/donations/:donationId/edit"
+          element={
+            <DonationUpsertContainer
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/orgs"
+          element={
+            <OrgsContainer
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/orgs/add"
+          element={
+            <OrgUpsertContainer
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
             />
           }
         />
@@ -119,16 +97,7 @@ const AppContent = () => {
         <Route
           path="/orgs/:id/edit"
           element={
-            <OrgEditContainer
-              donationsData={donationsData}
-              setDonationsData={setDonationsData}
-            />
-          }
-        />
-        <Route
-          path="/donations/:donationId/edit"
-          element={
-            <DonationEditContainer
+            <OrgUpsertContainer
               donationsData={donationsData}
               setDonationsData={setDonationsData}
             />

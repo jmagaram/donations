@@ -5,47 +5,47 @@ import type { DonationsData } from "./types";
 import {
   donationDelete,
   donationUpdate,
+  donationAdd,
   findDonationById,
   findOrgById,
 } from "./donationsData";
-import { editDonation } from "./donation";
+import { editDonation, createDonation } from "./donation";
 import type { DonationUpsertFields } from "./donation";
 
-interface DonationEditContainerProps {
+interface DonationUpsertContainerProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
 }
 
-const DonationEditContainer = ({
+const DonationUpsertContainer = ({
   donationsData,
   setDonationsData,
-}: DonationEditContainerProps) => {
+}: DonationUpsertContainerProps) => {
   const { donationId } = useParams<{ donationId: string }>();
   const navigate = useNavigate();
   const [error, setError] = useState<string | undefined>(undefined);
 
-  if (!donationId) {
-    return <div>No donation ID provided in the page URL.</div>;
-  }
+  const isEditMode = Boolean(donationId);
+  const donation = isEditMode
+    ? findDonationById(donationsData, donationId!)
+    : undefined;
 
-  const donation = findDonationById(donationsData, donationId);
-
-  if (!donation) {
+  if (isEditMode && !donation) {
     return <div>Donation with ID {donationId} not found.</div>;
   }
 
-  const defaultValues = {
-    orgId: donation.orgId,
-    date: new Date(donation.timestamp),
-    amount: donation.amount,
-    kind: donation.kind,
-    notes: donation.notes,
-  };
+  const defaultValues = donation
+    ? {
+        orgId: donation.orgId,
+        date: new Date(donation.timestamp),
+        amount: donation.amount,
+        kind: donation.kind,
+        notes: donation.notes,
+      }
+    : undefined;
 
-  const handleEditDonation = (formData: DonationUpsertFields) => {
+  const handleUpsertDonation = (formData: DonationUpsertFields) => {
     setError(undefined);
-
-    if (!donation) return;
 
     const targetOrg = findOrgById(donationsData, formData.orgId);
     if (!targetOrg) {
@@ -53,20 +53,32 @@ const DonationEditContainer = ({
       return;
     }
 
-    const updatedDonation = editDonation({ ...formData, id: donation.id });
-    const newData = donationUpdate(donationsData, updatedDonation);
-    if (!newData) {
-      setError(
-        "Failed to update the donation. Either the donation does not exist, or the organization was not found. Go back to the Home page, reload data, and try again."
-      );
-      return;
+    if (isEditMode) {
+      if (!donation) return;
+      const updatedDonation = editDonation({ ...formData, id: donation.id });
+      const newData = donationUpdate(donationsData, updatedDonation);
+      if (!newData) {
+        setError(
+          "Failed to update the donation. Either the donation does not exist, or the organization was not found. Go back to the Home page, reload data, and try again."
+        );
+        return;
+      }
+      setDonationsData(newData);
+      navigate("/orgs/" + updatedDonation.orgId);
+    } else {
+      const newDonation = createDonation(formData);
+      const updatedData = donationAdd(donationsData, newDonation);
+      if (!updatedData) {
+        setError("Failed to add donation");
+        return;
+      }
+      setDonationsData(updatedData);
+      navigate(`/orgs/${newDonation.orgId}`);
     }
-
-    setDonationsData(newData);
-    navigate("/orgs/" + updatedDonation.orgId);
   };
 
   const handleDeleteDonation = () => {
+    if (!donation || !donationId) return;
     const updatedData = donationDelete(donationsData, donationId);
     setDonationsData(updatedData);
     navigate("/orgs/" + donation.orgId);
@@ -77,13 +89,13 @@ const DonationEditContainer = ({
       {error && <div className="errorBox">{error}</div>}
       <DonationUpsertForm
         defaultValues={defaultValues}
-        onSubmit={handleEditDonation}
-        onDelete={handleDeleteDonation}
-        mode="edit"
+        onSubmit={handleUpsertDonation}
+        onDelete={isEditMode ? handleDeleteDonation : undefined}
+        mode={isEditMode ? "edit" : "add"}
         donationsData={donationsData}
       />
     </div>
   );
 };
 
-export default DonationEditContainer;
+export default DonationUpsertContainer;

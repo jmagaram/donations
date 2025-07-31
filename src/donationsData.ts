@@ -213,20 +213,29 @@ const sampleDataArray = [
   },
 ];
 
-export const sampleData = (): DonationsData => {
-  return sampleDataArray.reduce<DonationsData>((data, org) => {
+export const sampleData = (): DonationsData | undefined => {
+  let result = empty();
+  
+  for (const org of sampleDataArray) {
     const newOrg = { ...org, id: nanoid() };
-    const dataWithOrg = orgAdd(data, newOrg);
-    if (!dataWithOrg) return data;
-    if (!org.donations) return dataWithOrg;
-    return org.donations.reduce<DonationsData>((currentData, donation) => {
-      const newDonation = createDonation({
-        ...donation,
-        notes: "",
-        orgId: newOrg.id,
-      });
-      const result = donationAdd(currentData, newDonation);
-      return result ?? currentData;
-    }, dataWithOrg);
-  }, empty());
+    const dataWithOrg = orgAdd(result, newOrg);
+    if (!dataWithOrg) return undefined;
+    
+    result = dataWithOrg;
+    
+    if (org.donations) {
+      for (const donation of org.donations) {
+        const newDonation = createDonation({
+          ...donation,
+          notes: "",
+          orgId: newOrg.id,
+        });
+        const donationResult = donationAdd(result, newDonation);
+        if (!donationResult) return undefined;
+        result = donationResult;
+      }
+    }
+  }
+  
+  return result;
 };

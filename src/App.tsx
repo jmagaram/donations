@@ -15,30 +15,42 @@ import DonationUpsertForm from "./DonationUpsertForm";
 import DonationEditComponent from "./DonationEditComponent";
 import "./App.css";
 import { useState } from "react";
-import { sampleData, orgAdd, donationAdd } from "./donationsData";
-import { DonationsDataSchema } from "./types";
+import { sampleData, orgAdd, donationAdd, empty } from "./donationsData";
+import { type DonationsData, DonationsDataSchema } from "./types";
 import type { OrgUpsertFields } from "./organization";
 import { createDonation, type DonationUpsertFields } from "./donation";
 import { nanoid } from "nanoid";
 
+const tryCreateSampleData = () => {
+  const result = sampleData();
+  if (result === undefined) {
+    alert("Failed to load sample data; using empty data instead.");
+    return empty();
+  } else {
+    return result;
+  }
+};
+
 const AppContent = () => {
   const navigate = useNavigate();
-  const [donationsData, setDonationsData] = useState(() => {
-    const resetSampleData = false;
-    if (resetSampleData) {
-      const data = sampleData();
-      localStorage.setItem("donationsData", JSON.stringify(data));
-    }
+  const [donationsData, setDonationsData] = useState<DonationsData>(() => {
+    const forceResetOfSampleData = false;
     const DONATIONS_DATA_KEY = "donationsData";
     const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
-    return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
+    if (forceResetOfSampleData || !saved) {
+      const data = tryCreateSampleData();
+      sessionStorage.setItem(DONATIONS_DATA_KEY, JSON.stringify(data));
+      return data;
+    } else {
+      return DonationsDataSchema.parse(JSON.parse(saved));
+    }
   });
 
   const handleAddOrg = (formData: OrgUpsertFields) => {
     const newOrganization = { ...formData, id: nanoid() };
     const updatedData = orgAdd(donationsData, newOrganization);
     if (updatedData === undefined) {
-      alert("Could not add organization: already exists.");
+      alert("Could not add organization.");
     } else {
       setDonationsData(updatedData);
       navigate("/orgs");
@@ -49,9 +61,7 @@ const AppContent = () => {
     const newDonation = createDonation(formData);
     const updatedData = donationAdd(donationsData, newDonation);
     if (updatedData === undefined) {
-      alert(
-        "Failed to add donation: organization was not found, or a donation with the smae ID already exists."
-      );
+      alert("Failed to add donation");
     } else {
       setDonationsData(updatedData);
       navigate(`/orgs/${newDonation.orgId}`);

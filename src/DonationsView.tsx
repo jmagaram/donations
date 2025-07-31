@@ -52,9 +52,7 @@ const DonationsView = ({
     400,
     500,
     1000,
-    2000,
-    3000,
-    4000,
+    2500,
     5000,
     Number.POSITIVE_INFINITY,
   ];

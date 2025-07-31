@@ -18,6 +18,22 @@
   gap:0.25em;
 }
 
+.form-field #kind { 
+  width:fit-content;
+}
+
+.form-field #date {
+  width: fit-content;
+}
+
+.form-field #amount {
+  width: fit-content;
+}
+
+.form-field #taxDeductible {
+  width: fit-content;
+}
+
 .toolbar {
   display: flex;
   align-items:end;
@@ -53,10 +69,9 @@
 
 .donations-grid {
   display: grid;
-  grid-template-columns: auto auto auto 1fr auto;
+  grid-template-columns: auto auto auto 1fr ;
   gap: 0.25rem 0.25rem;
 }
-
 
 .donations-row {
   font-weight: bold;

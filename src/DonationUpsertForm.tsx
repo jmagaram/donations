@@ -84,7 +84,7 @@ const DonationUpsertForm = ({
           <input
             id="amount"
             type="number"
-            step="0.01"
+            step="100"
             {...register("amount", { valueAsNumber: true })}
           />
           {errors.amount && <span>{errors.amount.message}</span>}

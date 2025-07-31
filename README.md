@@ -19,3 +19,13 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 React  
 TypeScript
+
+## To do
+
+Import and export  
+Persistence to a server  
+Security  
+Basic reporting  
+Track whether receipt exists for a donation  
+Tax-preparation specific report  
+Organization categories, like environment

@@ -1,7 +1,11 @@
 import { z } from "zod";
 
+export const IdSchema = z.string().trim().length(21);
+
+export const OrgIdSchema = z.string().trim().length(21);
+
 export const OrgSchema = z.object({
-  id: z.string().trim().length(21),
+  id: IdSchema,
   name: z.string().trim().min(1),
   taxDeductible: z.boolean(),
   webSite: z.url().optional(),
@@ -11,8 +15,8 @@ export const OrgSchema = z.object({
 export type Org = z.infer<typeof OrgSchema>;
 
 export const DonationSchema = z.object({
-  id: z.string().trim().length(21),
-  orgId: z.string().trim().length(21),
+  id: IdSchema,
+  orgId: OrgIdSchema,
   timestamp: z.number().min(0),
   amount: z.number().min(0),
   kind: z.enum(["idea", "pledge", "paid"]),

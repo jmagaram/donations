@@ -10,9 +10,9 @@ import OrgsContainer from "./OrgsContainer";
 import DonationsContainer from "./DonationsContainer";
 import OrgUpsertForm from "./OrgUpsertForm";
 import OrgDetailsContainer from "./OrgDetailsContainer";
-import OrgEditContainer from "./OrgEditContainer";
+import OrgEditContainer from "./OrgUpsertContainer";
 import DonationUpsertForm from "./DonationUpsertForm";
-import DonationEditContainer from "./DonationEditContainer";
+import DonationEditContainer from "./DonationUpsertContainer";
 import "./App.css";
 import { useState } from "react";
 import { sampleData, orgAdd, donationAdd, empty } from "./donationsData";
@@ -50,7 +50,9 @@ const AppContent = () => {
     const newOrganization = { ...formData, id: nanoid() };
     const updatedData = orgAdd(donationsData, newOrganization);
     if (updatedData === undefined) {
-      alert("Could not add organization.");
+      alert(
+        "Could not add organization; an organization with the same name might already exist."
+      );
     } else {
       setDonationsData(updatedData);
       navigate("/orgs");

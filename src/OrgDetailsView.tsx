@@ -44,6 +44,16 @@ const OrgDetailsView = ({
         <div className="org-details-content">
           {organization.taxDeductible ? "Tax-deductible" : "NOT tax-deductible"}
         </div>
+        {organization.webSite && (
+          <>
+            <div className="org-details-header">Website</div>
+            <div className="org-details-content">
+              <a href={organization.webSite} target="_blank" rel="noopener noreferrer">
+                {organization.webSite}
+              </a>
+            </div>
+          </>
+        )}
         {organization.notes.trim() !== "" && (
           <>
             <div className="org-details-header">Notes</div>

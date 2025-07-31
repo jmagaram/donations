@@ -64,6 +64,11 @@ const OrgUpsertForm = ({
           </select>
         </div>
         <div className="form-field">
+          <label htmlFor="webSite">Website</label>
+          <input id="webSite" type="text" {...register("webSite")} />
+          {errors.webSite && <span>{errors.webSite.message}</span>}
+        </div>
+        <div className="form-field">
           <label htmlFor="notes">Notes</label>
           <textarea id="notes" rows={5} {...register("notes")} />
         </div>

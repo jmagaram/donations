@@ -4,6 +4,7 @@ export const OrgSchema = z.object({
   id: z.string().trim().length(21),
   name: z.string().trim().min(1),
   taxDeductible: z.boolean(),
+  webSite: z.url().optional(),
   notes: z.string(),
 });
 

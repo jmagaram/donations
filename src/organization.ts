@@ -5,6 +5,7 @@ import { recency as donationRecency } from "./donation";
 export const OrgUpsertFieldsSchema = z.object({
   name: z.string().trim().min(1, "Name is required"),
   taxDeductible: z.boolean(),
+  webSite: z.string().url().optional().or(z.literal("")),
   notes: z.string(),
 });
 
@@ -13,6 +14,7 @@ export type OrgUpsertFields = z.infer<typeof OrgUpsertFieldsSchema>;
 export const defaultFields: OrgUpsertFields = {
   name: "",
   taxDeductible: true,
+  webSite: "",
   notes: "",
 };
 

@@ -66,6 +66,11 @@ const DonationsView = ({
     <div>
       <h1>Donations</h1>
       <div className="toolbar">
+        <Link to="/donations/add">
+          <button type="button">Add donation</button>
+        </Link>
+      </div>
+      <div className="toolbar">
         <div className="toolbar-item">
           <label htmlFor="year-from">From</label>
           <select

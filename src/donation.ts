@@ -3,7 +3,7 @@ import { type Donation } from "./types";
 import { nanoid } from "nanoid";
 
 export const DonationUpsertFieldsSchema = z.object({
-  orgId: z.string().trim().length(21),
+  orgId: z.string().trim().min(1, "Please select an organization").length(21, "Invalid organization ID"),
   date: z.string().min(10), // YYYY-MM-DD
   amount: z.number().min(0),
   kind: z.enum(["idea", "pledge", "paid"]),

@@ -27,7 +27,6 @@ const DonationUpsertForm = ({
   const navigate = useNavigate();
   const orgId =
     mode === "edit" ? defaultValues.orgId : searchParams.get("org") || "";
-  const orgName = donationsData?.orgs.find((o) => o.id === orgId)?.name;
   const formDefaultValues = {
     ...defaultValues,
     orgId,
@@ -57,12 +56,12 @@ const DonationUpsertForm = ({
     onSubmit(data);
   };
 
-  if (!orgId || !orgName) {
+  if (mode === "edit" && orgId && !donationsData?.orgs.find((o) => o.id === orgId)) {
     return (
       <div>
-        <h1>{mode === "edit" ? "Edit Donation" : "Add New Donation"}</h1>
+        <h1>Edit Donation</h1>
         <div style={{ color: "red", margin: "1em 0" }}>
-          The organization {orgId || "(none)"} was not found.
+          The organization {orgId} was not found.
         </div>
       </div>
     );
@@ -72,19 +71,26 @@ const DonationUpsertForm = ({
     <div>
       <h1>{mode === "edit" ? "Edit donation" : "New donation"}</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <input type="hidden" {...register("orgId")} />
         <div className="form-field">
-          <label htmlFor="name">Organization</label>
-          <div>
-            <strong>{orgName}</strong>
-          </div>
+          <label htmlFor="orgId">Organization</label>
+          <select id="orgId" {...register("orgId")}>
+            <option value="">Select an organization</option>
+            {donationsData?.orgs
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((org) => (
+                <option key={org.id} value={org.id}>
+                  {org.name}
+                </option>
+              ))}
+          </select>
+          {errors.orgId && <span>{errors.orgId.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="amount">Amount</label>
           <input
             id="amount"
             type="number"
-            step="100"
+            step="0.01"
             {...register("amount", { valueAsNumber: true })}
           />
           {errors.amount && <span>{errors.amount.message}</span>}

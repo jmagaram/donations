@@ -38,13 +38,46 @@ export const editDonation = (
 export const recency = (donation: Donation): number =>
   Math.max(donation.modified, donation.timestamp);
 
-// Amount match $5400.24
-// Timestamp: January 1, 2024
-// Kind: pledge
-// Notes: Event at Dena's house
-// Pledge Dena - is this an AND or an OR?
-// Amount > $1000 or < $500
-// Date between 2024 and 2025
-// export const textMatch = (donation: Donation, filter: string): boolean => {
-//   return true;
-// };
+const FILLER_WORDS = new Set([
+  "the",
+  "a",
+  "an",
+  "to",
+  "and",
+  "of",
+  "in",
+  "at",
+  "on",
+  "for",
+  "with",
+  "by",
+  "is",
+  "it",
+]);
+
+/**
+ * Returns true if any filter word (ignoring filler words) is a substring of any target word from donation fields.
+ * @param donation The donation object
+ * @param filter The filter string (e.g. "pledge party")
+ */
+export const donationTextMatch = (
+  donation: Donation,
+  filter: string
+): boolean => {
+  function getWords(text: string): string[] {
+    return text
+      .toLowerCase()
+      .split(/[ ,]+/)
+      .filter((w) => w && !FILLER_WORDS.has(w));
+  }
+
+  const filterWords = getWords(filter);
+  if (filterWords.length === 0) return true;
+
+  const targetWords = [
+    ...getWords(donation.notes),
+    donation.kind.toLowerCase(),
+  ];
+
+  return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
+};

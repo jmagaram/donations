@@ -26,7 +26,7 @@ const AppContent = () => {
   const [donationsData, setDonationsData] = useState(() => {
     // const m = sampleData();
     // localStorage.setItem("donationsData", JSON.stringify(m));
-    const saved = localStorage.getItem("donationsData");
+    const saved = sessionStorage.getItem("donationsData");
     return saved ? DonationsDataSchema.parse(JSON.parse(saved)) : sampleData();
   });
 

@@ -3,8 +3,9 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
-
 import type { DonationsData } from "./types";
+import { findOrgById } from "./donationsData";
+import { useSearchParams, useNavigate } from "react-router-dom";
 
 interface DonationUpsertFormProps {
   onSubmit: (formData: DonationUpsertFields) => void;
@@ -13,8 +14,6 @@ interface DonationUpsertFormProps {
   mode?: "add" | "edit";
   donationsData?: DonationsData;
 }
-
-import { useSearchParams, useNavigate } from "react-router-dom";
 
 const DonationUpsertForm = ({
   onSubmit,
@@ -56,12 +55,18 @@ const DonationUpsertForm = ({
     onSubmit(data);
   };
 
-  if (mode === "edit" && orgId && !donationsData?.orgs.find((o) => o.id === orgId)) {
+  if (
+    mode === "edit" &&
+    orgId &&
+    donationsData &&
+    !findOrgById(donationsData, orgId)
+  ) {
     return (
       <div>
         <h1>Edit Donation</h1>
-        <div style={{ color: "red", margin: "1em 0" }}>
-          The organization {orgId} was not found.
+        <div className="errorBox">
+          The organization {orgId} for this donation was not found. Delete the
+          donation and create it from scratch.
         </div>
       </div>
     );
@@ -106,7 +111,11 @@ const DonationUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="date">Date</label>
-          <input id="date" type="date" {...register("date", { valueAsDate: true })} />
+          <input
+            id="date"
+            type="date"
+            {...register("date", { valueAsDate: true })}
+          />
           {errors.date && <span>{errors.date.message}</span>}
         </div>
         <div className="form-field">

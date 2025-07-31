@@ -7,10 +7,17 @@
 
 .toolbar {
   display: flex;
-  align-items: center;
+  align-items:end;
   gap: 0.5em;
-  margin-top:1em;
-  margin-bottom:1em;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  flex-wrap: wrap;
+}
+
+.toolbar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
 .org-details-section {

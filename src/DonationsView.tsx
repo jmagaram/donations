@@ -68,72 +68,82 @@ const DonationsView = ({
     <div>
       <h1>Donations</h1>
       <div className="toolbar">
-        <label htmlFor="year-from">From:</label>
-        <select
-          id="year-from"
-          value={yearFrom}
-          onChange={(e) => yearFilterChanged(Number(e.target.value), yearTo)}
-        >
-          {yearOptions.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-        <label htmlFor="year-to">To:</label>
-        <select
-          id="year-to"
-          value={yearTo}
-          onChange={(e) => yearFilterChanged(yearFrom, Number(e.target.value))}
-        >
-          {yearOptions.map((y) => (
-            <option key={y} value={y}>
-              {y}
-            </option>
-          ))}
-        </select>
-        <label htmlFor="amount-min">Min:</label>
-        <select
-          id="amount-min"
-          value={amountMin}
-          onChange={(e) =>
-            amountFilterChanged(Number(e.target.value), amountMax)
-          }
-        >
-          {amountOptions.map((a) => (
-            <option key={a} value={a}>
-              {formatAmountOption(a)}
-            </option>
-          ))}
-        </select>
-        <label htmlFor="amount-max">Max:</label>
-        <select
-          id="amount-max"
-          value={amountMax}
-          onChange={(e) =>
-            amountFilterChanged(amountMin, Number(e.target.value))
-          }
-        >
-          {amountOptions.map((a) => (
-            <option key={a} value={a}>
-              {formatAmountOption(a)}
-            </option>
-          ))}
-        </select>
-        <input
-          type="search"
-          id="filter"
-          value={currentFilter}
-          onChange={(e) => textFilterChanged(e.target.value)}
-          placeholder="Search"
-        />
-        <button
-          type="button"
-          onClick={onClearFilters}
-          style={{ marginLeft: "1rem" }}
-        >
-          Remove filters
-        </button>
+        <div className="toolbar-item">
+          <label htmlFor="year-from">From</label>
+          <select
+            id="year-from"
+            value={yearFrom}
+            onChange={(e) => yearFilterChanged(Number(e.target.value), yearTo)}
+          >
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="toolbar-item">
+          <label htmlFor="year-to">To</label>
+          <select
+            id="year-to"
+            value={yearTo}
+            onChange={(e) =>
+              yearFilterChanged(yearFrom, Number(e.target.value))
+            }
+          >
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>
+                {y}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="toolbar-item">
+          <label htmlFor="amount-min">Min</label>
+          <select
+            id="amount-min"
+            value={amountMin}
+            onChange={(e) =>
+              amountFilterChanged(Number(e.target.value), amountMax)
+            }
+          >
+            {amountOptions.map((a) => (
+              <option key={a} value={a}>
+                {formatAmountOption(a)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="toolbar-item">
+          <label htmlFor="amount-max">Max</label>
+          <select
+            id="amount-max"
+            value={amountMax}
+            onChange={(e) =>
+              amountFilterChanged(amountMin, Number(e.target.value))
+            }
+          >
+            {amountOptions.map((a) => (
+              <option key={a} value={a}>
+                {formatAmountOption(a)}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="toolbar-item">
+          <input
+            type="search"
+            id="filter"
+            value={currentFilter}
+            onChange={(e) => textFilterChanged(e.target.value)}
+            placeholder="Search"
+          />
+        </div>
+        <div className="toolbar-item">
+          <button type="button" onClick={onClearFilters}>
+            Remove filters
+          </button>
+        </div>
       </div>
       <div className="donations-page-grid">
         <div className="donations-page-grid-header">

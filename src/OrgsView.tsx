@@ -15,8 +15,8 @@ const OrgsView = ({
   return (
     <div>
       <h1>Organizations</h1>
-      <Link to="/orgs/add">Add New Organization</Link>
-      <div>
+      <div className="toolbar">
+        <Link to="/orgs/add">Add New Organization</Link>
         <input
           type="search"
           id="filter"

@@ -107,7 +107,7 @@ const DonationUpsertForm = ({
           <label htmlFor="notes">Notes</label>
           <textarea id="notes" rows={5} {...register("notes")} />
         </div>
-        <div className="item-toolbar">
+        <div className="toolbar">
           <button type="submit">
             {mode === "edit" ? "Save Changes" : "Add Donation"}
           </button>
@@ -122,7 +122,6 @@ const DonationUpsertForm = ({
                   onDelete();
                 }
               }}
-              style={{ marginLeft: "0.5em" }}
             >
               Delete
             </button>

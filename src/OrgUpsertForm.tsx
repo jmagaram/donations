@@ -67,7 +67,7 @@ const OrgUpsertForm = ({
           <label htmlFor="notes">Notes</label>
           <textarea id="notes" rows={5} {...register("notes")} />
         </div>
-        <div className="item-toolbar">
+        <div className="toolbar">
           <button type="submit">
             {mode === "edit" ? "Save Changes" : "Add Organization"}
           </button>

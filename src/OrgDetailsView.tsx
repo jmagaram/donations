@@ -83,7 +83,7 @@ const OrgDetailsView = ({
         )}
       </div>
 
-      <div className="item-toolbar">
+      <div className="toolbar">
         <button onClick={() => onAdd(organization.id)}>Add donation</button>
         <button onClick={() => onEdit(organization.id)}>
           Edit organization

@@ -67,7 +67,7 @@ const DonationsView = ({
   return (
     <div>
       <h1>Donations</h1>
-      <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+      <div className="toolbar">
         <label htmlFor="year-from">From:</label>
         <select
           id="year-from"
@@ -92,7 +92,6 @@ const DonationsView = ({
             </option>
           ))}
         </select>
-
         <label htmlFor="amount-min">Min:</label>
         <select
           id="amount-min"
@@ -121,7 +120,6 @@ const DonationsView = ({
             </option>
           ))}
         </select>
-
         <label htmlFor="filter">Filter:</label>
         <input
           type="search"
@@ -138,7 +136,6 @@ const DonationsView = ({
           Clear Filters
         </button>
       </div>
-      <hr />
       <div className="donations-page-grid">
         <div className="donations-page-grid-header">
           <div>Date</div>

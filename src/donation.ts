@@ -56,14 +56,16 @@ const FILLER_WORDS = new Set([
 ]);
 
 /**
- * Returns true if any filter word (ignoring filler words) is a substring of any target word from donation fields.
+ * Returns true if any filter word (ignoring filler words) is a substring of any target word from donation or org fields.
+ * @param filter The filter string (e.g. "university of washington")
  * @param donation The donation object
- * @param filter The filter string (e.g. "pledge party")
+ * @param org The organization object corresponding to the donation
  */
-export const donationTextMatch = (
+export function donationTextMatch(
+  filter: string,
   donation: Donation,
-  filter: string
-): boolean => {
+  org: { name: string; notes: string }
+): boolean {
   function getWords(text: string): string[] {
     return text
       .toLowerCase()
@@ -77,7 +79,9 @@ export const donationTextMatch = (
   const targetWords = [
     ...getWords(donation.notes),
     donation.kind.toLowerCase(),
+    ...getWords(org.name),
+    ...getWords(org.notes),
   ];
 
   return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
-};
+}

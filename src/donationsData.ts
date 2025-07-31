@@ -26,7 +26,9 @@ export const orgUpdate = (
   data: DonationsData,
   org: Org
 ): DonationsData | undefined => {
-  const orgIndex = data.orgs.findIndex((existingOrg) => existingOrg.id === org.id);
+  const orgIndex = data.orgs.findIndex(
+    (existingOrg) => existingOrg.id === org.id
+  );
   if (orgIndex === -1) {
     return undefined;
   }
@@ -102,12 +104,12 @@ const sampleDataArray = [
     notes: "Jewish student life on campus",
     donations: [
       {
-        date: "1999-05-01",
+        date: "2018-05-01",
         amount: 500,
         kind: "paid" as const,
       },
       {
-        date: "2012-07-03",
+        date: "2019-07-03",
         amount: 1200,
         kind: "pledge" as const,
       },
@@ -119,22 +121,22 @@ const sampleDataArray = [
     notes: "Helping injured IDF soldiers",
     donations: [
       {
-        date: "2013-04-06",
+        date: "2023-04-06",
         amount: 2000,
         kind: "paid" as const,
       },
       {
-        date: "2014-07-03",
+        date: "2022-07-03",
         amount: 3000,
         kind: "paid" as const,
       },
       {
-        date: "2015-07-03",
+        date: "2021-07-03",
         amount: 5000,
         kind: "paid" as const,
       },
       {
-        date: "2018-07-03",
+        date: "2020-07-03",
         amount: 5500,
         kind: "paid" as const,
       },
@@ -144,12 +146,12 @@ const sampleDataArray = [
         kind: "paid" as const,
       },
       {
-        date: "2020-07-03",
+        date: "2019-07-03",
         amount: 6500,
         kind: "paid" as const,
       },
       {
-        date: "2021-07-03",
+        date: "2018-07-03",
         amount: 6500,
         kind: "pledge" as const,
       },

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { donationTextMatch } from "./donation";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 
@@ -39,17 +40,21 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const [amountMin, setAmountMin] = useState(0);
   const [amountMax, setAmountMax] = useState(Number.POSITIVE_INFINITY);
 
-  // Prepare and sort donations for display, filter by year and amount
   const donations: DonationDisplay[] = [...donationsData.donations]
     .filter((d) => {
       const year = new Date(d.timestamp).getFullYear();
       const amt = d.amount;
-      return (
-        year >= yearFrom &&
-        year <= yearTo &&
+      const matchesYear = year >= yearFrom && year <= yearTo;
+      const matchesAmount =
         amt >= amountMin &&
-        (amountMax === Number.POSITIVE_INFINITY || amt <= amountMax)
-      );
+        (amountMax === Number.POSITIVE_INFINITY || amt <= amountMax);
+      const org = donationsData.orgs.find((o) => o.id === d.orgId) || {
+        name: "",
+        notes: "",
+      };
+      const matchesText =
+        filter.trim() === "" || donationTextMatch(filter, d, org);
+      return matchesYear && matchesAmount && matchesText;
     })
     .sort((a, b) => b.timestamp - a.timestamp)
     .map((donation) => ({

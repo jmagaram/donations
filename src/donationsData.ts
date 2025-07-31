@@ -26,7 +26,7 @@ export const orgUpdate = (
   data: DonationsData,
   org: Org
 ): DonationsData | undefined => {
-  const orgIndex = data.orgs.findIndex((org) => org.id === org.id);
+  const orgIndex = data.orgs.findIndex((existingOrg) => existingOrg.id === org.id);
   if (orgIndex === -1) {
     return undefined;
   }

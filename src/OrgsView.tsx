@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { type Org } from "./types";
 
 interface OrgsViewProps {
@@ -12,11 +12,14 @@ const OrgsView = ({
   currentFilter,
   textFilterChanged,
 }: OrgsViewProps) => {
+  const navigate = useNavigate();
   return (
     <div>
       <h1>Organizations</h1>
       <div className="toolbar">
-        <Link to="/orgs/add">Add New Organization</Link>
+        <button type="button" onClick={() => navigate("/orgs/add")}>
+          Add New Organization
+        </button>
         <input
           type="search"
           id="filter"

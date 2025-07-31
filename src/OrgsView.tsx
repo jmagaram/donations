@@ -1,18 +1,13 @@
 import { Link } from "react-router-dom";
-import { type DonationsData } from "./types";
-import OrgCard from "./OrgCard";
-
-type SortOrder = "Recent first" | "Alphabetical";
+import { type Org } from "./types";
 
 interface OrgsViewProps {
-  donationsData: DonationsData;
+  orgs: Org[];
   currentFilter: string;
   textFilterChanged: (filter: string) => void;
-  sortOrder: SortOrder;
-  changeSortOrder: (sortOrder: SortOrder) => void;
 }
 
-const OrgsView = ({ donationsData, currentFilter, textFilterChanged, sortOrder, changeSortOrder }: OrgsViewProps) => {
+const OrgsView = ({ orgs, currentFilter, textFilterChanged }: OrgsViewProps) => {
   return (
     <div>
       <h1>Organizations</h1>
@@ -27,21 +22,23 @@ const OrgsView = ({ donationsData, currentFilter, textFilterChanged, sortOrder, 
           placeholder="Search organizations..."
         />
       </div>
-      <div>
-        <label htmlFor="sortOrder">Sort by:</label>
-        <select
-          id="sortOrder"
-          value={sortOrder}
-          onChange={(e) => changeSortOrder(e.target.value as SortOrder)}
-        >
-          <option value="Recent first">Recent first</option>
-          <option value="Alphabetical">Alphabetical</option>
-        </select>
-      </div>
       <hr />
-      <div className="org-cards">
-        {donationsData.orgs.map((org) => (
-          <OrgCard key={org.id} data={donationsData} orgId={org.id} />
+      <div className="orgs-grid">
+        <div className="orgs-grid-header">
+          <div className="orgs-grid-header-name">Name</div>
+          <div className="orgs-grid-header-tax">Tax Deductible</div>
+          <div className="orgs-grid-header-notes">Notes</div>
+        </div>
+        {orgs.sort((a, b) => a.name.localeCompare(b.name)).map((org) => (
+          <div key={org.id} className="orgs-grid-row">
+            <div className="orgs-grid-name">
+              <Link to={`/orgs/${org.id}`}>{org.name}</Link>
+            </div>
+            <div className="orgs-grid-tax">
+              {org.taxDeductible ? "Yes" : "No"}
+            </div>
+            <div className="orgs-grid-notes">{org.notes}</div>
+          </div>
         ))}
       </div>
     </div>

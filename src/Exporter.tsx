@@ -7,18 +7,18 @@ interface ExporterProps {
   donationsData: DonationsData;
 }
 
-const Exporter = ({ donationsData }: ExporterProps) => {
-  const [donationExportStatus, setDonationExportStatus] = useState<
-    StatusBoxProps | undefined
-  >(undefined);
-  const [orgExportStatus, setOrgExportStatus] = useState<
-    StatusBoxProps | undefined
-  >(undefined);
-  const [jsonExportStatus, setJsonExportStatus] = useState<
-    StatusBoxProps | undefined
-  >(undefined);
+type ExportType = "donations" | "organizations" | "everything";
 
-  const downloadFile = (content: string, filename: string, mimeType: string) => {
+const Exporter = ({ donationsData }: ExporterProps) => {
+  const [exportStatus, setExportStatus] = useState<StatusBoxProps | undefined>(
+    undefined,
+  );
+
+  const downloadFile = (
+    content: string,
+    filename: string,
+    mimeType: string,
+  ) => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -30,7 +30,10 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const handleExportDonations = () => {
+  const handleExportDonations = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setExportStatus(undefined);
+
     const donationsWithOrgData = donationsData.donations.map((donation) => {
       const org = donationsData.orgs.find((o) => o.id === donation.orgId);
       const year = donation.date.substring(0, 4);
@@ -53,13 +56,16 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     });
 
     downloadFile(csvContent, "donations-export.csv", "text/csv;charset=utf-8;");
-    setDonationExportStatus({
+    setExportStatus({
       content: `${donationsWithOrgData.length} donations exported to donations-export.csv`,
       kind: "success",
     });
   };
 
-  const handleExportOrganizations = () => {
+  const handleExportOrganizations = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setExportStatus(undefined);
+
     const orgsForExport = donationsData.orgs.map((org) => ({
       orgId: org.id,
       name: org.name,
@@ -72,18 +78,29 @@ const Exporter = ({ donationsData }: ExporterProps) => {
       header: true,
     });
 
-    downloadFile(csvContent, "organizations-export.csv", "text/csv;charset=utf-8;");
-    setOrgExportStatus({
+    downloadFile(
+      csvContent,
+      "organizations-export.csv",
+      "text/csv;charset=utf-8;",
+    );
+    setExportStatus({
       content: `${orgsForExport.length} organizations exported to organizations-export.csv`,
       kind: "success",
     });
   };
 
-  const handleExportJson = () => {
+  const handleExportJson = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setExportStatus(undefined);
+
     const jsonContent = JSON.stringify(donationsData, null, 2);
-    
-    downloadFile(jsonContent, "donations-data.json", "application/json;charset=utf-8;");
-    setJsonExportStatus({
+
+    downloadFile(
+      jsonContent,
+      "donations-data.json",
+      "application/json;charset=utf-8;",
+    );
+    setExportStatus({
       content: `Complete data exported to donations-data.json (${donationsData.orgs.length} organizations, ${donationsData.donations.length} donations)`,
       kind: "success",
     });
@@ -92,40 +109,30 @@ const Exporter = ({ donationsData }: ExporterProps) => {
   return (
     <div className="exporter">
       <h1>Export</h1>
-
-      <div>
-        <h2>Donations</h2>
+      {exportStatus && <StatusBox {...exportStatus} />}
+      <div className="export-section">
+        <a href="#" onClick={handleExportDonations}>
+          Donations
+        </a>
         <p>
-          Exports all donations with organization details including: donationId,
-          orgId, orgName, date, year, amount, kind, donationNotes, taxDeductible
+          Exports all donations in CSV format. Includes donationId, orgId,
+          orgName, date, year, amount, kind, donationNotes, and taxDeductible.
         </p>
-        <div className="form-field">
-          <button onClick={handleExportDonations}>Export donations</button>
-          {donationExportStatus && <StatusBox {...donationExportStatus} />}
-        </div>
       </div>
-      <div>
-        <h2>Organizations</h2>
+      <div className="export-section">
+        <a href="#" onClick={handleExportOrganizations}>
+          Organizations
+        </a>
         <p>
-          Exports all organizations including: orgId, name, taxDeductible,
-          webSite, notes
+          Exports all organizations in CSV format. Includes orgId, name,
+          taxDeductible, webSite, and notes.
         </p>
-        <div className="form-field">
-          <button onClick={handleExportOrganizations}>
-            Export organizations
-          </button>
-          {orgExportStatus && <StatusBox {...orgExportStatus} />}
-        </div>
       </div>
-      <div>
-        <h2>Complete Data</h2>
-        <p>
-          Exports everything as JSON including all organizations and donations with full data structure
-        </p>
-        <div className="form-field">
-          <button onClick={handleExportJson}>Export as JSON</button>
-          {jsonExportStatus && <StatusBox {...jsonExportStatus} />}
-        </div>
+      <div className="export-section">
+        <a href="#" onClick={handleExportJson}>
+          Everything
+        </a>
+        <p>Exports all organizations and donations in a single JSON file.</p>
       </div>
     </div>
   );

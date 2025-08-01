@@ -198,3 +198,20 @@ nav {
 .status-box .content {
     white-space: pre-line;
 }
+
+.export-section {
+    margin-bottom: 1.5em;
+}
+
+.export-section a {
+    display: block;
+    margin-bottom: 0.5em;
+}
+
+.export-section a:hover {
+    text-decoration: underline;
+}
+
+.export-section p {
+    margin: 0;
+}

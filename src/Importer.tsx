@@ -417,43 +417,22 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
           />
         )}
       </div>
-      <h3>Organizations CSV</h3>
-      <ul>
-        <li>
-          <strong>Organization</strong>: Organization name (required)
-        </li>
-        <li>
-          <strong>TaxDeductible</strong>: "Yes" or "No" (required)
-        </li>
-        <li>
-          <strong>WebSite</strong>: URL, usually start with http:// or https://
-          (optional)
-        </li>
-        <li>
-          <strong>Notes</strong>: Any notes (can be multi-line)
-        </li>
-      </ul>
-      <h3>Donations CSV</h3>
-      <ul>
-        <li>
-          <strong>Organization</strong>: Must match organization name exactly
-          (required)
-        </li>
-        <li>
-          <strong>Date</strong>: YYYY-MM-DD format (required)
-        </li>
-        <li>
-          <strong>Amount</strong>: Plain number, without currency symbol. Like
-          432.33 (required)
-        </li>
-        <li>
-          <strong>Kind</strong>: "idea", "pledge", "paid", or "unknown"
-          (required)
-        </li>
-        <li>
-          <strong>Notes</strong>: Any notes about the donation (optional)
-        </li>
-      </ul>
+      <StatusBox
+        header="CSV Format Requirements"
+        content={`Organizations CSV
+• Organization: Organization name (required)
+• TaxDeductible: "Yes" or "No" (required)
+• WebSite: URL, usually start with http:// or https:// (optional)
+• Notes: Any notes (can be multi-line)
+
+Donations CSV
+• Organization: Must match organization name exactly (required)
+• Date: YYYY-MM-DD format (required)
+• Amount: Plain number, without currency symbol. Like 432.33 (required)
+• Kind: "idea", "pledge", "paid", or "unknown" (required)
+• Notes: Any notes about the donation (optional)`}
+        kind="info"
+      />
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { donationTextMatch } from "./donation";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
@@ -11,13 +11,19 @@ interface DonationsContainerProps {
 const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const [filter, setFilter] = useState("");
 
+  const currentYear = new Date().getFullYear();
+
   const years = donationsData.donations.map((d) =>
     new Date(d.timestamp).getFullYear()
   );
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const [yearFrom, setYearFrom] = useState(new Date().getFullYear() - 5);
+  const minYear = years.length > 0 ? Math.min(...years) : currentYear;
+  const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
+  const [yearFrom, setYearFrom] = useState(currentYear - 5);
   const [yearTo, setYearTo] = useState(maxYear);
+
+  useEffect(() => {
+    setYearTo(maxYear);
+  }, [maxYear]);
 
   const getOrgName = (orgId: string) => {
     const org = donationsData.orgs.find((o) => o.id === orgId);

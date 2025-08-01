@@ -13,6 +13,7 @@ import {
   OrgNotesSchema,
   OrgSchema,
 } from "./types";
+import { empty, orgAdd, donationAdd } from "./donationsData";
 
 const OrgRowCsvSchema = z.object({
   Organization: OrgNameSchema,
@@ -70,6 +71,39 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
   return OrgSchema.parse(org);
 };
 
+const createFinalData = (
+  validOrgs: Org[],
+  validDonations: Donation[],
+  orgImportErrors: string[],
+  donationImportErrors: string[]
+): DonationsData => {
+  let newData = empty();
+  
+  // Add organizations
+  for (const org of validOrgs) {
+    const result = orgAdd(newData, org);
+    if (result) {
+      newData = result;
+    } else {
+      // This shouldn't happen with our CSV processing, but handle it
+      orgImportErrors.push(`Failed to add organization: ${org.name} (duplicate or invalid)`);
+    }
+  }
+  
+  // Add donations
+  for (const donation of validDonations) {
+    const result = donationAdd(newData, donation);
+    if (result) {
+      newData = result;
+    } else {
+      // This shouldn't happen with our CSV processing, but handle it
+      donationImportErrors.push(`Failed to add donation for organization ID: ${donation.orgId} (duplicate or invalid)`);
+    }
+  }
+  
+  return newData;
+};
+
 interface ImportContainerProps {
   setDonationsData: (data: DonationsData) => void;
 }
@@ -111,7 +145,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     setOrgErrors([]);
     setDonationErrors([]);
 
-    // First parse organizations
     Papa.parse(orgFile, {
       header: true,
       skipEmptyLines: true,
@@ -121,7 +154,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
           const validOrgs: Org[] = [];
           const orgImportErrors: string[] = [];
 
-          // Process organizations
           orgResults.data.forEach((row, index) => {
             try {
               const validatedRow = OrgRowCsvSchema.parse(row);
@@ -153,7 +185,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 
           setOrgErrors(orgImportErrors);
 
-          // Now parse donations if file is provided
           if (donationFile && validOrgs.length > 0) {
             Papa.parse(donationFile, {
               header: true,
@@ -168,14 +199,9 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
               transformHeader: (header) => header.trim(),
               complete: (donationResults) => {
                 try {
-                  console.log(
-                    "Total donation rows parsed:",
-                    donationResults.data.length
-                  );
                   const validDonations: Donation[] = [];
                   const donationImportErrors: string[] = [];
 
-                  // Process donations
                   donationResults.data.forEach((row, index) => {
                     try {
                       const validatedRow = DonationRowCsvSchema.parse(row);
@@ -208,12 +234,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                       );
                       const lineNumber = index + 2;
 
-                      // Debug logging for problematic rows
-                      if (lineNumber > 100) {
-                        // Only log if we have way too many rows
-                        console.log(`Problematic row ${lineNumber}:`, rowData);
-                      }
-
                       if (parseError instanceof z.ZodError) {
                         parseError.issues.forEach((issue) => {
                           const field = String(issue.path[0] || "unknown");
@@ -237,29 +257,17 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 
                   setDonationErrors(donationImportErrors);
 
-                  // Create final data
-                  const newData: DonationsData = {
-                    orgs: validOrgs,
-                    donations: validDonations,
-                  };
-
-                  setDonationsData(newData);
-                  sessionStorage.setItem(
-                    "donationsData",
-                    JSON.stringify(newData)
-                  );
-
-                  // Set final status
-                  const totalErrors =
-                    orgImportErrors.length + donationImportErrors.length;
+                  // Check for any errors before updating data
+                  const totalErrors = orgImportErrors.length + donationImportErrors.length;
+                  
                   if (totalErrors === 0) {
-                    setStatus(
-                      `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`
-                    );
+                    // Only update data if no errors occurred
+                    const finalData = createFinalData(validOrgs, validDonations, orgImportErrors, donationImportErrors);
+                    setDonationsData(finalData);
+                    sessionStorage.setItem("donationsData", JSON.stringify(finalData));
+                    setStatus(`Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`);
                   } else {
-                    setStatus(
-                      `Warning: ${totalErrors} validation errors occurred. ${validOrgs.length} organizations and ${validDonations.length} donations imported successfully.`
-                    );
+                    setStatus(`Error: ${totalErrors} validation errors occurred. Import cancelled - no data was updated.`);
                   }
 
                   setIsWorking(false);
@@ -274,21 +282,15 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
               },
             });
           } else {
-            // Only organizations imported
-            const newData: DonationsData = {
-              orgs: validOrgs,
-              donations: [],
-            };
-
-            setDonationsData(newData);
-            sessionStorage.setItem("donationsData", JSON.stringify(newData));
-
+            // Only organizations imported (no donations file provided)
             if (orgImportErrors.length === 0) {
+              // Only update data if no errors occurred
+              const finalData = createFinalData(validOrgs, [], orgImportErrors, []);
+              setDonationsData(finalData);
+              sessionStorage.setItem("donationsData", JSON.stringify(finalData));
               setStatus(`Success: ${validOrgs.length} organizations imported`);
             } else {
-              setStatus(
-                `Warning: ${orgImportErrors.length} validation errors occurred. ${validOrgs.length} organizations imported successfully.`
-              );
+              setStatus(`Error: ${orgImportErrors.length} validation errors occurred. Import cancelled - no data was updated.`);
             }
 
             setIsWorking(false);

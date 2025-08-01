@@ -6,6 +6,7 @@ import DonationsContainer from "./DonationsContainer";
 import OrgDetailsContainer from "./OrgDetailsContainer";
 import OrgUpsertContainer from "./OrgUpsertContainer";
 import DonationUpsertContainer from "./DonationUpsertContainer";
+import ImportContainer from "./ImportContainer";
 import "./App.css";
 import { useState } from "react";
 import { tryCreateSampleData } from "./donationsData";
@@ -89,6 +90,14 @@ const AppContent = () => {
           element={
             <OrgUpsertContainer
               donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
+        />
+        <Route
+          path="/import"
+          element={
+            <ImportContainer
               setDonationsData={setDonationsData}
             />
           }

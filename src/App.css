@@ -174,3 +174,22 @@ nav {
   border-radius: 4px;
   background-color: #ffeaea;
 }
+
+.importErrors {
+  margin-top: 1rem;
+}
+
+.importErrors ul {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  border-radius: 4px;
+  background-color: #fafafa;
+  margin: 0;
+}
+
+.importErrors li {
+  margin-bottom: 0.5rem;
+  list-style-type:none;
+}

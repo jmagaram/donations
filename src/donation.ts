@@ -5,8 +5,8 @@ import {
   DonationAmountSchema,
   DonationKindSchema,
   DonationNotesSchema,
-  DateIsoSchema,
 } from "./types";
+import { DateIsoSchema, getCurrentDateIso } from "./date";
 
 export const DonationUpsertFieldsSchema = z.object({
   orgId: OrgIdSchema.min(1, "Please select an organization"),
@@ -20,7 +20,7 @@ export type DonationUpsertFields = z.infer<typeof DonationUpsertFieldsSchema>;
 
 export const defaultFields: DonationUpsertFields = {
   orgId: "",
-  date: new Date().toLocaleDateString('en-CA'),
+  date: getCurrentDateIso(),
   amount: 0,
   kind: "paid",
   notes: "",

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { donationTextMatch } from "./donation";
+import { getCurrentYear, extractYear, compareDatesDesc } from "./date";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 
@@ -11,11 +12,9 @@ interface DonationsContainerProps {
 const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const [filter, setFilter] = useState("");
 
-  const currentYear = new Date().getFullYear();
+  const currentYear = getCurrentYear();
 
-  const years = donationsData.donations.map((d) =>
-    parseInt(d.date.substring(0, 4))
-  );
+  const years = donationsData.donations.map((d) => extractYear(d.date));
   const minYear = years.length > 0 ? Math.min(...years) : currentYear;
   const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
   const [yearFrom, setYearFrom] = useState(currentYear - 5);
@@ -43,7 +42,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const donations: DonationDisplay[] = [...donationsData.donations]
     .filter((d) => {
-      const year = parseInt(d.date.substring(0, 4));
+      const year = extractYear(d.date);
       const amt = d.amount;
       const matchesYear = year >= yearFrom && year <= yearTo;
       const matchesAmount =
@@ -57,7 +56,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         filter.trim() === "" || donationTextMatch(filter, d, org);
       return matchesYear && matchesAmount && matchesText;
     })
-    .sort((a, b) => b.date.localeCompare(a.date))
+    .sort((a, b) => compareDatesDesc(a.date, b.date))
     .map((donation) => ({
       id: donation.id,
       date: donation.date,
@@ -90,7 +89,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const handleClearFilters = () => {
     setFilter("");
-    setYearFrom(new Date().getFullYear() - 5);
+    setYearFrom(getCurrentYear() - 5);
     setYearTo(maxYear);
     setAmountMin(0);
     setAmountMax(Number.POSITIVE_INFINITY);

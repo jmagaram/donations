@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { DonationsData } from "./types";
+import { compareDatesDesc } from "./date";
 
 interface OrgDetailsViewProps {
   donationsData: DonationsData;
@@ -19,7 +20,7 @@ const OrgDetailsView = ({
   const organization = donationsData.orgs.find((org) => org.id === orgId);
   const donations = donationsData.donations
     .filter((donation) => donation.orgId === orgId)
-    .sort((a, b) => b.date.localeCompare(a.date));
+    .sort((a, b) => compareDatesDesc(a.date, b.date));
 
   const formatDate = (timestamp: string): string => {
     return timestamp;

@@ -7,8 +7,7 @@ export const OrgIdSchema = z.string().trim().length(21);
 export const DonationAmountSchema = z.number();
 export const DonationKindSchema = z.enum(["idea", "pledge", "paid", "unknown"]);
 export const DonationNotesSchema = z.string();
-export const DonationDateSchema = z.date();
-export const TimestampSchema = z.number().min(0);
+export const DateIsoSchema = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
 
 export const OrgNameSchema = z.string().trim().min(1);
 export const OrgTaxDeductibleSchema = z.boolean();
@@ -28,7 +27,7 @@ export type Org = z.infer<typeof OrgSchema>;
 export const DonationSchema = z.object({
   id: IdSchema,
   orgId: OrgIdSchema,
-  timestamp: TimestampSchema,
+  date: DateIsoSchema,
   amount: DonationAmountSchema,
   kind: DonationKindSchema,
   notes: DonationNotesSchema,

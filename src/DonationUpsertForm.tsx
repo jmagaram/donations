@@ -115,7 +115,7 @@ const DonationUpsertForm = ({
           <input
             id="date"
             type="date"
-            {...register("date", { valueAsDate: true })}
+            {...register("date")}
           />
           {errors.date && <span>{errors.date.message}</span>}
         </div>

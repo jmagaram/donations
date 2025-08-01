@@ -19,10 +19,10 @@ const OrgDetailsView = ({
   const organization = donationsData.orgs.find((org) => org.id === orgId);
   const donations = donationsData.donations
     .filter((donation) => donation.orgId === orgId)
-    .sort((a, b) => b.timestamp - a.timestamp);
+    .sort((a, b) => b.date.localeCompare(a.date));
 
-  const formatDate = (timestamp: number): string => {
-    return new Date(timestamp).toISOString().slice(0, 10);
+  const formatDate = (timestamp: string): string => {
+    return timestamp;
   };
 
   const formatAmount = (amount: number): string => {
@@ -78,16 +78,12 @@ const OrgDetailsView = ({
               <div key={donation.id} className="row">
                 <div className="date">
                   <Link to={`/donations/${donation.id}/edit`}>
-                    {formatDate(donation.timestamp)}
+                    {formatDate(donation.date)}
                   </Link>
                 </div>
-                <div className="amount">
-                  {formatAmount(donation.amount)}
-                </div>
+                <div className="amount">{formatAmount(donation.amount)}</div>
                 <div className="kind">{donation.kind}</div>
-                <div className="notes">
-                  {donation.notes || "-"}
-                </div>
+                <div className="notes">{donation.notes || "-"}</div>
               </div>
             ))}
           </div>

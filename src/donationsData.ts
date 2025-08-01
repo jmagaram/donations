@@ -1,5 +1,4 @@
 import { type Donation, type DonationsData, type Org } from "./types";
-import { createDonation } from "./donation";
 import { nanoid } from "nanoid";
 
 export const empty = (): DonationsData => ({
@@ -225,12 +224,12 @@ export const sampleData = (): DonationsData | undefined => {
 
     if (org.donations) {
       for (const donation of org.donations) {
-        const newDonation = createDonation({
+        const newDonation = {
           ...donation,
-          date: new Date(donation.date),
           notes: "",
           orgId: newOrg.id,
-        });
+          id: nanoid(),
+        };
         const donationResult = donationAdd(result, newDonation);
         if (!donationResult) return undefined;
         result = donationResult;

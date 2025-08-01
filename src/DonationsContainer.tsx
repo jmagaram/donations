@@ -14,7 +14,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const currentYear = new Date().getFullYear();
 
   const years = donationsData.donations.map((d) =>
-    new Date(d.timestamp).getFullYear()
+    parseInt(d.date.substring(0, 4))
   );
   const minYear = years.length > 0 ? Math.min(...years) : currentYear;
   const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
@@ -30,10 +30,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     return org?.name || "Unknown Organization";
   };
 
-  const formatDate = (timestamp: number) => {
-    return new Date(timestamp).toISOString().split("T")[0];
-  };
-
   const formatAmount = (amount: number) => {
     return new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -47,7 +43,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const donations: DonationDisplay[] = [...donationsData.donations]
     .filter((d) => {
-      const year = new Date(d.timestamp).getFullYear();
+      const year = parseInt(d.date.substring(0, 4));
       const amt = d.amount;
       const matchesYear = year >= yearFrom && year <= yearTo;
       const matchesAmount =
@@ -61,10 +57,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         filter.trim() === "" || donationTextMatch(filter, d, org);
       return matchesYear && matchesAmount && matchesText;
     })
-    .sort((a, b) => b.timestamp - a.timestamp)
+    .sort((a, b) => b.date.localeCompare(a.date))
     .map((donation) => ({
       id: donation.id,
-      date: formatDate(donation.timestamp),
+      date: donation.date,
       amount: formatAmount(donation.amount),
       orgId: donation.orgId,
       orgName: getOrgName(donation.orgId),

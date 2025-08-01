@@ -52,7 +52,7 @@ const convertDonationRowCsvToDonation = (
   const donation = {
     id: nanoid(),
     orgId: orgId,
-    timestamp: new Date(row.Date).getTime(),
+    date: row.Date,
     amount: row.Amount,
     kind: row.Kind,
     notes: row.Notes,
@@ -78,7 +78,7 @@ const createFinalData = (
   donationImportErrors: string[]
 ): DonationsData => {
   let newData = empty();
-  
+
   // Add organizations
   for (const org of validOrgs) {
     const result = orgAdd(newData, org);
@@ -86,10 +86,12 @@ const createFinalData = (
       newData = result;
     } else {
       // This shouldn't happen with our CSV processing, but handle it
-      orgImportErrors.push(`Failed to add organization: ${org.name} (duplicate or invalid)`);
+      orgImportErrors.push(
+        `Failed to add organization: ${org.name} (duplicate or invalid)`
+      );
     }
   }
-  
+
   // Add donations
   for (const donation of validDonations) {
     const result = donationAdd(newData, donation);
@@ -97,10 +99,12 @@ const createFinalData = (
       newData = result;
     } else {
       // This shouldn't happen with our CSV processing, but handle it
-      donationImportErrors.push(`Failed to add donation for organization ID: ${donation.orgId} (duplicate or invalid)`);
+      donationImportErrors.push(
+        `Failed to add donation for organization ID: ${donation.orgId} (duplicate or invalid)`
+      );
     }
   }
-  
+
   return newData;
 };
 
@@ -258,16 +262,29 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                   setDonationErrors(donationImportErrors);
 
                   // Check for any errors before updating data
-                  const totalErrors = orgImportErrors.length + donationImportErrors.length;
-                  
+                  const totalErrors =
+                    orgImportErrors.length + donationImportErrors.length;
+
                   if (totalErrors === 0) {
                     // Only update data if no errors occurred
-                    const finalData = createFinalData(validOrgs, validDonations, orgImportErrors, donationImportErrors);
+                    const finalData = createFinalData(
+                      validOrgs,
+                      validDonations,
+                      orgImportErrors,
+                      donationImportErrors
+                    );
                     setDonationsData(finalData);
-                    sessionStorage.setItem("donationsData", JSON.stringify(finalData));
-                    setStatus(`Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`);
+                    sessionStorage.setItem(
+                      "donationsData",
+                      JSON.stringify(finalData)
+                    );
+                    setStatus(
+                      `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`
+                    );
                   } else {
-                    setStatus(`Error: ${totalErrors} validation errors occurred. Import cancelled - no data was updated.`);
+                    setStatus(
+                      `Error: ${totalErrors} validation errors occurred. Import cancelled - no data was updated.`
+                    );
                   }
 
                   setIsWorking(false);
@@ -285,12 +302,22 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
             // Only organizations imported (no donations file provided)
             if (orgImportErrors.length === 0) {
               // Only update data if no errors occurred
-              const finalData = createFinalData(validOrgs, [], orgImportErrors, []);
+              const finalData = createFinalData(
+                validOrgs,
+                [],
+                orgImportErrors,
+                []
+              );
               setDonationsData(finalData);
-              sessionStorage.setItem("donationsData", JSON.stringify(finalData));
+              sessionStorage.setItem(
+                "donationsData",
+                JSON.stringify(finalData)
+              );
               setStatus(`Success: ${validOrgs.length} organizations imported`);
             } else {
-              setStatus(`Error: ${orgImportErrors.length} validation errors occurred. Import cancelled - no data was updated.`);
+              setStatus(
+                `Error: ${orgImportErrors.length} validation errors occurred. Import cancelled - no data was updated.`
+              );
             }
 
             setIsWorking(false);

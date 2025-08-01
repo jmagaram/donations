@@ -9,7 +9,7 @@ import {
   findDonationById,
   findOrgById,
 } from "./donationsData";
-import { editDonation, createDonation } from "./donation";
+import { nanoid } from "nanoid";
 import type { DonationUpsertFields } from "./donation";
 
 interface DonationUpsertContainerProps {
@@ -34,15 +34,7 @@ const DonationUpsertContainer = ({
     return <div>Donation with ID {donationId} not found.</div>;
   }
 
-  const defaultValues = donation
-    ? {
-        orgId: donation.orgId,
-        date: new Date(donation.timestamp),
-        amount: donation.amount,
-        kind: donation.kind,
-        notes: donation.notes,
-      }
-    : undefined;
+  const defaultValues = donation ? { ...donation } : undefined;
 
   const handleUpsertDonation = (formData: DonationUpsertFields) => {
     setError(undefined);
@@ -55,7 +47,7 @@ const DonationUpsertContainer = ({
 
     if (isEditMode) {
       if (!donation) return;
-      const updatedDonation = editDonation({ ...formData, id: donation.id });
+      const updatedDonation = { ...formData, id: donation.id };
       const newData = donationUpdate(donationsData, updatedDonation);
       if (!newData) {
         setError(
@@ -66,7 +58,7 @@ const DonationUpsertContainer = ({
       setDonationsData(newData);
       navigate("/orgs/" + updatedDonation.orgId);
     } else {
-      const newDonation = createDonation(formData);
+      const newDonation = { ...formData, id: nanoid() };
       const updatedData = donationAdd(donationsData, newDonation);
       if (!updatedData) {
         setError("Failed to add donation");

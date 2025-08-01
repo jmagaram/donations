@@ -5,13 +5,12 @@ import {
   DonationAmountSchema,
   DonationKindSchema,
   DonationNotesSchema,
-  DonationDateSchema,
+  DateIsoSchema,
 } from "./types";
-import { nanoid } from "nanoid";
 
 export const DonationUpsertFieldsSchema = z.object({
   orgId: OrgIdSchema.min(1, "Please select an organization"),
-  date: DonationDateSchema,
+  date: DateIsoSchema,
   amount: DonationAmountSchema,
   kind: DonationKindSchema,
   notes: DonationNotesSchema,
@@ -21,24 +20,12 @@ export type DonationUpsertFields = z.infer<typeof DonationUpsertFieldsSchema>;
 
 export const defaultFields: DonationUpsertFields = {
   orgId: "",
-  date: new Date(),
+  date: new Date().toLocaleDateString('en-CA'),
   amount: 0,
   kind: "paid",
   notes: "",
 };
 
-export const createDonation = (params: DonationUpsertFields): Donation => ({
-  ...params,
-  timestamp: params.date.getTime(),
-  id: nanoid(),
-});
-
-export const editDonation = (
-  params: DonationUpsertFields & { id: string }
-): Donation => ({
-  ...params,
-  timestamp: params.date.getTime(),
-});
 
 export const donationTextMatch = (
   filter: string,

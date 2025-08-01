@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import { useMemo } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 
@@ -12,9 +12,29 @@ type TaxStatus = "all" | "taxDeductible" | "notTaxDeductible";
 type DonationType = "all" | "paid" | "pledges" | "paidAndPledges" | "unknown";
 
 const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
-  const [yearRange, setYearRange] = useState<YearRange>("current");
-  const [taxStatus, setTaxStatus] = useState<TaxStatus>("all");
-  const [donationType, setDonationType] = useState<DonationType>("all");
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const yearRange = (searchParams.get("years") as YearRange) || "current";
+  const taxStatus = (searchParams.get("tax") as TaxStatus) || "all";
+  const donationType = (searchParams.get("type") as DonationType) || "all";
+
+  const updateYearRange = (value: YearRange) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("years", value);
+    setSearchParams(newParams);
+  };
+
+  const updateTaxStatus = (value: TaxStatus) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("tax", value);
+    setSearchParams(newParams);
+  };
+
+  const updateDonationType = (value: DonationType) => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set("type", value);
+    setSearchParams(newParams);
+  };
 
   const processedData = useMemo(() => {
     const currentYear = getCurrentYear();
@@ -131,7 +151,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <select
             id="yearRange"
             value={yearRange}
-            onChange={(e) => setYearRange(e.target.value as YearRange)}
+            onChange={(e) => updateYearRange(e.target.value as YearRange)}
           >
             <option value="current">Current</option>
             <option value="past2">Past 2 years</option>
@@ -146,7 +166,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <select
             id="taxStatus"
             value={taxStatus}
-            onChange={(e) => setTaxStatus(e.target.value as TaxStatus)}
+            onChange={(e) => updateTaxStatus(e.target.value as TaxStatus)}
           >
             <option value="all">All</option>
             <option value="taxDeductible">Tax-Deductible</option>
@@ -159,7 +179,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <select
             id="donationType"
             value={donationType}
-            onChange={(e) => setDonationType(e.target.value as DonationType)}
+            onChange={(e) => updateDonationType(e.target.value as DonationType)}
           >
             <option value="all">All</option>
             <option value="paid">Paid</option>

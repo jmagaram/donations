@@ -187,17 +187,17 @@ const processParsedData = (
     sessionStorage.setItem("donationsData", JSON.stringify(finalData));
 
     setStatus({
+      header: "Import successful",
       content:
         donations.length > 0
           ? `${orgs.length} organizations and ${donations.length} donations imported`
           : `${orgs.length} organizations imported`,
       kind: "success",
-      header: "Import successful",
     });
   } else {
     setStatus({
       header: "Import cancelled",
-      content: `${totalErrors} validation errors occurred. Import cancelled.`,
+      content: `${totalErrors} validation errors occurred`,
       kind: "error",
     });
   }

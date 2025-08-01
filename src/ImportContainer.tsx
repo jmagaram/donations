@@ -23,7 +23,7 @@ const OrgRowCsvSchema = z.object({
 
 type OrgRowCsv = z.infer<typeof OrgRowCsvSchema>;
 
-export const DonationRowCsvSchema = z.object({
+const DonationRowCsvSchema = z.object({
   Organization: OrgNameSchema,
   Date: z
     .string()
@@ -43,10 +43,6 @@ export const DonationRowCsvSchema = z.object({
 });
 
 type DonationRowCsv = z.infer<typeof DonationRowCsvSchema>;
-
-interface ImportContainerProps {
-  setDonationsData: (data: DonationsData) => void;
-}
 
 const convertDonationRowCsvToDonation = (
   row: DonationRowCsv,
@@ -74,9 +70,13 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
   return OrgSchema.parse(org);
 };
 
+interface ImportContainerProps {
+  setDonationsData: (data: DonationsData) => void;
+}
+
 const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
-  const [orgFile, setOrgFile] = useState<File | null>(null);
-  const [donationFile, setDonationFile] = useState<File | null>(null);
+  const [orgFile, setOrgFile] = useState<File | undefined>(undefined);
+  const [donationFile, setDonationFile] = useState<File | undefined>(undefined);
   const [status, setStatus] = useState<string>("");
   const [orgErrors, setOrgErrors] = useState<string[]>([]);
   const [donationErrors, setDonationErrors] = useState<string[]>([]);
@@ -84,7 +84,7 @@ const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
 
   const handleOrgFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
-    setOrgFile(selectedFile || null);
+    setOrgFile(selectedFile || undefined);
     setStatus("");
     setOrgErrors([]);
     setDonationErrors([]);
@@ -94,7 +94,7 @@ const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const selectedFile = event.target.files?.[0];
-    setDonationFile(selectedFile || null);
+    setDonationFile(selectedFile || undefined);
     setStatus("");
     setOrgErrors([]);
     setDonationErrors([]);
@@ -360,10 +360,9 @@ const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
           </div>
         )}
       </div>
-      <div style={{ marginTop: "2rem" }}>
-        <h2>Expected CSV Formats:</h2>
-
-        <h3>Organizations CSV:</h3>
+      <div>
+        <h2>Expected CSV Formats</h2>
+        <h3>Organizations CSV</h3>
         <ul>
           <li>
             <strong>Organization</strong>: Organization name (required)
@@ -379,7 +378,7 @@ const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
             <strong>Notes</strong>: Any notes (can be multi-line)
           </li>
         </ul>
-        <h3>Donations CSV:</h3>
+        <h3>Donations CSV</h3>
         <ul>
           <li>
             <strong>Organization</strong>: Must match organization name exactly

@@ -74,7 +74,7 @@ interface ImportContainerProps {
   setDonationsData: (data: DonationsData) => void;
 }
 
-const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
+const Importer = ({ setDonationsData }: ImportContainerProps) => {
   const [orgFile, setOrgFile] = useState<File | undefined>(undefined);
   const [donationFile, setDonationFile] = useState<File | undefined>(undefined);
   const [status, setStatus] = useState<string>("");
@@ -404,4 +404,4 @@ const ImportContainer = ({ setDonationsData }: ImportContainerProps) => {
   );
 };
 
-export default ImportContainer;
+export default Importer;

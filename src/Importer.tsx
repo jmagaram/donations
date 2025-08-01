@@ -61,6 +61,13 @@ type CreateFinalDataResult = {
   errors: string[];
 };
 
+type ProcessImportResult = {
+  success: boolean;
+  donationData?: DonationsData;
+  successMessage?: string;
+  errorMessage?: string;
+};
+
 const formatZodError = (
   error: z.ZodError,
   lineNumber: number,
@@ -170,47 +177,39 @@ const parseDonationCsv = (
   return { donations: validDonations, errors };
 };
 
-const processParsedData = (
+const processImportData = (
   orgs: Org[],
   donations: Donation[],
   orgImportErrors: string[],
   donationImportErrors: string[],
-  setDonationsData: (data: DonationsData) => void,
-  setStatus: (status: StatusBoxProps | undefined) => void,
-  setIsWorking: (working: boolean) => void,
-) => {
-  const totalErrors = orgImportErrors.length + donationImportErrors.length;
-  if (totalErrors === 0) {
-    const result = createFinalData(orgs, donations);
-    if (result.donationData) {
-      setDonationsData(result.donationData);
-      sessionStorage.setItem(
-        "donationsData",
-        JSON.stringify(result.donationData),
-      );
-      setStatus({
-        header: "Import successful",
-        content:
-          donations.length > 0
-            ? `${orgs.length} organizations and ${donations.length} donations imported`
-            : `${orgs.length} organizations imported`,
-        kind: "success",
-      });
-    } else {
-      setStatus({
-        header: "Import cancelled",
-        content: `${result.errors.length} data processing errors occurred`,
-        kind: "error",
-      });
-    }
-  } else {
-    setStatus({
-      header: "Import cancelled",
-      content: `${totalErrors} validation errors occurred`,
-      kind: "error",
-    });
+): ProcessImportResult => {
+  const totalValidationErrors = orgImportErrors.length + donationImportErrors.length;
+  
+  if (totalValidationErrors > 0) {
+    return {
+      success: false,
+      errorMessage: `${totalValidationErrors} validation errors occurred`,
+    };
   }
-  setIsWorking(false);
+  
+  const result = createFinalData(orgs, donations);
+  
+  if (result.donationData) {
+    const successMessage = donations.length > 0
+      ? `${orgs.length} organizations and ${donations.length} donations imported`
+      : `${orgs.length} organizations imported`;
+      
+    return {
+      success: true,
+      donationData: result.donationData,
+      successMessage,
+    };
+  } else {
+    return {
+      success: false,
+      errorMessage: `${result.errors.length} data processing errors occurred`,
+    };
+  }
 };
 
 const parseOrgFile = (file: File): Promise<OrgParseResult> => {
@@ -361,28 +360,41 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     const { orgs, orgImportErrors } = await parseOrgFile(orgFile);
     setOrgErrors(orgImportErrors);
 
-    const { donations, donationImportErrors } = await (async () => {
-      let donationImportErrors: string[] = [];
-      let donations: Donation[] = [];
-      if (donationFile && orgs.length > 0) {
-        const donationResult = await parseDonationFile(donationFile, orgs);
-        donationImportErrors = donationResult.errors;
-        donations = donationResult.donations;
-      }
-      return { donationImportErrors, donations };
-    })();
-
+    let donationImportErrors: string[] = [];
+    let donations: Donation[] = [];
+    
+    if (donationFile && orgs.length > 0) {
+      const donationResult = await parseDonationFile(donationFile, orgs);
+      donationImportErrors = donationResult.errors;
+      donations = donationResult.donations;
+    }
+    
     setDonationErrors(donationImportErrors);
 
-    processParsedData(
+    const result = processImportData(
       orgs,
       donations,
       orgImportErrors,
       donationImportErrors,
-      setDonationsData,
-      setStatus,
-      setIsWorking,
     );
+
+    if (result.success && result.donationData) {
+      setDonationsData(result.donationData);
+      sessionStorage.setItem("donationsData", JSON.stringify(result.donationData));
+      setStatus({
+        header: "Import successful",
+        content: result.successMessage || "Import completed",
+        kind: "success",
+      });
+    } else {
+      setStatus({
+        header: "Import cancelled",
+        content: result.errorMessage || "Import failed",
+        kind: "error",
+      });
+    }
+
+    setIsWorking(false);
   };
 
   return (

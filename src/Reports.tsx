@@ -6,7 +6,9 @@ const Reports = () => {
       <h1>Reports</h1>
       <nav>
         <ul className="nav-list">
-          <li><Link to="/reports/yearlytotals">Totals by Year</Link></li>
+          <li>
+            <Link to="/reports/yearlytotals">Yearly giving</Link>
+          </li>
         </ul>
       </nav>
     </div>

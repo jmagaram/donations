@@ -8,6 +8,8 @@ import OrgUpsertContainer from "./OrgUpsertContainer";
 import DonationUpsertContainer from "./DonationUpsertContainer";
 import Importer from "./Importer";
 import Exporter from "./Exporter";
+import Reports from "./Reports";
+import TotalsByYear from "./TotalsByYear";
 import "./App.css";
 import { useState } from "react";
 import { tryCreateSampleData } from "./donationsData";
@@ -103,6 +105,8 @@ const AppContent = () => {
           path="/export"
           element={<Exporter donationsData={donationsData} />}
         />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/reports/yearlytotals" element={<TotalsByYear donationsData={donationsData} />} />
       </Routes>
     </>
   );

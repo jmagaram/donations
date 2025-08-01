@@ -228,3 +228,54 @@ nav {
 .nav-list li {
     margin: 0;
 }
+
+/* Totals by Year Report Styles */
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.filters > div {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.totals-by-year-grid {
+    display: grid;
+}
+
+.totals-by-year-header {
+    font-weight: bold;
+    border-bottom: 2px solid #333;
+    padding-bottom: 0.25rem;
+    text-align: right;
+}
+
+.totals-by-year-header:first-child {
+    text-align: right;
+}
+
+.totals-by-year-row {
+    border-bottom: 1px solid #eee;
+    padding: 0.25rem 0;
+    text-align: right;
+}
+
+.totals-by-year-row:first-child {
+    text-align: left;
+}
+
+.totals-by-year-total-col {
+    font-weight: bold;
+}
+
+.totals-by-year-total-row {
+    font-weight: bold;
+    border-top: 2px solid #333;
+    border-bottom: 1px solid #eee;
+    padding: 0.25rem 0;
+    text-align: right;
+}

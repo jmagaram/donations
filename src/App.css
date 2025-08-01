@@ -279,3 +279,7 @@ nav {
     padding: 0.25rem 0;
     text-align: right;
 }
+
+.totals-by-year-grid a {
+    text-decoration: none;
+}

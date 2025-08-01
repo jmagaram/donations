@@ -157,57 +157,61 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
         </div>
       </div>
 
-      <div
-        className="totals-by-year-grid"
-        style={{
-          gridTemplateColumns: `auto ${processedData.years.map(() => "auto").join(" ")} auto`,
-        }}
-      >
-        {/* Header row */}
-        <div className="totals-by-year-header">Organization</div>
-        {processedData.years.map((year) => (
-          <div key={year} className="totals-by-year-header">
-            {year}
-          </div>
-        ))}
-        <div className="totals-by-year-header">Total</div>
+      {processedData.sortedOrgs.length === 0 ? (
+        <p>No donations to show.</p>
+      ) : (
+        <div
+          className="totals-by-year-grid"
+          style={{
+            gridTemplateColumns: `auto ${processedData.years.map(() => "auto").join(" ")} auto`,
+          }}
+        >
+          {/* Header row */}
+          <div className="totals-by-year-header">Organization</div>
+          {processedData.years.map((year) => (
+            <div key={year} className="totals-by-year-header">
+              {year}
+            </div>
+          ))}
+          <div className="totals-by-year-header">Total</div>
 
-        {/* Data rows */}
-        {processedData.sortedOrgs.map((org) => {
-          const orgTotal = processedData.years.reduce(
-            (sum, year) =>
-              sum + (processedData.orgYearTotals[org.id][year] || 0),
-            0,
-          );
+          {/* Data rows */}
+          {processedData.sortedOrgs.map((org) => {
+            const orgTotal = processedData.years.reduce(
+              (sum, year) =>
+                sum + (processedData.orgYearTotals[org.id][year] || 0),
+              0,
+            );
 
-          return (
-            <>
-              <div key={org.id} className="totals-by-year-row">
-                {org.name}
-              </div>
-              {processedData.years.map((year) => (
-                <div key={`${org.id}-${year}`} className="totals-by-year-row">
-                  ${(processedData.orgYearTotals[org.id][year] || 0).toFixed(2)}
+            return (
+              <>
+                <div key={org.id} className="totals-by-year-row">
+                  {org.name}
                 </div>
-              ))}
-              <div className="totals-by-year-row totals-by-year-total-col">
-                ${orgTotal.toFixed(2)}
-              </div>
-            </>
-          );
-        })}
+                {processedData.years.map((year) => (
+                  <div key={`${org.id}-${year}`} className="totals-by-year-row">
+                    ${(processedData.orgYearTotals[org.id][year] || 0).toFixed(2)}
+                  </div>
+                ))}
+                <div className="totals-by-year-row totals-by-year-total-col">
+                  ${orgTotal.toFixed(2)}
+                </div>
+              </>
+            );
+          })}
 
-        {/* Totals row */}
-        <div className="totals-by-year-total-row">Total</div>
-        {processedData.years.map((year) => (
-          <div key={`total-${year}`} className="totals-by-year-total-row">
-            ${(processedData.yearTotals[year] || 0).toFixed(2)}
+          {/* Totals row */}
+          <div className="totals-by-year-total-row">Total</div>
+          {processedData.years.map((year) => (
+            <div key={`total-${year}`} className="totals-by-year-total-row">
+              ${(processedData.yearTotals[year] || 0).toFixed(2)}
+            </div>
+          ))}
+          <div className="totals-by-year-total-row">
+            ${processedData.grandTotal.toFixed(2)}
           </div>
-        ))}
-        <div className="totals-by-year-total-row">
-          ${processedData.grandTotal.toFixed(2)}
         </div>
-      </div>
+      )}
     </div>
   );
 };

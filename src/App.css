@@ -173,20 +173,24 @@ nav {
     border: 1px solid;
 }
 
-.status-box-error {
+.status-box.error {
     color: red;
     border-color: red;
     background-color: #ffeaea;
 }
 
-.status-box-info {
+.status-box.info {
     color: #333;
     border-color: #ccc;
     background-color: #f5f5f5;
 }
 
-.status-box-success {
+.status-box.success {
     color: #155724;
     border-color: #c3e6cb;
     background-color: #d4edda;
+}
+
+.status-box .content {
+    white-space: pre-line;
 }

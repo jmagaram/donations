@@ -404,14 +404,14 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
         {status && <StatusBox {...status} />}
         {orgErrors.length > 0 && (
           <StatusBox
-            header="Organization Import Errors"
+            header="Organization import errors"
             content={orgErrors.join("\n")}
             kind="error"
           />
         )}
         {donationErrors.length > 0 && (
           <StatusBox
-            header="Donation Import Errors"
+            header="Donation import errors"
             content={donationErrors.join("\n")}
             kind="error"
           />

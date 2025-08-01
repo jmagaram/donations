@@ -5,12 +5,12 @@ export interface StatusBoxProps {
 }
 
 const StatusBox = ({ header, content, kind }: StatusBoxProps) => {
-  const className = `status-box status-box-${kind}`;
-  
+  const className = `status-box ${kind}`;
+
   return (
     <div className={className}>
       {header && <strong>{header}</strong>}
-      <div>{content}</div>
+      <div className="content">{content}</div>
     </div>
   );
 };

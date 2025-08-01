@@ -14,6 +14,7 @@ import {
   OrgSchema,
 } from "./types";
 import { empty, orgAdd, donationAdd } from "./donationsData";
+import { DateIsoSchema } from "./date";
 
 const OrgRowCsvSchema = z.object({
   Organization: OrgNameSchema,
@@ -26,9 +27,7 @@ type OrgRowCsv = z.infer<typeof OrgRowCsvSchema>;
 
 const DonationRowCsvSchema = z.object({
   Organization: OrgNameSchema,
-  Date: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Date must be in YYYY-MM-DD format"),
+  Date: DateIsoSchema,
   Amount: z
     .string()
     .transform((val) => {

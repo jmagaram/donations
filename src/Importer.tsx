@@ -163,6 +163,112 @@ const parseDonationCsv = (
   return { validDonations, errors };
 };
 
+const processParsedData = (
+  validOrgs: Org[],
+  validDonations: Donation[],
+  orgImportErrors: string[],
+  donationImportErrors: string[],
+  setDonationsData: (data: DonationsData) => void,
+  setStatus: (status: string) => void,
+  setIsWorking: (working: boolean) => void,
+) => {
+  const totalErrors = orgImportErrors.length + donationImportErrors.length;
+
+  if (totalErrors === 0) {
+    const finalData = createFinalData(
+      validOrgs,
+      validDonations,
+      orgImportErrors,
+      donationImportErrors,
+    );
+    setDonationsData(finalData);
+    sessionStorage.setItem("donationsData", JSON.stringify(finalData));
+
+    if (validDonations.length > 0) {
+      setStatus(
+        `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`,
+      );
+    } else {
+      setStatus(`Success: ${validOrgs.length} organizations imported`);
+    }
+  } else {
+    setStatus(
+      `Error: ${totalErrors} validation errors occurred. Import cancelled.`,
+    );
+  }
+
+  setIsWorking(false);
+};
+
+const parseOrgFile = (file: File): Promise<OrgParseResult> => {
+  return new Promise((resolve) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      transform: (value, field) => {
+        if (field === "Notes") {
+          return value; // preserve line breaks
+        }
+        value.trim();
+      },
+      transformHeader: (header) => header.trim(),
+      complete: (results) => {
+        try {
+          const parseResult = parseOrgCsv(results.data);
+          resolve(parseResult);
+        } catch {
+          resolve({
+            validOrgs: [],
+            errors: ["Failed to process organizations CSV file"],
+          });
+        }
+      },
+      error: () => {
+        resolve({
+          validOrgs: [],
+          errors: ["Failed to read organizations CSV file"],
+        });
+      },
+    });
+  });
+};
+
+const parseDonationFile = (
+  file: File,
+  validOrgs: Org[],
+): Promise<DonationParseResult> => {
+  return new Promise((resolve) => {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      transform: (value, field) => {
+        if (field === "Notes") {
+          return value; // preserve line breaks
+        }
+        return typeof value === "string" ? value.trim() : value;
+      },
+      transformHeader: (header) => header.trim(),
+      complete: (results) => {
+        try {
+          const parseResult = parseDonationCsv(results.data, validOrgs);
+          resolve(parseResult);
+        } catch {
+          resolve({
+            validDonations: [],
+            errors: ["Failed to process donations CSV file"],
+          });
+        }
+      },
+      error: () => {
+        resolve({
+          validDonations: [],
+          errors: ["Failed to read donations CSV file"],
+        });
+      },
+    });
+  });
+};
+
 const createFinalData = (
   validOrgs: Org[],
   validDonations: Donation[],
@@ -225,7 +331,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     setDonationErrors([]);
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!orgFile) {
       setStatus("Please select an Organizations CSV file");
       return;
@@ -236,106 +342,28 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     setOrgErrors([]);
     setDonationErrors([]);
 
-    Papa.parse(orgFile, {
-      header: true,
-      skipEmptyLines: true,
-      transform: (value) => value.trim(),
-      complete: (orgResults) => {
-        try {
-          const { validOrgs, errors: orgImportErrors } = parseOrgCsv(
-            orgResults.data,
-          );
-          setOrgErrors(orgImportErrors);
+    const { validOrgs, errors: orgImportErrors } = await parseOrgFile(orgFile);
+    setOrgErrors(orgImportErrors);
 
-          if (donationFile && validOrgs.length > 0) {
-            Papa.parse(donationFile, {
-              header: true,
-              skipEmptyLines: true,
-              transform: (value, field) => {
-                // Don't trim the Notes field to preserve line breaks
-                if (field === "Notes") {
-                  return value;
-                }
-                return typeof value === "string" ? value.trim() : value;
-              },
-              transformHeader: (header) => header.trim(),
-              complete: (donationResults) => {
-                try {
-                  const { validDonations, errors: donationImportErrors } =
-                    parseDonationCsv(donationResults.data, validOrgs);
-                  setDonationErrors(donationImportErrors);
+    let donationImportErrors: string[] = [];
+    let validDonations: Donation[] = [];
 
-                  // Check for any errors before updating data
-                  const totalErrors =
-                    orgImportErrors.length + donationImportErrors.length;
+    if (donationFile && validOrgs.length > 0) {
+      const donationResult = await parseDonationFile(donationFile, validOrgs);
+      donationImportErrors = donationResult.errors;
+      validDonations = donationResult.validDonations;
+    }
 
-                  if (totalErrors === 0) {
-                    // Only update data if no errors occurred
-                    const finalData = createFinalData(
-                      validOrgs,
-                      validDonations,
-                      orgImportErrors,
-                      donationImportErrors,
-                    );
-                    setDonationsData(finalData);
-                    sessionStorage.setItem(
-                      "donationsData",
-                      JSON.stringify(finalData),
-                    );
-                    setStatus(
-                      `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`,
-                    );
-                  } else {
-                    setStatus(
-                      `Error: ${totalErrors} validation errors occurred. Import cancelled.`,
-                    );
-                  }
-
-                  setIsWorking(false);
-                } catch {
-                  setStatus("Error: Failed to process donations CSV file");
-                  setIsWorking(false);
-                }
-              },
-              error: () => {
-                setStatus("Error: Failed to read donations CSV file");
-                setIsWorking(false);
-              },
-            });
-          } else {
-            // Only organizations imported (no donations file provided)
-            if (orgImportErrors.length === 0) {
-              // Only update data if no errors occurred
-              const finalData = createFinalData(
-                validOrgs,
-                [],
-                orgImportErrors,
-                [],
-              );
-              setDonationsData(finalData);
-              sessionStorage.setItem(
-                "donationsData",
-                JSON.stringify(finalData),
-              );
-              setStatus(`Success: ${validOrgs.length} organizations imported`);
-            } else {
-              setStatus(
-                `Error: ${orgImportErrors.length} validation errors occurred. Import cancelled - no data was updated.`,
-              );
-            }
-
-            setIsWorking(false);
-          }
-        } catch {
-          setStatus("Error: Failed to process organizations CSV file");
-          setIsWorking(false);
-        }
-      },
-      error: () => {
-        setStatus("Error: Failed to read organizations CSV file");
-        setIsWorking(false);
-      },
-    });
+    setDonationErrors(donationImportErrors);
+    processParsedData(
+      validOrgs,
+      validDonations,
+      orgImportErrors,
+      donationImportErrors,
+      setDonationsData,
+      setStatus,
+      setIsWorking,
+    );
   };
 
   return (

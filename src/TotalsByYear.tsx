@@ -6,7 +6,7 @@ interface TotalsByYearProps {
   donationsData: DonationsData;
 }
 
-type YearRange = "current" | "past2" | "past3" | "past4";
+type YearRange = "current" | "past2" | "past3" | "past4" | "future";
 type TaxStatus = "all" | "taxDeductible" | "notTaxDeductible";
 type DonationType = "all" | "paid" | "pledges" | "paidAndPledges" | "unknown";
 
@@ -37,6 +37,17 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           currentYear - 2,
           currentYear - 3,
         );
+        break;
+      case "future":
+        // Find max year in donations
+        const maxYearInData = Math.max(
+          ...donationsData.donations.map(d => extractYear(d.date)),
+          currentYear
+        );
+        const futureEndYear = Math.min(currentYear + 5, maxYearInData);
+        for (let year = currentYear + 1; year <= futureEndYear; year++) {
+          years.push(year);
+        }
         break;
     }
     years.sort((a, b) => a - b); // Sort ascending
@@ -121,10 +132,11 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
             value={yearRange}
             onChange={(e) => setYearRange(e.target.value as YearRange)}
           >
-            <option value="current">Current year</option>
+            <option value="current">Current</option>
             <option value="past2">Past 2 years</option>
             <option value="past3">Past 3 years</option>
             <option value="past4">Past 4 years</option>
+            <option value="future">Future</option>
           </select>
         </div>
 
@@ -190,7 +202,10 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
                 </div>
                 {processedData.years.map((year) => (
                   <div key={`${org.id}-${year}`} className="totals-by-year-row">
-                    ${(processedData.orgYearTotals[org.id][year] || 0).toFixed(2)}
+                    $
+                    {(processedData.orgYearTotals[org.id][year] || 0).toFixed(
+                      2,
+                    )}
                   </div>
                 ))}
                 <div className="totals-by-year-row totals-by-year-total-col">

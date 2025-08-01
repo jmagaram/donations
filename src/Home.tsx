@@ -4,12 +4,14 @@ const Home = () => {
   return (
     <div>
       <h1>Home</h1>
-      <div>
-        <Link to="/donations">Donations</Link>
-        <Link to="/orgs">Organizations</Link>
-        <Link to="/import">Import</Link>
-        <Link to="/export">Export</Link>
-      </div>
+      <nav>
+        <ul className="nav-list">
+          <li><Link to="/donations">Donations</Link></li>
+          <li><Link to="/orgs">Organizations</Link></li>
+          <li><Link to="/import">Import</Link></li>
+          <li><Link to="/export">Export</Link></li>
+        </ul>
+      </nav>
     </div>
   );
 };

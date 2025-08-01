@@ -56,6 +56,11 @@ type DonationParseResult = {
   errors: string[];
 };
 
+type CreateFinalDataResult = {
+  donationData: DonationsData | undefined;
+  errors: string[];
+};
+
 const formatZodError = (
   error: z.ZodError,
   lineNumber: number,
@@ -175,25 +180,29 @@ const processParsedData = (
   setIsWorking: (working: boolean) => void,
 ) => {
   const totalErrors = orgImportErrors.length + donationImportErrors.length;
-
   if (totalErrors === 0) {
-    const finalData = createFinalData(
-      orgs,
-      donations,
-      orgImportErrors,
-      donationImportErrors,
-    );
-    setDonationsData(finalData);
-    sessionStorage.setItem("donationsData", JSON.stringify(finalData));
-
-    setStatus({
-      header: "Import successful",
-      content:
-        donations.length > 0
-          ? `${orgs.length} organizations and ${donations.length} donations imported`
-          : `${orgs.length} organizations imported`,
-      kind: "success",
-    });
+    const result = createFinalData(orgs, donations);
+    if (result.donationData) {
+      setDonationsData(result.donationData);
+      sessionStorage.setItem(
+        "donationsData",
+        JSON.stringify(result.donationData),
+      );
+      setStatus({
+        header: "Import successful",
+        content:
+          donations.length > 0
+            ? `${orgs.length} organizations and ${donations.length} donations imported`
+            : `${orgs.length} organizations imported`,
+        kind: "success",
+      });
+    } else {
+      setStatus({
+        header: "Import cancelled",
+        content: `${result.errors.length} data processing errors occurred`,
+        kind: "error",
+      });
+    }
   } else {
     setStatus({
       header: "Import cancelled",
@@ -201,7 +210,6 @@ const processParsedData = (
       kind: "error",
     });
   }
-
   setIsWorking(false);
 };
 
@@ -277,17 +285,15 @@ const parseDonationFile = (
 const createFinalData = (
   orgs: Org[],
   donations: Donation[],
-  orgImportErrors: string[],
-  donationImportErrors: string[],
-): DonationsData => {
+): CreateFinalDataResult => {
+  const errors: string[] = [];
   let newData = empty();
   for (const org of orgs) {
     const result = orgAdd(newData, org);
     if (result) {
       newData = result;
     } else {
-      // This shouldn't happen with our CSV processing, but handle it
-      orgImportErrors.push(
+      errors.push(
         `Failed to add organization: ${org.name} (duplicate or invalid)`,
       );
     }
@@ -297,13 +303,15 @@ const createFinalData = (
     if (result) {
       newData = result;
     } else {
-      // This shouldn't happen with our CSV processing, but handle it
-      donationImportErrors.push(
+      errors.push(
         `Failed to add donation for organization ID: ${donation.orgId} (duplicate or invalid)`,
       );
     }
   }
-  return newData;
+  return {
+    donationData: errors.length === 0 ? newData : undefined,
+    errors,
+  };
 };
 
 interface ImportContainerProps {

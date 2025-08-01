@@ -45,12 +45,12 @@ const DonationRowCsvSchema = z.object({
 type DonationRowCsv = z.infer<typeof DonationRowCsvSchema>;
 
 type OrgParseResult = {
-  validOrgs: Org[];
+  orgs: Org[];
   errors: string[];
 };
 
 type DonationParseResult = {
-  validDonations: Donation[];
+  donations: Donation[];
   errors: string[];
 };
 
@@ -96,13 +96,13 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
 };
 
 const parseOrgCsv = (data: unknown[]): OrgParseResult => {
-  const validOrgs: Org[] = [];
+  const orgs: Org[] = [];
   const errors: string[] = [];
   data.forEach((row, index) => {
     try {
       const validatedRow = OrgRowCsvSchema.parse(row);
       const org = convertOrgRowCsvToOrg(validatedRow);
-      validOrgs.push(org);
+      orgs.push(org);
     } catch (parseError) {
       const rowData = row as Record<string, unknown>;
       const orgName = String(rowData?.Organization || "Unknown");
@@ -116,19 +116,19 @@ const parseOrgCsv = (data: unknown[]): OrgParseResult => {
       }
     }
   });
-  return { validOrgs, errors };
+  return { orgs: orgs, errors };
 };
 
 const parseDonationCsv = (
   data: unknown[],
-  validOrgs: Org[],
+  orgs: Org[],
 ): DonationParseResult => {
   const validDonations: Donation[] = [];
   const errors: string[] = [];
   data.forEach((row, index) => {
     try {
       const validatedRow = DonationRowCsvSchema.parse(row);
-      const matchingOrg = validOrgs.find(
+      const matchingOrg = orgs.find(
         (org) =>
           org.name.toLowerCase() === validatedRow.Organization.toLowerCase(),
       );
@@ -160,12 +160,12 @@ const parseDonationCsv = (
       }
     }
   });
-  return { validDonations, errors };
+  return { donations: validDonations, errors };
 };
 
 const processParsedData = (
-  validOrgs: Org[],
-  validDonations: Donation[],
+  orgs: Org[],
+  donations: Donation[],
   orgImportErrors: string[],
   donationImportErrors: string[],
   setDonationsData: (data: DonationsData) => void,
@@ -176,20 +176,20 @@ const processParsedData = (
 
   if (totalErrors === 0) {
     const finalData = createFinalData(
-      validOrgs,
-      validDonations,
+      orgs,
+      donations,
       orgImportErrors,
       donationImportErrors,
     );
     setDonationsData(finalData);
     sessionStorage.setItem("donationsData", JSON.stringify(finalData));
 
-    if (validDonations.length > 0) {
+    if (donations.length > 0) {
       setStatus(
-        `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`,
+        `Success: ${orgs.length} organizations and ${donations.length} donations imported`,
       );
     } else {
-      setStatus(`Success: ${validOrgs.length} organizations imported`);
+      setStatus(`Success: ${orgs.length} organizations imported`);
     }
   } else {
     setStatus(
@@ -218,14 +218,14 @@ const parseOrgFile = (file: File): Promise<OrgParseResult> => {
           resolve(parseResult);
         } catch {
           resolve({
-            validOrgs: [],
+            orgs: [],
             errors: ["Failed to process organizations CSV file"],
           });
         }
       },
       error: () => {
         resolve({
-          validOrgs: [],
+          orgs: [],
           errors: ["Failed to read organizations CSV file"],
         });
       },
@@ -235,7 +235,7 @@ const parseOrgFile = (file: File): Promise<OrgParseResult> => {
 
 const parseDonationFile = (
   file: File,
-  validOrgs: Org[],
+  orgs: Org[],
 ): Promise<DonationParseResult> => {
   return new Promise((resolve) => {
     Papa.parse(file, {
@@ -250,18 +250,18 @@ const parseDonationFile = (
       transformHeader: (header) => header.trim(),
       complete: (results) => {
         try {
-          const parseResult = parseDonationCsv(results.data, validOrgs);
+          const parseResult = parseDonationCsv(results.data, orgs);
           resolve(parseResult);
         } catch {
           resolve({
-            validDonations: [],
+            donations: [],
             errors: ["Failed to process donations CSV file"],
           });
         }
       },
       error: () => {
         resolve({
-          validDonations: [],
+          donations: [],
           errors: ["Failed to read donations CSV file"],
         });
       },
@@ -270,13 +270,13 @@ const parseDonationFile = (
 };
 
 const createFinalData = (
-  validOrgs: Org[],
-  validDonations: Donation[],
+  orgs: Org[],
+  donations: Donation[],
   orgImportErrors: string[],
   donationImportErrors: string[],
 ): DonationsData => {
   let newData = empty();
-  for (const org of validOrgs) {
+  for (const org of orgs) {
     const result = orgAdd(newData, org);
     if (result) {
       newData = result;
@@ -287,7 +287,7 @@ const createFinalData = (
       );
     }
   }
-  for (const donation of validDonations) {
+  for (const donation of donations) {
     const result = donationAdd(newData, donation);
     if (result) {
       newData = result;
@@ -342,22 +342,22 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     setOrgErrors([]);
     setDonationErrors([]);
 
-    const { validOrgs, errors: orgImportErrors } = await parseOrgFile(orgFile);
+    const { orgs, errors: orgImportErrors } = await parseOrgFile(orgFile);
     setOrgErrors(orgImportErrors);
 
     let donationImportErrors: string[] = [];
-    let validDonations: Donation[] = [];
+    let donations: Donation[] = [];
 
-    if (donationFile && validOrgs.length > 0) {
-      const donationResult = await parseDonationFile(donationFile, validOrgs);
+    if (donationFile && orgs.length > 0) {
+      const donationResult = await parseDonationFile(donationFile, orgs);
       donationImportErrors = donationResult.errors;
-      validDonations = donationResult.validDonations;
+      donations = donationResult.donations;
     }
 
     setDonationErrors(donationImportErrors);
     processParsedData(
-      validOrgs,
-      validDonations,
+      orgs,
+      donations,
       orgImportErrors,
       donationImportErrors,
       setDonationsData,

@@ -8,7 +8,12 @@ interface ExporterProps {
 }
 
 const Exporter = ({ donationsData }: ExporterProps) => {
-  const [status, setStatus] = useState<StatusBoxProps | undefined>(undefined);
+  const [donationExportStatus, setDonationExportStatus] = useState<
+    StatusBoxProps | undefined
+  >(undefined);
+  const [orgExportStatus, setOrgExportStatus] = useState<
+    StatusBoxProps | undefined
+  >(undefined);
 
   const downloadCsv = (csvContent: string, filename: string) => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
@@ -45,8 +50,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     });
 
     downloadCsv(csvContent, "donations-export.csv");
-    setStatus({
-      header: "Donations exported",
+    setDonationExportStatus({
       content: `${donationsWithOrgData.length} donations exported to donations-export.csv`,
       kind: "success",
     });
@@ -66,8 +70,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     });
 
     downloadCsv(csvContent, "organizations-export.csv");
-    setStatus({
-      header: "Organizations exported",
+    setOrgExportStatus({
       content: `${orgsForExport.length} organizations exported to organizations-export.csv`,
       kind: "success",
     });
@@ -76,27 +79,30 @@ const Exporter = ({ donationsData }: ExporterProps) => {
   return (
     <div className="exporter">
       <h1>Export</h1>
+
       <div>
+        <h2>Donations</h2>
+        <p>
+          Exports all donations with organization details including: donationId,
+          orgId, orgName, date, year, amount, kind, donationNotes, taxDeductible
+        </p>
         <div className="form-field">
-          <button onClick={handleExportDonations}>
-            Export donations as CSV
-          </button>
-          <p>
-            Exports all donations with organization details including:
-            donationId, orgId, orgName, date, year, amount, kind, donationNotes,
-            taxDeductible
-          </p>
+          <button onClick={handleExportDonations}>Export donations</button>
+          {donationExportStatus && <StatusBox {...donationExportStatus} />}
         </div>
+      </div>
+      <div>
+        <h2>Organizations</h2>
+        <p>
+          Exports all organizations including: orgId, name, taxDeductible,
+          webSite, notes
+        </p>
         <div className="form-field">
           <button onClick={handleExportOrganizations}>
-            Export organizations as CSV
+            Export organizations
           </button>
-          <p>
-            Exports all organizations including: orgId, name, taxDeductible,
-            webSite, notes
-          </p>
+          {orgExportStatus && <StatusBox {...orgExportStatus} />}
         </div>
-        {status && <StatusBox {...status} />}
       </div>
     </div>
   );

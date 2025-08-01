@@ -370,8 +370,8 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     <div className="importer">
       <h1>Import</h1>
       <div>
-        <div>
-          <label htmlFor="orgCsvFile">Organizations CSV file:</label>
+        <div className="form-field">
+          <label htmlFor="orgCsvFile">Organizations CSV file</label>
           <input
             id="orgCsvFile"
             type="file"
@@ -380,8 +380,8 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
             disabled={isWorking}
           />
         </div>
-        <div>
-          <label htmlFor="donationCsvFile">Donations CSV file:</label>
+        <div className="form-field">
+          <label htmlFor="donationCsvFile">Donations CSV file</label>
           <input
             id="donationCsvFile"
             type="file"
@@ -390,11 +390,9 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
             disabled={isWorking}
           />
         </div>
-        <div>
-          <button onClick={handleImport} disabled={!orgFile || isWorking}>
-            Start import
-          </button>
-        </div>
+        <button onClick={handleImport} disabled={!orgFile || isWorking}>
+          Start import
+        </button>
         {status && <div className="statusBox">{status}</div>}
         {orgErrors.length > 0 && (
           <div className="errors">

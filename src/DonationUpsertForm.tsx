@@ -1,6 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
 import type { DonationsData } from "./types";
@@ -64,10 +65,10 @@ const DonationUpsertForm = ({
     return (
       <div>
         <h1>Edit Donation</h1>
-        <div className="errorBox">
-          The organization {orgId} for this donation was not found. Delete the
-          donation and create it from scratch.
-        </div>
+        <StatusBox 
+          content={`The organization ${orgId} for this donation was not found. Delete the donation and create it from scratch.`} 
+          kind="error" 
+        />
       </div>
     );
   }

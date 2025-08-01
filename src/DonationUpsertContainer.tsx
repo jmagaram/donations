@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import DonationUpsertForm from "./DonationUpsertForm";
+import StatusBox from "./StatusBox";
 import type { DonationsData } from "./types";
 import {
   donationDelete,
@@ -78,7 +79,7 @@ const DonationUpsertContainer = ({
 
   return (
     <div>
-      {error && <div className="errorBox">{error}</div>}
+      {error && <StatusBox content={error} kind="error" />}
       <DonationUpsertForm
         defaultValues={defaultValues}
         onSubmit={handleUpsertDonation}

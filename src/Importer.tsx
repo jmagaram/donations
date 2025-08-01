@@ -2,6 +2,8 @@ import { useState } from "react";
 import Papa from "papaparse";
 import { z } from "zod";
 import { nanoid } from "nanoid";
+import StatusBox, { type StatusBoxProps } from "./StatusBox";
+
 import {
   type Donation,
   DonationAmountSchema,
@@ -169,7 +171,7 @@ const processParsedData = (
   orgImportErrors: string[],
   donationImportErrors: string[],
   setDonationsData: (data: DonationsData) => void,
-  setStatus: (status: string) => void,
+  setStatus: (status: StatusBoxProps | undefined) => void,
   setIsWorking: (working: boolean) => void,
 ) => {
   const totalErrors = orgImportErrors.length + donationImportErrors.length;
@@ -184,17 +186,20 @@ const processParsedData = (
     setDonationsData(finalData);
     sessionStorage.setItem("donationsData", JSON.stringify(finalData));
 
-    if (donations.length > 0) {
-      setStatus(
-        `Success: ${orgs.length} organizations and ${donations.length} donations imported`,
-      );
-    } else {
-      setStatus(`Success: ${orgs.length} organizations imported`);
-    }
+    setStatus({
+      content:
+        donations.length > 0
+          ? `${orgs.length} organizations and ${donations.length} donations imported`
+          : `${orgs.length} organizations imported`,
+      kind: "success",
+      header: "Import successful",
+    });
   } else {
-    setStatus(
-      `Error: ${totalErrors} validation errors occurred. Import cancelled.`,
-    );
+    setStatus({
+      header: "Import cancelled",
+      content: `${totalErrors} validation errors occurred. Import cancelled.`,
+      kind: "error",
+    });
   }
 
   setIsWorking(false);
@@ -308,7 +313,7 @@ interface ImportContainerProps {
 const Importer = ({ setDonationsData }: ImportContainerProps) => {
   const [orgFile, setOrgFile] = useState<File | undefined>(undefined);
   const [donationFile, setDonationFile] = useState<File | undefined>(undefined);
-  const [status, setStatus] = useState<string>("");
+  const [status, setStatus] = useState<StatusBoxProps | undefined>(undefined);
   const [orgErrors, setOrgErrors] = useState<string[]>([]);
   const [donationErrors, setDonationErrors] = useState<string[]>([]);
   const [isWorking, setIsWorking] = useState(false);
@@ -316,7 +321,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   const handleOrgFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     setOrgFile(selectedFile || undefined);
-    setStatus("");
+    setStatus(undefined);
     setOrgErrors([]);
     setDonationErrors([]);
   };
@@ -326,19 +331,22 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   ) => {
     const selectedFile = event.target.files?.[0];
     setDonationFile(selectedFile || undefined);
-    setStatus("");
+    setStatus(undefined);
     setOrgErrors([]);
     setDonationErrors([]);
   };
 
   const handleImport = async () => {
     if (!orgFile) {
-      setStatus("Please select an Organizations CSV file");
+      setStatus({
+        content: "Please select an Organizations CSV file",
+        kind: "error",
+      });
       return;
     }
 
     setIsWorking(true);
-    setStatus("Working...");
+    setStatus({ content: "Working...", kind: "info" });
     setOrgErrors([]);
     setDonationErrors([]);
 
@@ -393,26 +401,20 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
         <button onClick={handleImport} disabled={!orgFile || isWorking}>
           Start import
         </button>
-        {status && <div className="statusBox">{status}</div>}
+        {status && <StatusBox {...status} />}
         {orgErrors.length > 0 && (
-          <div className="errors">
-            <h3>Organization Import Errors</h3>
-            <ul>
-              {orgErrors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </div>
+          <StatusBox
+            header="Organization Import Errors"
+            content={orgErrors.join("\n")}
+            kind="error"
+          />
         )}
         {donationErrors.length > 0 && (
-          <div className="errors">
-            <h3>Donation Import Errors</h3>
-            <ul>
-              {donationErrors.map((error, index) => (
-                <li key={index}>{error}</li>
-              ))}
-            </ul>
-          </div>
+          <StatusBox
+            header="Donation Import Errors"
+            content={donationErrors.join("\n")}
+            kind="error"
+          />
         )}
       </div>
       <h3>Organizations CSV</h3>

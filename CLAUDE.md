@@ -18,3 +18,4 @@ This is a personal charitable donation tracker web application built with React,
 - Functional immutable style
 - Use arrow functions whenever possible
 - Only use code comments when something is not obvious
+- Prefer using undefined to null, so "string | undefined" for example. or useState<string | undefined>(...)

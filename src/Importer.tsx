@@ -209,7 +209,7 @@ const parseOrgFile = (file: File): Promise<OrgParseResult> => {
         if (field === "Notes") {
           return value; // preserve line breaks
         }
-        value.trim();
+        return typeof value === "string" ? value.trim() : value;
       },
       transformHeader: (header) => header.trim(),
       complete: (results) => {

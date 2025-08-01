@@ -14,9 +14,12 @@ const Exporter = ({ donationsData }: ExporterProps) => {
   const [orgExportStatus, setOrgExportStatus] = useState<
     StatusBoxProps | undefined
   >(undefined);
+  const [jsonExportStatus, setJsonExportStatus] = useState<
+    StatusBoxProps | undefined
+  >(undefined);
 
-  const downloadCsv = (csvContent: string, filename: string) => {
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const downloadFile = (content: string, filename: string, mimeType: string) => {
+    const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -49,7 +52,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
       header: true,
     });
 
-    downloadCsv(csvContent, "donations-export.csv");
+    downloadFile(csvContent, "donations-export.csv", "text/csv;charset=utf-8;");
     setDonationExportStatus({
       content: `${donationsWithOrgData.length} donations exported to donations-export.csv`,
       kind: "success",
@@ -69,9 +72,19 @@ const Exporter = ({ donationsData }: ExporterProps) => {
       header: true,
     });
 
-    downloadCsv(csvContent, "organizations-export.csv");
+    downloadFile(csvContent, "organizations-export.csv", "text/csv;charset=utf-8;");
     setOrgExportStatus({
       content: `${orgsForExport.length} organizations exported to organizations-export.csv`,
+      kind: "success",
+    });
+  };
+
+  const handleExportJson = () => {
+    const jsonContent = JSON.stringify(donationsData, null, 2);
+    
+    downloadFile(jsonContent, "donations-data.json", "application/json;charset=utf-8;");
+    setJsonExportStatus({
+      content: `Complete data exported to donations-data.json (${donationsData.orgs.length} organizations, ${donationsData.donations.length} donations)`,
       kind: "success",
     });
   };
@@ -102,6 +115,16 @@ const Exporter = ({ donationsData }: ExporterProps) => {
             Export organizations
           </button>
           {orgExportStatus && <StatusBox {...orgExportStatus} />}
+        </div>
+      </div>
+      <div>
+        <h2>Complete Data</h2>
+        <p>
+          Exports everything as JSON including all organizations and donations with full data structure
+        </p>
+        <div className="form-field">
+          <button onClick={handleExportJson}>Export as JSON</button>
+          {jsonExportStatus && <StatusBox {...jsonExportStatus} />}
         </div>
       </div>
     </div>

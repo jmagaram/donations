@@ -48,7 +48,7 @@ type DonationRowCsv = z.infer<typeof DonationRowCsvSchema>;
 
 type OrgParseResult = {
   orgs: Org[];
-  errors: string[];
+  orgImportErrors: string[];
 };
 
 type DonationParseResult = {
@@ -123,7 +123,7 @@ const parseOrgCsv = (data: unknown[]): OrgParseResult => {
       }
     }
   });
-  return { orgs: orgs, errors };
+  return { orgs: orgs, orgImportErrors: errors };
 };
 
 const parseDonationCsv = (
@@ -232,14 +232,14 @@ const parseOrgFile = (file: File): Promise<OrgParseResult> => {
         } catch {
           resolve({
             orgs: [],
-            errors: ["Failed to process organizations CSV file"],
+            orgImportErrors: ["Failed to process organizations CSV file"],
           });
         }
       },
       error: () => {
         resolve({
           orgs: [],
-          errors: ["Failed to read organizations CSV file"],
+          orgImportErrors: ["Failed to read organizations CSV file"],
         });
       },
     });
@@ -358,19 +358,22 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     setOrgErrors([]);
     setDonationErrors([]);
 
-    const { orgs, errors: orgImportErrors } = await parseOrgFile(orgFile);
+    const { orgs, orgImportErrors } = await parseOrgFile(orgFile);
     setOrgErrors(orgImportErrors);
 
-    let donationImportErrors: string[] = [];
-    let donations: Donation[] = [];
-
-    if (donationFile && orgs.length > 0) {
-      const donationResult = await parseDonationFile(donationFile, orgs);
-      donationImportErrors = donationResult.errors;
-      donations = donationResult.donations;
-    }
+    const { donations, donationImportErrors } = await (async () => {
+      let donationImportErrors: string[] = [];
+      let donations: Donation[] = [];
+      if (donationFile && orgs.length > 0) {
+        const donationResult = await parseDonationFile(donationFile, orgs);
+        donationImportErrors = donationResult.errors;
+        donations = donationResult.donations;
+      }
+      return { donationImportErrors, donations };
+    })();
 
     setDonationErrors(donationImportErrors);
+
     processParsedData(
       orgs,
       donations,

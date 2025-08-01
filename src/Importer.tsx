@@ -44,9 +44,34 @@ const DonationRowCsvSchema = z.object({
 
 type DonationRowCsv = z.infer<typeof DonationRowCsvSchema>;
 
+type OrgParseResult = {
+  validOrgs: Org[];
+  errors: string[];
+};
+
+type DonationParseResult = {
+  validDonations: Donation[];
+  errors: string[];
+};
+
+const formatZodError = (
+  error: z.ZodError,
+  lineNumber: number,
+  orgName: string,
+): string[] => {
+  return error.issues.map((issue) => {
+    const field = String(issue.path[0] || "unknown");
+    const receivedValue =
+      "received" in issue && issue.received !== undefined
+        ? ` (received: "${issue.received}")`
+        : "";
+    return `Line ${lineNumber} - ${orgName}: ${field} - ${issue.message}${receivedValue}`;
+  });
+};
+
 const convertDonationRowCsvToDonation = (
   row: DonationRowCsv,
-  orgId: string
+  orgId: string,
 ): Donation => {
   const donation = {
     id: nanoid(),
@@ -70,15 +95,81 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
   return OrgSchema.parse(org);
 };
 
+const parseOrgCsv = (data: unknown[]): OrgParseResult => {
+  const validOrgs: Org[] = [];
+  const errors: string[] = [];
+  data.forEach((row, index) => {
+    try {
+      const validatedRow = OrgRowCsvSchema.parse(row);
+      const org = convertOrgRowCsvToOrg(validatedRow);
+      validOrgs.push(org);
+    } catch (parseError) {
+      const rowData = row as Record<string, unknown>;
+      const orgName = String(rowData?.Organization || "Unknown");
+      const lineNumber = index + 2;
+      if (parseError instanceof z.ZodError) {
+        errors.push(...formatZodError(parseError, lineNumber, orgName));
+      } else {
+        errors.push(
+          `Line ${lineNumber} - ${orgName}: Unknown validation error`,
+        );
+      }
+    }
+  });
+  return { validOrgs, errors };
+};
+
+const parseDonationCsv = (
+  data: unknown[],
+  validOrgs: Org[],
+): DonationParseResult => {
+  const validDonations: Donation[] = [];
+  const errors: string[] = [];
+  data.forEach((row, index) => {
+    try {
+      const validatedRow = DonationRowCsvSchema.parse(row);
+      const matchingOrg = validOrgs.find(
+        (org) =>
+          org.name.toLowerCase() === validatedRow.Organization.toLowerCase(),
+      );
+      if (!matchingOrg) {
+        errors.push(
+          `Line ${index + 2} - ${
+            validatedRow.Organization
+          }: Organization not found in organizations list`,
+        );
+        return;
+      }
+      const donation = convertDonationRowCsvToDonation(
+        validatedRow,
+        matchingOrg.id,
+      );
+      validDonations.push(donation);
+    } catch (parseError) {
+      const rowData = row as Record<string, unknown>;
+      const orgName = String(rowData?.Organization || "Unknown");
+      const lineNumber = index + 2;
+      if (parseError instanceof z.ZodError) {
+        errors.push(...formatZodError(parseError, lineNumber, orgName));
+      } else {
+        errors.push(
+          `Line ${lineNumber} - ${orgName}: Unknown validation error - Raw data: ${JSON.stringify(
+            rowData,
+          )}`,
+        );
+      }
+    }
+  });
+  return { validDonations, errors };
+};
+
 const createFinalData = (
   validOrgs: Org[],
   validDonations: Donation[],
   orgImportErrors: string[],
-  donationImportErrors: string[]
+  donationImportErrors: string[],
 ): DonationsData => {
   let newData = empty();
-
-  // Add organizations
   for (const org of validOrgs) {
     const result = orgAdd(newData, org);
     if (result) {
@@ -86,12 +177,10 @@ const createFinalData = (
     } else {
       // This shouldn't happen with our CSV processing, but handle it
       orgImportErrors.push(
-        `Failed to add organization: ${org.name} (duplicate or invalid)`
+        `Failed to add organization: ${org.name} (duplicate or invalid)`,
       );
     }
   }
-
-  // Add donations
   for (const donation of validDonations) {
     const result = donationAdd(newData, donation);
     if (result) {
@@ -99,11 +188,10 @@ const createFinalData = (
     } else {
       // This shouldn't happen with our CSV processing, but handle it
       donationImportErrors.push(
-        `Failed to add donation for organization ID: ${donation.orgId} (duplicate or invalid)`
+        `Failed to add donation for organization ID: ${donation.orgId} (duplicate or invalid)`,
       );
     }
   }
-
   return newData;
 };
 
@@ -128,7 +216,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   };
 
   const handleDonationFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const selectedFile = event.target.files?.[0];
     setDonationFile(selectedFile || undefined);
@@ -154,38 +242,9 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
       transform: (value) => value.trim(),
       complete: (orgResults) => {
         try {
-          const validOrgs: Org[] = [];
-          const orgImportErrors: string[] = [];
-
-          orgResults.data.forEach((row, index) => {
-            try {
-              const validatedRow = OrgRowCsvSchema.parse(row);
-              const org = convertOrgRowCsvToOrg(validatedRow);
-              validOrgs.push(org);
-            } catch (parseError) {
-              const rowData = row as Record<string, unknown>;
-              const orgName = String(rowData?.Organization || "Unknown");
-              const lineNumber = index + 2;
-
-              if (parseError instanceof z.ZodError) {
-                parseError.issues.forEach((issue) => {
-                  const field = String(issue.path[0] || "unknown");
-                  const receivedValue =
-                    "received" in issue && issue.received !== undefined
-                      ? ` (received: "${issue.received}")`
-                      : "";
-                  orgImportErrors.push(
-                    `Line ${lineNumber} - ${orgName}: ${field} - ${issue.message}${receivedValue}`
-                  );
-                });
-              } else {
-                orgImportErrors.push(
-                  `Line ${lineNumber} - ${orgName}: Unknown validation error`
-                );
-              }
-            }
-          });
-
+          const { validOrgs, errors: orgImportErrors } = parseOrgCsv(
+            orgResults.data,
+          );
           setOrgErrors(orgImportErrors);
 
           if (donationFile && validOrgs.length > 0) {
@@ -202,62 +261,8 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
               transformHeader: (header) => header.trim(),
               complete: (donationResults) => {
                 try {
-                  const validDonations: Donation[] = [];
-                  const donationImportErrors: string[] = [];
-
-                  donationResults.data.forEach((row, index) => {
-                    try {
-                      const validatedRow = DonationRowCsvSchema.parse(row);
-
-                      // Find matching organization by name
-                      const matchingOrg = validOrgs.find(
-                        (org) =>
-                          org.name.toLowerCase() ===
-                          validatedRow.Organization.toLowerCase()
-                      );
-
-                      if (!matchingOrg) {
-                        donationImportErrors.push(
-                          `Line ${index + 2} - ${
-                            validatedRow.Organization
-                          }: Organization not found in organizations list`
-                        );
-                        return;
-                      }
-
-                      const donation = convertDonationRowCsvToDonation(
-                        validatedRow,
-                        matchingOrg.id
-                      );
-                      validDonations.push(donation);
-                    } catch (parseError) {
-                      const rowData = row as Record<string, unknown>;
-                      const orgName = String(
-                        rowData?.Organization || "Unknown"
-                      );
-                      const lineNumber = index + 2;
-
-                      if (parseError instanceof z.ZodError) {
-                        parseError.issues.forEach((issue) => {
-                          const field = String(issue.path[0] || "unknown");
-                          const receivedValue =
-                            "received" in issue && issue.received !== undefined
-                              ? ` (received: "${issue.received}")`
-                              : "";
-                          donationImportErrors.push(
-                            `Line ${lineNumber} - ${orgName}: ${field} - ${issue.message}${receivedValue}`
-                          );
-                        });
-                      } else {
-                        donationImportErrors.push(
-                          `Line ${lineNumber} - ${orgName}: Unknown validation error - Raw data: ${JSON.stringify(
-                            rowData
-                          )}`
-                        );
-                      }
-                    }
-                  });
-
+                  const { validDonations, errors: donationImportErrors } =
+                    parseDonationCsv(donationResults.data, validOrgs);
                   setDonationErrors(donationImportErrors);
 
                   // Check for any errors before updating data
@@ -270,19 +275,19 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                       validOrgs,
                       validDonations,
                       orgImportErrors,
-                      donationImportErrors
+                      donationImportErrors,
                     );
                     setDonationsData(finalData);
                     sessionStorage.setItem(
                       "donationsData",
-                      JSON.stringify(finalData)
+                      JSON.stringify(finalData),
                     );
                     setStatus(
-                      `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`
+                      `Success: ${validOrgs.length} organizations and ${validDonations.length} donations imported`,
                     );
                   } else {
                     setStatus(
-                      `Error: ${totalErrors} validation errors occurred. Import cancelled.`
+                      `Error: ${totalErrors} validation errors occurred. Import cancelled.`,
                     );
                   }
 
@@ -305,17 +310,17 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                 validOrgs,
                 [],
                 orgImportErrors,
-                []
+                [],
               );
               setDonationsData(finalData);
               sessionStorage.setItem(
                 "donationsData",
-                JSON.stringify(finalData)
+                JSON.stringify(finalData),
               );
               setStatus(`Success: ${validOrgs.length} organizations imported`);
             } else {
               setStatus(
-                `Error: ${orgImportErrors.length} validation errors occurred. Import cancelled - no data was updated.`
+                `Error: ${orgImportErrors.length} validation errors occurred. Import cancelled - no data was updated.`,
               );
             }
 

@@ -22,8 +22,10 @@ TypeScript
 
 ## To do
 
+Donations view use URL customization; simpler filter like "Current year"
 Persistence to a server
 Security
 Track whether receipt exists for a donation
 Tax-preparation specific report
 Organization categories, like environment
+Organization filtering by URL

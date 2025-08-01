@@ -17,7 +17,7 @@ import { type DonationsData, DonationsDataSchema } from "./types";
 
 const AppContent = () => {
   const [donationsData, setDonationsData] = useState<DonationsData>(() => {
-    const FORCE_RESET_SAMPLE_DATA = true;
+    const FORCE_RESET_SAMPLE_DATA = false;
     const DONATIONS_DATA_KEY = "donationsData";
     const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
     if (FORCE_RESET_SAMPLE_DATA || !saved) {
@@ -106,7 +106,10 @@ const AppContent = () => {
           element={<Exporter donationsData={donationsData} />}
         />
         <Route path="/reports" element={<Reports />} />
-        <Route path="/reports/yearlytotals" element={<TotalsByYear donationsData={donationsData} />} />
+        <Route
+          path="/reports/yearlytotals"
+          element={<TotalsByYear donationsData={donationsData} />}
+        />
       </Routes>
     </>
   );

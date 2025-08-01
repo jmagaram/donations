@@ -1,4 +1,8 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+
+type YearFilter = "all" | "current" | "previous" | "last2" | string;
+type AmountFilterType = "all" | "moreThan" | "lessThan" | "between";
 
 export interface DonationDisplay {
   id: string;
@@ -14,14 +18,19 @@ interface DonationsViewProps {
   donations: DonationDisplay[];
   currentFilter: string;
   textFilterChanged: (filter: string) => void;
-  yearFrom: number;
-  yearTo: number;
-  minYear: number;
-  maxYear: number;
-  yearFilterChanged: (from: number, to: number) => void;
-  amountMin: number;
-  amountMax: number;
-  amountFilterChanged: (min: number, max: number) => void;
+  yearFilter: YearFilter;
+  yearFilterOptions: { value: string; label: string }[];
+  yearFilterChanged: (yearFilter: YearFilter) => void;
+  amountFilter: AmountFilterType;
+  minAmount: number;
+  maxAmount: number;
+  minAmountOptions: number[];
+  maxAmountOptions: number[];
+  amountFilterChanged: (
+    filterType: AmountFilterType,
+    minValue?: number,
+    maxValue?: number,
+  ) => void;
   onClearFilters: () => void;
 }
 
@@ -29,33 +38,54 @@ const DonationsView = ({
   donations,
   currentFilter,
   textFilterChanged,
-  yearFrom,
-  yearTo,
-  minYear,
-  maxYear,
+  yearFilter,
+  yearFilterOptions,
   yearFilterChanged,
-  amountMin,
-  amountMax,
+  amountFilter,
+  minAmount,
+  maxAmount,
+  minAmountOptions,
+  maxAmountOptions,
   amountFilterChanged,
   onClearFilters,
 }: DonationsViewProps) => {
-  const yearOptions = [];
-  for (let y = maxYear; y >= minYear; y--) {
-    yearOptions.push(y);
-  }
+  // Amount filter change handlers
+  const handleAmountFilterTypeChange = (newType: AmountFilterType) => {
+    switch (newType) {
+      case "all":
+        amountFilterChanged("all");
+        break;
+      case "moreThan":
+        amountFilterChanged("moreThan", minAmountOptions[0]); // Default to first option
+        break;
+      case "lessThan":
+        amountFilterChanged("lessThan", undefined, maxAmountOptions[0]); // Default to first option
+        break;
+      case "between":
+        amountFilterChanged(
+          "between",
+          minAmountOptions[0],
+          maxAmountOptions[0],
+        );
+        break;
+    }
+  };
 
-  const amountOptions = [
-    0,
-    100,
-    200,
-    300,
-    400,
-    500,
-    1000,
-    2500,
-    5000,
-    Number.POSITIVE_INFINITY,
-  ];
+  const handleMinAmountChange = (value: number) => {
+    if (amountFilter === "moreThan") {
+      amountFilterChanged("moreThan", value);
+    } else if (amountFilter === "between") {
+      amountFilterChanged("between", value, maxAmount);
+    }
+  };
+
+  const handleMaxAmountChange = (value: number) => {
+    if (amountFilter === "lessThan") {
+      amountFilterChanged("lessThan", undefined, value);
+    } else if (amountFilter === "between") {
+      amountFilterChanged("between", minAmount, value);
+    }
+  };
 
   function formatAmountOption(val: number) {
     if (val === Number.POSITIVE_INFINITY) return "Unlimited";
@@ -72,67 +102,110 @@ const DonationsView = ({
       </div>
       <div className="toolbar">
         <div className="toolbar-item">
-          <label htmlFor="year-from">From</label>
+          <label htmlFor="year-filter">Year</label>
           <select
-            id="year-from"
-            value={yearFrom}
-            onChange={(e) => yearFilterChanged(Number(e.target.value), yearTo)}
+            id="year-filter"
+            value={yearFilter}
+            onChange={(e) => yearFilterChanged(e.target.value as YearFilter)}
           >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y}
+            {yearFilterOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
               </option>
             ))}
           </select>
         </div>
         <div className="toolbar-item">
-          <label htmlFor="year-to">To</label>
+          <label htmlFor="amount-filter">Amount</label>
           <select
-            id="year-to"
-            value={yearTo}
+            id="amount-filter"
+            value={amountFilter}
             onChange={(e) =>
-              yearFilterChanged(yearFrom, Number(e.target.value))
+              handleAmountFilterTypeChange(e.target.value as AmountFilterType)
             }
           >
-            {yearOptions.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
+            <option value="all">Any amount</option>
+            <option value="moreThan">Minimum</option>
+            <option value="lessThan">Maximum</option>
+            <option value="between">Between</option>
           </select>
         </div>
-        <div className="toolbar-item">
-          <label htmlFor="amount-min">Min</label>
-          <select
-            id="amount-min"
-            value={amountMin}
-            onChange={(e) =>
-              amountFilterChanged(Number(e.target.value), amountMax)
-            }
-          >
-            {amountOptions.map((a) => (
-              <option key={a} value={a}>
-                {formatAmountOption(a)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="toolbar-item">
-          <label htmlFor="amount-max">Max</label>
-          <select
-            id="amount-max"
-            value={amountMax}
-            onChange={(e) =>
-              amountFilterChanged(amountMin, Number(e.target.value))
-            }
-          >
-            {amountOptions.map((a) => (
-              <option key={a} value={a}>
-                {formatAmountOption(a)}
-              </option>
-            ))}
-          </select>
-        </div>
+        {amountFilter === "moreThan" && (
+          <div className="toolbar-item">
+            <label htmlFor="min-amount">Min</label>
+            <select
+              id="min-amount"
+              value={minAmount}
+              onChange={(e) => handleMinAmountChange(parseInt(e.target.value))}
+            >
+              {minAmountOptions.map((amount) => (
+                <option key={amount} value={amount}>
+                  {formatAmountOption(amount)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {amountFilter === "lessThan" && (
+          <div className="toolbar-item">
+            <label htmlFor="max-amount">Max</label>
+            <select
+              id="max-amount"
+              value={
+                maxAmount === Number.POSITIVE_INFINITY
+                  ? maxAmountOptions[0]
+                  : maxAmount
+              }
+              onChange={(e) => handleMaxAmountChange(parseInt(e.target.value))}
+            >
+              {maxAmountOptions.map((amount) => (
+                <option key={amount} value={amount}>
+                  {formatAmountOption(amount)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+        {amountFilter === "between" && (
+          <>
+            <div className="toolbar-item">
+              <label htmlFor="min-amount">Min</label>
+              <select
+                id="min-amount"
+                value={minAmount}
+                onChange={(e) =>
+                  handleMinAmountChange(parseInt(e.target.value))
+                }
+              >
+                {minAmountOptions.map((amount) => (
+                  <option key={amount} value={amount}>
+                    {formatAmountOption(amount)}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="toolbar-item">
+              <label htmlFor="max-amount">Max</label>
+              <select
+                id="max-amount"
+                value={
+                  maxAmount === Number.POSITIVE_INFINITY
+                    ? maxAmountOptions[0]
+                    : maxAmount
+                }
+                onChange={(e) =>
+                  handleMaxAmountChange(parseInt(e.target.value))
+                }
+              >
+                {maxAmountOptions.map((amount) => (
+                  <option key={amount} value={amount}>
+                    {formatAmountOption(amount)}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
         <div className="toolbar-item">
           <input
             type="search"
@@ -166,9 +239,7 @@ const DonationsView = ({
               <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
             </div>
             <div className="kind">{donation.kind}</div>
-            <div className="notes hide-on-mobile">
-              {donation.notes}
-            </div>
+            <div className="notes hide-on-mobile">{donation.notes}</div>
           </div>
         ))}
       </div>

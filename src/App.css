@@ -117,6 +117,10 @@ nav {
     font-weight: bold;
 }
 
+.donations-grid a {
+    text-decoration: none;
+}
+
 .donations-grid > .row {
     display: contents;
 }

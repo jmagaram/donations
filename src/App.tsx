@@ -14,7 +14,7 @@ import { type DonationsData, DonationsDataSchema } from "./types";
 
 const AppContent = () => {
   const [donationsData, setDonationsData] = useState<DonationsData>(() => {
-    const FORCE_RESET_SAMPLE_DATA = false;
+    const FORCE_RESET_SAMPLE_DATA = true;
     const DONATIONS_DATA_KEY = "donationsData";
     const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
     if (FORCE_RESET_SAMPLE_DATA || !saved) {

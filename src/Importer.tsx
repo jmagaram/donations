@@ -282,7 +282,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                     );
                   } else {
                     setStatus(
-                      `Error: ${totalErrors} validation errors occurred. Import cancelled - no data was updated.`
+                      `Error: ${totalErrors} validation errors occurred. Import cancelled.`
                     );
                   }
 
@@ -334,7 +334,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   };
 
   return (
-    <div>
+    <div className="importer">
       <h1>Import</h1>
       <div>
         <div>
@@ -357,18 +357,14 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
             disabled={isWorking}
           />
         </div>
-        <div style={{ marginTop: "1rem" }}>
+        <div>
           <button onClick={handleImport} disabled={!orgFile || isWorking}>
-            {donationFile
-              ? "Import Organizations & Donations"
-              : "Import Organizations"}
+            Start import
           </button>
         </div>
-        {status && (
-          <div style={{ marginTop: "1rem", fontWeight: "bold" }}>{status}</div>
-        )}
+        {status && <div className="statusBox">{status}</div>}
         {orgErrors.length > 0 && (
-          <div className="importErrors">
+          <div className="errors">
             <h3>Organization Import Errors</h3>
             <ul>
               {orgErrors.map((error, index) => (
@@ -378,7 +374,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
           </div>
         )}
         {donationErrors.length > 0 && (
-          <div className="importErrors">
+          <div className="errors">
             <h3>Donation Import Errors</h3>
             <ul>
               {donationErrors.map((error, index) => (
@@ -388,46 +384,43 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
           </div>
         )}
       </div>
-      <div>
-        <h2>Expected CSV Formats</h2>
-        <h3>Organizations CSV</h3>
-        <ul>
-          <li>
-            <strong>Organization</strong>: Organization name (required)
-          </li>
-          <li>
-            <strong>TaxDeductible</strong>: "Yes" or "No" (required)
-          </li>
-          <li>
-            <strong>WebSite</strong>: URL, usually start with http:// or
-            https:// (optional)
-          </li>
-          <li>
-            <strong>Notes</strong>: Any notes (can be multi-line)
-          </li>
-        </ul>
-        <h3>Donations CSV</h3>
-        <ul>
-          <li>
-            <strong>Organization</strong>: Must match organization name exactly
-            (required)
-          </li>
-          <li>
-            <strong>Date</strong>: YYYY-MM-DD format (required)
-          </li>
-          <li>
-            <strong>Amount</strong>: Plain number, without currency symbol. Like
-            432.33 (required)
-          </li>
-          <li>
-            <strong>Kind</strong>: "idea", "pledge", "paid", or "unknown"
-            (required)
-          </li>
-          <li>
-            <strong>Notes</strong>: Any notes about the donation (optional)
-          </li>
-        </ul>
-      </div>
+      <h3>Organizations CSV</h3>
+      <ul>
+        <li>
+          <strong>Organization</strong>: Organization name (required)
+        </li>
+        <li>
+          <strong>TaxDeductible</strong>: "Yes" or "No" (required)
+        </li>
+        <li>
+          <strong>WebSite</strong>: URL, usually start with http:// or https://
+          (optional)
+        </li>
+        <li>
+          <strong>Notes</strong>: Any notes (can be multi-line)
+        </li>
+      </ul>
+      <h3>Donations CSV</h3>
+      <ul>
+        <li>
+          <strong>Organization</strong>: Must match organization name exactly
+          (required)
+        </li>
+        <li>
+          <strong>Date</strong>: YYYY-MM-DD format (required)
+        </li>
+        <li>
+          <strong>Amount</strong>: Plain number, without currency symbol. Like
+          432.33 (required)
+        </li>
+        <li>
+          <strong>Kind</strong>: "idea", "pledge", "paid", or "unknown"
+          (required)
+        </li>
+        <li>
+          <strong>Notes</strong>: Any notes about the donation (optional)
+        </li>
+      </ul>
     </div>
   );
 };

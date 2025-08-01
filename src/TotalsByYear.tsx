@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 
@@ -198,7 +199,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
             return (
               <>
                 <div key={org.id} className="totals-by-year-row">
-                  {org.name}
+                  <Link to={`/orgs/${org.id}`}>{org.name}</Link>
                 </div>
                 {processedData.years.map((year) => (
                   <div key={`${org.id}-${year}`} className="totals-by-year-row">

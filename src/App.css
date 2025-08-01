@@ -75,6 +75,10 @@ button {
     border-bottom: 1px solid #eee;
 }
 
+.org-details .donation-grid a {
+    text-decoration: none;
+}
+
 .org-details .donation-grid .date {
     white-space: nowrap;
 }
@@ -145,6 +149,10 @@ nav {
     display: grid;
     grid-template-columns: auto auto 1fr;
     gap: 0.25rem 0.25rem;
+}
+
+.orgs-grid a {
+    text-decoration: none;
 }
 
 .orgs-grid > .header {

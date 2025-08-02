@@ -33,22 +33,28 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   };
 
   const updateCategoryFilter = (newCategory: string) => {
-    updateSearchParams({ category: newCategory === "all" ? undefined : newCategory });
+    updateSearchParams({
+      category: newCategory === "all" ? undefined : newCategory,
+    });
   };
 
-  // Get unique categories from all organizations
   const availableCategories = Array.from(
     new Set(
       donationsData.orgs
-        .map(org => org.category)
-        .filter(Boolean)
-        .filter(category => category.trim().length > 0)
+        .map((org) => org.category)
+        .filter(
+          (cat): cat is string =>
+            typeof cat === "string" && cat.trim().length > 0
+        )
     )
   ).sort();
 
   // Add URL category if it doesn't exist in available categories
   const categoriesForDropdown = [...availableCategories];
-  if (categoryFilter !== "all" && !availableCategories.includes(categoryFilter)) {
+  if (
+    categoryFilter !== "all" &&
+    !availableCategories.includes(categoryFilter)
+  ) {
     categoriesForDropdown.push(categoryFilter);
     categoriesForDropdown.sort();
   }
@@ -56,8 +62,8 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
       const matchesText = textMatch(org, textFilter);
-      const matchesCategory = categoryFilter === "all" || 
-        (org.category === categoryFilter);
+      const matchesCategory =
+        categoryFilter === "all" || org.category === categoryFilter;
       return matchesText && matchesCategory;
     })
     .sort((a, b) => a.name.localeCompare(b.name));

@@ -21,13 +21,15 @@ const OrgUpsertContainer = ({
 
   const isEditMode = Boolean(id);
   const organization = isEditMode ? findOrgById(donationsData, id!) : undefined;
-  
+
   const categories = React.useMemo(() => {
     const uniqueCategories = new Set(
       donationsData.orgs
-        .map(org => org.category)
-        .filter(Boolean)
-        .filter(category => category.trim().length > 0)
+        .map((org) => org.category)
+        .filter(
+          (cat): cat is string =>
+            typeof cat === "string" && cat.trim().length > 0
+        )
     );
     return Array.from(uniqueCategories).sort();
   }, [donationsData.orgs]);

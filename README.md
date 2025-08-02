@@ -23,5 +23,5 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## To do
 
-Persistence to a server
-Security
+- Persistence to a server
+- Security

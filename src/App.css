@@ -157,7 +157,7 @@ nav a {
 
 .orgs-grid {
     display: grid;
-    grid-template-columns: auto auto auto 1fr;
+    grid-template-columns: auto auto 1fr;
     gap: 0.25rem 0.25rem;
 }
 
@@ -171,7 +171,6 @@ nav a {
 }
 
 .orgs-grid > .header > .name,
-.orgs-grid > .header > .tax,
 .orgs-grid > .header > .notes,
 .orgs-grid > .header > .category {
     border-bottom: 1px solid #eee;
@@ -183,10 +182,6 @@ nav a {
 
 .orgs-grid > .row > div {
     border-bottom: 1px solid #eee;
-}
-
-.orgs-grid .tax {
-    text-align: center;
 }
 
 .orgs-grid .notes {

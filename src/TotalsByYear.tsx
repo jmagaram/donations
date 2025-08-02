@@ -224,13 +224,11 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
                 {processedData.years.map((year) => (
                   <div key={`${org.id}-${year}`} className="totals-by-year-row">
                     $
-                    {(processedData.orgYearTotals[org.id][year] || 0).toFixed(
-                      2,
-                    )}
+                    {Math.round(processedData.orgYearTotals[org.id][year] || 0).toLocaleString()}
                   </div>
                 ))}
                 <div className="totals-by-year-row totals-by-year-total-col">
-                  ${orgTotal.toFixed(2)}
+                  ${Math.round(orgTotal).toLocaleString()}
                 </div>
               </>
             );
@@ -240,11 +238,11 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <div className="totals-by-year-total-row">Total</div>
           {processedData.years.map((year) => (
             <div key={`total-${year}`} className="totals-by-year-total-row">
-              ${(processedData.yearTotals[year] || 0).toFixed(2)}
+              ${Math.round(processedData.yearTotals[year] || 0).toLocaleString()}
             </div>
           ))}
           <div className="totals-by-year-total-row">
-            ${processedData.grandTotal.toFixed(2)}
+            ${Math.round(processedData.grandTotal).toLocaleString()}
           </div>
         </div>
       )}

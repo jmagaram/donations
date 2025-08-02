@@ -9,7 +9,8 @@ A web app for tracking a family's personal donations to various tax-deductible a
 - Track list of organizations (name, tax-status, notes)
 - Track donations (date, amount, notes, kind like pledge, budget, or paid)
 - Simple reports for analysis and tax preparation
-- Export (for spreadsheet analysis)
+- Import (from CSV)
+- Export (for spreadsheet analysis and backup)
 - Simple searching by name, amount, date, etc.
 - Persistent storage on an internet server (JSON, single file)
 - View donation history on small mobile screens

@@ -12,6 +12,7 @@ import Reports from "./Reports";
 import TotalsByYear from "./TotalsByYear";
 import TotalsByCategory from "./TotalsByCategory";
 import StatusBox from "./StatusBox";
+import Admin from "./Admin";
 import "./App.css";
 import { useState, useEffect } from "react";
 import { type DonationsData } from "./types";
@@ -235,6 +236,7 @@ const AppContent = () => {
           path="/reports/yearlytotalsbycategory"
           element={<TotalsByCategory donationsData={donationsData} />}
         />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </>
   );

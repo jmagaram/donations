@@ -68,6 +68,7 @@ const Home = ({ storageProvider, refreshData, currentEtag }: HomeProps) => {
           <li><Link to="/reports">Reports</Link></li>
           <li><Link to="/import">Import</Link></li>
           <li><Link to="/export">Export</Link></li>
+          <li><Link to="/admin">Admin</Link></li>
         </ul>
       </nav>
       

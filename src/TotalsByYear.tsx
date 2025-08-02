@@ -59,17 +59,18 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           currentYear - 3,
         );
         break;
-      case "future":
-        // Find max year in donations
+      case "future": // Find max year in donations
+      {
         const maxYearInData = Math.max(
-          ...donationsData.donations.map(d => extractYear(d.date)),
-          currentYear
+          ...donationsData.donations.map((d) => extractYear(d.date)),
+          currentYear,
         );
         const futureEndYear = Math.min(currentYear + 5, maxYearInData);
         for (let year = currentYear + 1; year <= futureEndYear; year++) {
           years.push(year);
         }
         break;
+      }
     }
     years.sort((a, b) => a - b); // Sort ascending
 
@@ -169,7 +170,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
             onChange={(e) => updateTaxStatus(e.target.value as TaxStatus)}
           >
             <option value="all">All</option>
-            <option value="taxDeductible">Tax-Deductible</option>
+            <option value="taxDeductible">Charity (tax-deductible)</option>
             <option value="notTaxDeductible">Not tax-deductible</option>
           </select>
         </div>

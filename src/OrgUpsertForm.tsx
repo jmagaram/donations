@@ -55,13 +55,14 @@ const OrgUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="category">Category</label>
-          <input 
-            id="category" 
-            type="text" 
+          <input
+            id="category"
+            type="text"
             list="categories"
             {...register("category", {
-              setValueAs: (value) => typeof value === "string" ? value.trim() : value
-            })} 
+              setValueAs: (value) =>
+                typeof value === "string" ? value.trim() : value,
+            })}
           />
           <datalist id="categories">
             {categories.map((category) => (
@@ -76,7 +77,7 @@ const OrgUpsertForm = ({
             {...register("taxDeductible", { setValueAs: (v) => v === "true" })}
             defaultValue={defaultValues.taxDeductible ? "true" : "false"}
           >
-            <option value="true">Tax-deductible</option>
+            <option value="true">Charity (tax-deductible)</option>
             <option value="false">Not tax-deductible</option>
           </select>
         </div>

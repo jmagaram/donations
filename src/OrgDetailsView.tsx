@@ -49,7 +49,9 @@ const OrgDetailsView = ({
         )}
         <div className="header">Tax status</div>
         <div className="content">
-          {organization.taxDeductible ? "Tax-deductible" : "NOT tax-deductible"}
+          {organization.taxDeductible
+            ? "Charity (tax-deductible)"
+            : "Not tax-deductible"}
         </div>
         {organization.webSite && (
           <>

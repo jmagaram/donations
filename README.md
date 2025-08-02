@@ -18,8 +18,8 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## Technology
 
-React
-TypeScript
+- React
+- TypeScript
 
 ## To do
 

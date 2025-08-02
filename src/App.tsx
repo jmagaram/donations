@@ -20,7 +20,7 @@ import { createStorageProvider, type StorageProvider } from "./storage/index";
 
 const AppContent = () => {
   const [storageProvider] = useState<StorageProvider>(() =>
-    createStorageProvider("webApi"),
+    createStorageProvider("sessionStorage"),
   );
   const [forceUpdate, setForceUpdate] = useState(0);
   const [currentEtag, setCurrentEtag] = useState<string>("");
@@ -40,7 +40,7 @@ const AppContent = () => {
           setIsLoading(false);
         } else {
           console.log("App: No cache, calling loadFresh()");
-          const fresh = await storageProvider.loadFresh();
+          const fresh = await storageProvider.refreshFromRemote();
           console.log("App: loadFresh() completed successfully");
           setCurrentEtag(fresh.etag);
           setForceUpdate((prev) => prev + 1);
@@ -68,7 +68,7 @@ const AppContent = () => {
     } catch (err) {
       if (err instanceof Error && err.message.includes("ETag mismatch")) {
         try {
-          const fresh = await storageProvider.loadFresh();
+          const fresh = await storageProvider.refreshFromRemote();
           setCurrentEtag(fresh.etag);
           setForceUpdate((prev) => prev + 1);
           setError(
@@ -87,7 +87,7 @@ const AppContent = () => {
     try {
       setIsLoading(true);
       setError(undefined);
-      const fresh = await storageProvider.loadFresh();
+      const fresh = await storageProvider.refreshFromRemote();
       setCurrentEtag(fresh.etag);
       setForceUpdate((prev) => prev + 1);
     } catch (err) {
@@ -146,16 +146,7 @@ const AppContent = () => {
         </>
       )}
       <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              storageProvider={storageProvider}
-              refreshData={refreshData}
-              currentEtag={currentEtag}
-            />
-          }
-        />
+        <Route path="/" element={<Home />} />
         <Route
           path="/donations"
           element={
@@ -236,7 +227,16 @@ const AppContent = () => {
           path="/reports/yearlytotalsbycategory"
           element={<TotalsByCategory donationsData={donationsData} />}
         />
-        <Route path="/admin" element={<Admin />} />
+        <Route
+          path="/admin"
+          element={
+            <Admin
+              storageProvider={storageProvider}
+              refreshData={refreshData}
+              currentEtag={currentEtag}
+            />
+          }
+        />
       </Routes>
     </>
   );

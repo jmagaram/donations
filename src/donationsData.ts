@@ -1,4 +1,3 @@
-import { captureOwnerStack } from "react";
 import { type Donation, type DonationsData, type Org } from "./types";
 import { nanoid } from "nanoid";
 

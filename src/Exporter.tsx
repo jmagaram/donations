@@ -7,8 +7,6 @@ interface ExporterProps {
   donationsData: DonationsData;
 }
 
-type ExportType = "donations" | "organizations" | "everything";
-
 const Exporter = ({ donationsData }: ExporterProps) => {
   const [exportStatus, setExportStatus] = useState<StatusBoxProps | undefined>(
     undefined,
@@ -119,7 +117,8 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         </a>
         <p>
           Exports all donations in CSV format. Includes donationId, orgId,
-          orgName, orgCategory, date, year, amount, kind, donationNotes, paymentMethod, and taxDeductible.
+          orgName, orgCategory, date, year, amount, kind, donationNotes,
+          paymentMethod, and taxDeductible.
         </p>
       </div>
       <div className="export-section">

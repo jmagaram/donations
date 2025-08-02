@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
 
@@ -244,7 +243,9 @@ const DonationsView = ({
           {donations.map((donation) => (
             <div key={donation.id} className="row">
               <div>
-                <Link to={`/donations/${donation.id}/edit`}>{donation.date}</Link>
+                <Link to={`/donations/${donation.id}/edit`}>
+                  {donation.date}
+                </Link>
               </div>
               <div className="amount">{donation.amount}</div>
               <div>

@@ -210,15 +210,21 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       return matchesYear && matchesAmount && matchesText;
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))
-    .map((donation) => ({
-      id: donation.id,
-      date: donation.date,
-      amount: formatAmount(donation.amount),
-      orgId: donation.orgId,
-      orgName: getOrgName(donation.orgId),
-      kind: donation.kind,
-      notes: donation.notes,
-    }));
+    .map((donation) => {
+      const notesWithPayment = donation.paymentMethod 
+        ? `${donation.notes}${donation.notes ? '\n' : ''}${donation.paymentMethod}`
+        : donation.notes;
+      return {
+        id: donation.id,
+        date: donation.date,
+        amount: formatAmount(donation.amount),
+        orgId: donation.orgId,
+        orgName: getOrgName(donation.orgId),
+        kind: donation.kind,
+        notes: notesWithPayment,
+        paymentMethod: donation.paymentMethod,
+      };
+    });
 
   const handleClearFilters = () => {
     setSearchParams(new URLSearchParams());

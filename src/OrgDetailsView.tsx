@@ -111,7 +111,11 @@ const OrgDetailsView = ({
                 </div>
                 <div className="amount">{formatAmount(donation.amount)}</div>
                 <div className="kind">{donation.kind}</div>
-                <div className="notes">{donation.notes || "-"}</div>
+                <div className="notes">
+                  {donation.paymentMethod 
+                    ? `${donation.notes || ""}${donation.notes ? '\n' : ''}${donation.paymentMethod}` 
+                    : donation.notes || "-"}
+                </div>
               </div>
             ))}
           </div>

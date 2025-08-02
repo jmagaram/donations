@@ -5,6 +5,7 @@ import {
   DonationAmountSchema,
   DonationKindSchema,
   DonationNotesSchema,
+  DonationPaymentMethodSchema,
 } from "./types";
 import { DateIsoSchema, getCurrentDateIso } from "./date";
 
@@ -14,6 +15,7 @@ export const DonationUpsertFieldsSchema = z.object({
   amount: DonationAmountSchema,
   kind: DonationKindSchema,
   notes: DonationNotesSchema,
+  paymentMethod: DonationPaymentMethodSchema,
 });
 
 export type DonationUpsertFields = z.infer<typeof DonationUpsertFieldsSchema>;
@@ -24,6 +26,7 @@ export const defaultFields: DonationUpsertFields = {
   amount: 0,
   kind: "paid",
   notes: "",
+  paymentMethod: "",
 };
 
 
@@ -41,6 +44,7 @@ export const donationTextMatch = (
     donation.kind.toLowerCase(),
     ...getWords(org.name),
     ...getWords(org.notes),
+    ...getWords(donation.paymentMethod || ""),
   ];
   return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
 };

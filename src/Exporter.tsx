@@ -48,6 +48,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         amount: donation.amount,
         kind: donation.kind,
         donationNotes: donation.notes,
+        paymentMethod: donation.paymentMethod || "",
         taxDeductible: org?.taxDeductible || false,
       };
     });
@@ -118,7 +119,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         </a>
         <p>
           Exports all donations in CSV format. Includes donationId, orgId,
-          orgName, orgCategory, date, year, amount, kind, donationNotes, and taxDeductible.
+          orgName, orgCategory, date, year, amount, kind, donationNotes, paymentMethod, and taxDeductible.
         </p>
       </div>
       <div className="export-section">

@@ -147,6 +147,7 @@ const sampleDataArray = [
         date: "2018-05-01",
         amount: 500,
         kind: "paid" as const,
+        paymentMethod: "Check",
       },
       {
         date: "2019-07-03",
@@ -165,16 +166,19 @@ const sampleDataArray = [
         date: "2023-04-06",
         amount: 2000,
         kind: "paid" as const,
+        paymentMethod: "Stock",
       },
       {
         date: "2022-07-03",
         amount: 3000,
         kind: "paid" as const,
+        paymentMethod: "Amex",
       },
       {
         date: "2021-07-03",
         amount: 5000,
         kind: "paid" as const,
+        paymentMethod: "Wells Fargo Credit",
       },
       {
         date: "2020-07-03",
@@ -234,6 +238,7 @@ export const sampleData = (): DonationsData | undefined => {
           notes: "",
           orgId: newOrg.id,
           id: nanoid(),
+          paymentMethod: donation.paymentMethod || undefined,
         };
         const donationResult = donationAdd(result, newDonation);
         if (!donationResult) return undefined;

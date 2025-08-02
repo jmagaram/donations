@@ -43,6 +43,7 @@ const DonationRowCsvSchema = z.object({
     .pipe(DonationAmountSchema),
   Kind: DonationKindSchema,
   Notes: z.string().optional().default(""),
+  PaymentMethod: z.string().optional().default(""),
 });
 
 type DonationRowCsv = z.infer<typeof DonationRowCsvSchema>;
@@ -95,6 +96,7 @@ const convertDonationRowCsvToDonation = (
     amount: row.Amount,
     kind: row.Kind,
     notes: row.Notes,
+    paymentMethod: row.PaymentMethod && row.PaymentMethod.trim().length > 0 ? row.PaymentMethod.trim() : undefined,
   };
   return DonationSchema.parse(donation);
 };
@@ -456,7 +458,8 @@ Donations CSV
 • Date: YYYY-MM-DD format (required)
 • Amount: Plain number, without currency symbol. Like 432.33 (required)
 • Kind: "idea", "pledge", "paid", or "unknown" (required)
-• Notes: Any notes about the donation (optional)`}
+• Notes: Any notes about the donation (optional)
+• PaymentMethod: Payment method used (optional)`}
         kind="info"
       />
     </div>

@@ -13,6 +13,7 @@ export interface DonationDisplay {
   orgName: string;
   kind: string;
   notes: string;
+  paymentMethod?: string;
 }
 
 interface DonationsViewProps {

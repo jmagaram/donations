@@ -65,9 +65,9 @@ const DonationUpsertForm = ({
     return (
       <div>
         <h1>Edit Donation</h1>
-        <StatusBox 
-          content={`The organization ${orgId} for this donation was not found. Delete the donation and create it from scratch.`} 
-          kind="error" 
+        <StatusBox
+          content={`The organization ${orgId} for this donation was not found. Delete the donation and create it from scratch.`}
+          kind="error"
         />
       </div>
     );
@@ -113,16 +113,26 @@ const DonationUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="date">Date</label>
-          <input
-            id="date"
-            type="date"
-            {...register("date")}
-          />
+          <input id="date" type="date" {...register("date")} />
           {errors.date && <span>{errors.date.message}</span>}
         </div>
         <div className="form-field">
-          <label htmlFor="notes">Notes</label>
-          <textarea id="notes" rows={5} {...register("notes")} />
+          <label htmlFor="paymentMethod">Payment method</label>
+          <input
+            id="paymentMethod"
+            list="paymentMethods"
+            {...register("paymentMethod")}
+          />
+          <div className="form-field">
+            <label htmlFor="notes">Notes</label>
+            <textarea id="notes" rows={5} {...register("notes")} />
+          </div>
+          <datalist id="paymentMethods">
+            <option value="Stock" />
+            <option value="Amex" />
+            <option value="Wells Fargo Credit" />
+            <option value="Wells Fargo Check" />
+          </datalist>
         </div>
         <div className="toolbar">
           <button type="submit">Save changes</button>

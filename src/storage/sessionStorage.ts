@@ -10,7 +10,7 @@ export class SessionStorageProvider implements StorageProvider {
   getCachedData(): CachedData | undefined {
     const dataStr = sessionStorage.getItem(this.STORAGE_KEY);
     const etag = sessionStorage.getItem(this.ETAG_KEY);
-    
+
     if (!dataStr || !etag) {
       return undefined;
     }
@@ -24,11 +24,11 @@ export class SessionStorageProvider implements StorageProvider {
   }
 
   async loadFresh(): Promise<CachedData> {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     const data = tryCreateSampleData();
     const etag = this.generateEtag(data);
-    
+
     this.cacheData(data, etag);
     return { data, etag };
   }
@@ -39,11 +39,11 @@ export class SessionStorageProvider implements StorageProvider {
       throw new Error("ETag mismatch: data has changed locally.");
     }
 
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     const newEtag = this.generateEtag(data);
     this.cacheData(data, newEtag);
-    
+
     return { data, etag: newEtag };
   }
 
@@ -66,7 +66,7 @@ export class SessionStorageProvider implements StorageProvider {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
       const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash) + char;
+      hash = (hash << 5) - hash + char;
       hash = hash & hash;
     }
     return Math.abs(hash).toString(16);

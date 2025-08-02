@@ -13,7 +13,7 @@ export const DonationPaymentMethodSchema = z.string().optional();
 export const OrgNameSchema = z.string().trim().min(1);
 export const OrgCategorySchema = z.string().trim().optional();
 export const OrgTaxDeductibleSchema = z.boolean();
-export const OrgWebSiteSchema = z.url().optional();
+export const OrgWebSiteSchema = z.union([z.url(), z.literal("")]).optional();
 export const OrgNotesSchema = z.string();
 
 export const OrgSchema = z.object({

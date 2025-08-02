@@ -5,7 +5,7 @@ import { WebApiProvider } from "./webApi";
 export type { StorageProvider, CachedData } from "./interface";
 
 export const createStorageProvider = (
-  type: "webApi" | "sessionStorage" = "sessionStorage",
+  type: "webApi" | "sessionStorage",
 ): StorageProvider => {
   return type === "webApi"
     ? new WebApiProvider()

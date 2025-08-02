@@ -19,11 +19,9 @@ import { createStorageProvider, type StorageProvider } from "./storage/index";
 
 const AppContent = () => {
   const [storageProvider] = useState<StorageProvider>(() =>
-    createStorageProvider("sessionStorage"),
+    createStorageProvider("webApi"),
   );
-  const [donationsData, setDonationsDataState] = useState<
-    DonationsData | undefined
-  >(undefined);
+  const [forceUpdate, setForceUpdate] = useState(0);
   const [currentEtag, setCurrentEtag] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | undefined>(undefined);
@@ -31,28 +29,32 @@ const AppContent = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
+        console.log("App: Starting loadData()");
         setIsLoading(true);
         setError(undefined);
-
         const cached = storageProvider.getCachedData();
         if (cached) {
-          console.log("Loaded cached data!");
-          setDonationsDataState(cached.data);
+          console.log("App: Using cached data");
           setCurrentEtag(cached.etag);
           setIsLoading(false);
         } else {
+          console.log("App: No cache, calling loadFresh()");
           const fresh = await storageProvider.loadFresh();
-          console.log("Loaded fresh data!");
-          setDonationsDataState(fresh.data);
+          console.log("App: loadFresh() completed successfully");
           setCurrentEtag(fresh.etag);
+          setForceUpdate((prev) => prev + 1);
           setIsLoading(false);
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load data");
+        console.log("App: Error caught in loadData():", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "Failed to load data";
+        console.log("App: Setting error state to:", errorMessage);
+        setError(errorMessage);
+        console.log("App: Setting isLoading to false");
         setIsLoading(false);
       }
     };
-
     loadData();
   }, [storageProvider]);
 
@@ -60,14 +62,14 @@ const AppContent = () => {
     try {
       setError(undefined);
       const result = await storageProvider.save(data, currentEtag);
-      setDonationsDataState(result.data);
       setCurrentEtag(result.etag);
+      setForceUpdate((prev) => prev + 1);
     } catch (err) {
       if (err instanceof Error && err.message.includes("ETag mismatch")) {
         try {
           const fresh = await storageProvider.loadFresh();
-          setDonationsDataState(fresh.data);
           setCurrentEtag(fresh.etag);
+          setForceUpdate((prev) => prev + 1);
           setError(
             "Data was changed elsewhere. Your changes were not saved. Please try again.",
           );
@@ -85,8 +87,8 @@ const AppContent = () => {
       setIsLoading(true);
       setError(undefined);
       const fresh = await storageProvider.loadFresh();
-      setDonationsDataState(fresh.data);
       setCurrentEtag(fresh.etag);
+      setForceUpdate((prev) => prev + 1);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to refresh data");
     } finally {
@@ -94,8 +96,41 @@ const AppContent = () => {
     }
   };
 
-  if (isLoading || !donationsData) {
+  // Separate effect to handle force updates without causing infinite loops
+  useEffect(() => {
+    // This effect just triggers re-renders when forceUpdate changes
+    // It doesn't need to do anything, just existing causes a re-render
+  }, [forceUpdate]);
+
+  const donationsData = storageProvider.getCachedData()?.data;
+
+  console.log(
+    "App: Render - isLoading:",
+    isLoading,
+    "error:",
+    error,
+    "donationsData:",
+    !!donationsData,
+  );
+
+  if (isLoading) {
     return <div>Loading donation data...</div>;
+  }
+
+  if (error) {
+    return (
+      <>
+        <Header />
+        <StatusBox kind="error" content={error} />
+        <button onClick={refreshData} style={{ marginLeft: "10px" }}>
+          Refresh Data
+        </button>
+      </>
+    );
+  }
+
+  if (!donationsData) {
+    return <div>No data available</div>;
   }
 
   return (
@@ -110,7 +145,16 @@ const AppContent = () => {
         </>
       )}
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route
+          path="/"
+          element={
+            <Home
+              storageProvider={storageProvider}
+              refreshData={refreshData}
+              currentEtag={currentEtag}
+            />
+          }
+        />
         <Route
           path="/donations"
           element={

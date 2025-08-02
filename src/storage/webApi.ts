@@ -13,37 +13,61 @@ export class WebApiProvider implements StorageProvider {
   }
 
   async loadFresh(): Promise<CachedData> {
-    const res = await fetch(API_URL, {
-      method: "GET",
-      headers: {
-        "x-api-key": SHARED_SECRET,
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`Failed to load: ${res.status}`);
-    }
-
-    const { data, etag } = await res.json();
-    const parsedData = DonationsDataSchema.parse(JSON.parse(data));
+    console.log("WebApi: Starting loadFresh(), fetching from:", API_URL);
     
-    this.cachedData = { data: parsedData, etag };
-    return this.cachedData;
+    try {
+      const res = await fetch(API_URL, {
+        method: "GET",
+        headers: {
+          "x-api-key": SHARED_SECRET,
+        },
+      });
+
+      console.log("WebApi: Fetch response status:", res.status, res.statusText);
+      
+      if (!res.ok) {
+        console.error("WebApi: Fetch failed with status:", res.status);
+        throw new Error(`API request failed: ${res.status} ${res.statusText}`);
+      }
+
+      const { data, etag } = await res.json();
+      console.log("WebApi: Received data length:", data?.length, "etag:", etag);
+      
+      const parsedData = data ? 
+        DonationsDataSchema.parse(JSON.parse(data)) : 
+        { orgs: [], donations: [] };
+      
+      this.cachedData = { data: parsedData, etag: etag || "" };
+      console.log("WebApi: Successfully cached data, ETag:", etag);
+      return this.cachedData;
+    } catch (error) {
+      console.error("WebApi: Error in loadFresh():", error);
+      if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+        throw new Error("Network error: Could not connect to API. Check CORS settings.");
+      }
+      throw error;
+    }
   }
 
   async save(data: DonationsData, etag: string): Promise<CachedData> {
+    console.log("WebApi: Starting save with ETag:", etag);
+    
     const res = await fetch(API_URL, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": SHARED_SECRET,
-        "If-Match": etag,
       },
-      body: JSON.stringify(data),
+      body: JSON.stringify({ data: JSON.stringify(data), etag }),
     });
+
+    console.log("WebApi: Save response status:", res.status, res.statusText);
 
     if (res.status === 412) {
       throw new Error("ETag mismatch: data has changed on the server.");
+    }
+    if (res.status === 409) {
+      throw new Error("ETag mismatch: conflict detected by server.");
     }
     if (!res.ok) {
       throw new Error(`Failed to save: ${res.status}`);

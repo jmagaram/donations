@@ -104,6 +104,10 @@ nav {
     gap: 0.5rem;
 }
 
+nav a {
+    text-decoration: none;
+}
+
 .donations-grid {
     display: grid;
     grid-template-columns: auto auto auto auto 1fr;
@@ -240,6 +244,10 @@ nav {
 
 .nav-list li {
     margin: 0;
+}
+
+.nav-list a {
+    text-decoration: none;
 }
 
 /* Totals by Year Report Styles */

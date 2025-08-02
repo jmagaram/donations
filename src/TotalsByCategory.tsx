@@ -1,9 +1,9 @@
 import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 
-interface TotalsByYearProps {
+interface TotalsByCategoryProps {
   donationsData: DonationsData;
 }
 
@@ -11,7 +11,7 @@ type YearRange = "current" | "past2" | "past3" | "past4" | "future";
 type TaxStatus = "all" | "taxDeductible" | "notTaxDeductible";
 type DonationType = "all" | "paid" | "pledges" | "paidAndPledges" | "unknown";
 
-const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
+const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
   const [searchParams, setSearchParams] = useSearchParams();
 
   const yearRange = (searchParams.get("years") as YearRange) || "current";
@@ -101,8 +101,8 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
       return true;
     });
 
-    // Build data structure: orgId -> year -> amount
-    const orgYearTotals: Record<string, Record<number, number>> = {};
+    // Build data structure: category -> year -> amount
+    const categoryYearTotals: Record<string, Record<number, number>> = {};
     const yearTotals: Record<number, number> = {};
     let grandTotal = 0;
 
@@ -111,31 +111,34 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
       if (!org || !filteredOrgs.some((o) => o.id === org.id)) return;
 
       const year = extractYear(donation.date);
+      const category = org.category || "(No category)";
 
-      if (!orgYearTotals[org.id]) {
-        orgYearTotals[org.id] = {};
+      if (!categoryYearTotals[category]) {
+        categoryYearTotals[category] = {};
       }
-      if (!orgYearTotals[org.id][year]) {
-        orgYearTotals[org.id][year] = 0;
+      if (!categoryYearTotals[category][year]) {
+        categoryYearTotals[category][year] = 0;
       }
       if (!yearTotals[year]) {
         yearTotals[year] = 0;
       }
 
-      orgYearTotals[org.id][year] += donation.amount;
+      categoryYearTotals[category][year] += donation.amount;
       yearTotals[year] += donation.amount;
       grandTotal += donation.amount;
     });
 
-    // Sort organizations alphabetically
-    const sortedOrgs = filteredOrgs
-      .filter((org) => orgYearTotals[org.id])
-      .sort((a, b) => a.name.localeCompare(b.name));
+    // Sort categories alphabetically, with "(No category)" first
+    const sortedCategories = Object.keys(categoryYearTotals).sort((a, b) => {
+      if (a === "(No category)") return -1;
+      if (b === "(No category)") return 1;
+      return a.localeCompare(b);
+    });
 
     return {
       years,
-      sortedOrgs,
-      orgYearTotals,
+      sortedCategories,
+      categoryYearTotals,
       yearTotals,
       grandTotal,
     };
@@ -143,7 +146,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
 
   return (
     <div>
-      <h1>Organization totals</h1>
+      <h1>Category totals</h1>
 
       <div className="filters">
         <div>
@@ -190,7 +193,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
         </div>
       </div>
 
-      {processedData.sortedOrgs.length === 0 ? (
+      {processedData.sortedCategories.length === 0 ? (
         <p>No donations to show.</p>
       ) : (
         <div
@@ -200,7 +203,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           }}
         >
           {/* Header row */}
-          <div className="totals-by-year-header">Organization</div>
+          <div className="totals-by-year-header">Category</div>
           {processedData.years.map((year) => (
             <div key={year} className="totals-by-year-header">
               {year}
@@ -209,28 +212,31 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <div className="totals-by-year-header">Total</div>
 
           {/* Data rows */}
-          {processedData.sortedOrgs.map((org) => {
-            const orgTotal = processedData.years.reduce(
+          {processedData.sortedCategories.map((category) => {
+            const categoryTotal = processedData.years.reduce(
               (sum, year) =>
-                sum + (processedData.orgYearTotals[org.id][year] || 0),
+                sum + (processedData.categoryYearTotals[category][year] || 0),
               0,
             );
 
             return (
               <>
-                <div key={org.id} className="totals-by-year-row">
-                  <Link to={`/orgs/${org.id}`}>{org.name}</Link>
+                <div key={category} className="totals-by-year-row">
+                  {category}
                 </div>
                 {processedData.years.map((year) => (
-                  <div key={`${org.id}-${year}`} className="totals-by-year-row">
+                  <div
+                    key={`${category}-${year}`}
+                    className="totals-by-year-row"
+                  >
                     $
-                    {(processedData.orgYearTotals[org.id][year] || 0).toFixed(
-                      2,
-                    )}
+                    {(
+                      processedData.categoryYearTotals[category][year] || 0
+                    ).toFixed(2)}
                   </div>
                 ))}
                 <div className="totals-by-year-row totals-by-year-total-col">
-                  ${orgTotal.toFixed(2)}
+                  ${categoryTotal.toFixed(2)}
                 </div>
               </>
             );
@@ -252,4 +258,4 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
   );
 };
 
-export default TotalsByYear;
+export default TotalsByCategory;

@@ -10,6 +10,7 @@ import Importer from "./Importer";
 import Exporter from "./Exporter";
 import Reports from "./Reports";
 import TotalsByYear from "./TotalsByYear";
+import TotalsByCategory from "./TotalsByCategory";
 import "./App.css";
 import { useState } from "react";
 import { tryCreateSampleData } from "./donationsData";
@@ -115,6 +116,10 @@ const AppContent = () => {
         <Route
           path="/reports/yearlytotals"
           element={<TotalsByYear donationsData={donationsData} />}
+        />
+        <Route
+          path="/reports/yearlytotalsbycategory"
+          element={<TotalsByCategory donationsData={donationsData} />}
         />
       </Routes>
     </>

@@ -7,7 +7,10 @@ const Reports = () => {
       <nav>
         <ul className="nav-list">
           <li>
-            <Link to="/reports/yearlytotals">Yearly giving</Link>
+            <Link to="/reports/yearlytotals">Organization totals</Link>
+          </li>
+          <li>
+            <Link to="/reports/yearlytotalsbycategory">Category totals</Link>
           </li>
         </ul>
       </nav>

@@ -16,9 +16,10 @@ import { tryCreateSampleData } from "./donationsData";
 import { type DonationsData, DonationsDataSchema } from "./types";
 
 const AppContent = () => {
-  const [donationsData, setDonationsData] = useState<DonationsData>(() => {
+  const DONATIONS_DATA_KEY = "donationsData";
+
+  const [donationsData, setDonationsDataState] = useState<DonationsData>(() => {
     const FORCE_RESET_SAMPLE_DATA = false;
-    const DONATIONS_DATA_KEY = "donationsData";
     const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
     if (FORCE_RESET_SAMPLE_DATA || !saved) {
       const data = tryCreateSampleData();
@@ -28,6 +29,11 @@ const AppContent = () => {
       return DonationsDataSchema.parse(JSON.parse(saved));
     }
   });
+
+  const setDonationsData = (data: DonationsData) => {
+    setDonationsDataState(data);
+    sessionStorage.setItem(DONATIONS_DATA_KEY, JSON.stringify(data));
+  };
 
   return (
     <>

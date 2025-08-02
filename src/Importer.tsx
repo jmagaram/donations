@@ -20,6 +20,7 @@ import { DateIsoSchema } from "./date";
 
 const OrgRowCsvSchema = z.object({
   Organization: OrgNameSchema,
+  Category: z.string().optional().default(""),
   TaxDeductible: z.enum(["Yes", "yes", "No", "no"]),
   WebSite: z.string().optional().or(z.literal("")),
   Notes: OrgNotesSchema.optional().default(""),
@@ -102,6 +103,7 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
   const org = {
     id: nanoid(),
     name: row.Organization,
+    category: row.Category && row.Category.trim().length > 0 ? row.Category.trim() : undefined,
     taxDeductible: row.TaxDeductible === "Yes" || row.TaxDeductible === "yes",
     webSite: row.WebSite && row.WebSite.length > 0 ? row.WebSite : undefined,
     notes: row.Notes,
@@ -444,6 +446,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
         header="CSV Format Requirements"
         content={`Organizations CSV
 • Organization: Organization name (required)
+• Category: Organization category (optional)
 • TaxDeductible: "Yes" or "No" (required)
 • WebSite: URL, usually start with http:// or https:// (optional)
 • Notes: Any notes (can be multi-line)

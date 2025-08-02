@@ -224,6 +224,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     setSearchParams(new URLSearchParams());
   };
 
+  const hasActiveFilters = filter !== "" || yearFilter !== "all" || amountFilter !== "all";
+
   return (
     <DonationsView
       donations={donations}
@@ -239,6 +241,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       maxAmountOptions={maxOptions}
       amountFilterChanged={updateAmountFilter}
       onClearFilters={handleClearFilters}
+      hasActiveFilters={hasActiveFilters}
     />
   );
 };

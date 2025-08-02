@@ -41,6 +41,12 @@ const OrgDetailsView = ({
     <div className="org-details">
       <h1>{organization.name}</h1>
       <div className="section">
+        {organization.category && organization.category.trim() !== "" && (
+          <>
+            <div className="header">Category</div>
+            <div className="content">{organization.category}</div>
+          </>
+        )}
         <div className="header">Tax status</div>
         <div className="content">
           {organization.taxDeductible ? "Tax-deductible" : "NOT tax-deductible"}

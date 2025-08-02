@@ -29,3 +29,4 @@ Track whether receipt exists for a donation
 Tax-preparation specific report
 Organization categories, like environment
 Organization filtering by URL
+Donation payment method

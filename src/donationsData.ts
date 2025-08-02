@@ -1,3 +1,4 @@
+import { captureOwnerStack } from "react";
 import { type Donation, type DonationsData, type Org } from "./types";
 import { nanoid } from "nanoid";
 
@@ -8,12 +9,12 @@ export const empty = (): DonationsData => ({
 
 export const findOrgById = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): Org | undefined => data.orgs.find((org) => org.id === id);
 
 export const findDonationById = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): Donation | undefined =>
   data.donations.find((donation) => donation.id === id);
 
@@ -22,15 +23,15 @@ const orgExistsById = (data: Readonly<DonationsData>, id: string): boolean =>
 
 const donationExistsById = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): boolean => findDonationById(data, id) !== undefined;
 
 const orgExistsByName = (
   data: Readonly<DonationsData>,
-  name: string
+  name: string,
 ): boolean =>
   data.orgs.some(
-    (org) => org.name.toLowerCase().trim() === name.toLowerCase().trim()
+    (org) => org.name.toLowerCase().trim() === name.toLowerCase().trim(),
   );
 
 const replaceItemAtIndex = <T>(array: T[], index: number, item: T): T[] => {
@@ -41,12 +42,12 @@ const replaceItemAtIndex = <T>(array: T[], index: number, item: T): T[] => {
 
 const removeItemById = <T extends { id: string }>(
   array: T[],
-  id: string
+  id: string,
 ): T[] => array.filter((item) => item.id !== id);
 
 export const orgAdd = (
   data: Readonly<DonationsData>,
-  org: Readonly<Org>
+  org: Readonly<Org>,
 ): DonationsData | undefined => {
   const exists = orgExistsById(data, org.id) || orgExistsByName(data, org.name);
   if (exists) {
@@ -60,10 +61,10 @@ export const orgAdd = (
 
 export const orgUpdate = (
   data: Readonly<DonationsData>,
-  org: Readonly<Org>
+  org: Readonly<Org>,
 ): DonationsData | undefined => {
   const orgIndex = data.orgs.findIndex(
-    (existingOrg) => existingOrg.id === org.id
+    (existingOrg) => existingOrg.id === org.id,
   );
   if (orgIndex === -1) {
     return undefined;
@@ -76,11 +77,11 @@ export const orgUpdate = (
 
 export const orgDelete = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): DonationsData => {
   const orgExists = orgExistsById(data, id);
   const donationExists = data.donations.some(
-    (donation) => donation.orgId === id
+    (donation) => donation.orgId === id,
   );
   if (!orgExists && !donationExists) {
     return data;
@@ -94,7 +95,7 @@ export const orgDelete = (
 
 export const donationAdd = (
   data: Readonly<DonationsData>,
-  donation: Readonly<Donation>
+  donation: Readonly<Donation>,
 ): DonationsData | undefined => {
   const orgExists = orgExistsById(data, donation.orgId);
   const donationExists = donationExistsById(data, donation.id);
@@ -109,7 +110,7 @@ export const donationAdd = (
 
 export const donationUpdate = (
   data: Readonly<DonationsData>,
-  donation: Readonly<Donation>
+  donation: Readonly<Donation>,
 ): DonationsData | undefined => {
   const donationIndex = data.donations.findIndex((d) => d.id === donation.id);
   if (donationIndex === -1) return undefined;
@@ -123,7 +124,7 @@ export const donationUpdate = (
 
 export const donationDelete = (
   data: Readonly<DonationsData>,
-  donationId: string
+  donationId: string,
 ): DonationsData => {
   const donationExists = donationExistsById(data, donationId);
   if (!donationExists) {
@@ -140,6 +141,7 @@ const sampleDataArray = [
     name: "Hillel",
     taxDeductible: true,
     notes: "Jewish student life on campus",
+    category: "Jewish",
     donations: [
       {
         date: "2018-05-01",
@@ -157,6 +159,7 @@ const sampleDataArray = [
     name: "Brothers for Life",
     taxDeductible: true,
     notes: "Helping injured IDF soldiers",
+    category: "Israel",
     donations: [
       {
         date: "2023-04-06",
@@ -203,11 +206,13 @@ const sampleDataArray = [
   {
     name: "Rainier Prep",
     taxDeductible: true,
+    category: "Education",
     notes: "Charter school in Seattle",
   },
   {
     name: "AIPAC",
     taxDeductible: false,
+    category: "Politics",
     notes: "American Israel Public Affairs Committee",
   },
 ];

@@ -21,6 +21,16 @@ const OrgUpsertContainer = ({
 
   const isEditMode = Boolean(id);
   const organization = isEditMode ? findOrgById(donationsData, id!) : undefined;
+  
+  const categories = React.useMemo(() => {
+    const uniqueCategories = new Set(
+      donationsData.orgs
+        .map(org => org.category)
+        .filter(Boolean)
+        .filter(category => category.trim().length > 0)
+    );
+    return Array.from(uniqueCategories).sort();
+  }, [donationsData.orgs]);
 
   if (isEditMode && !organization) {
     return <div>Organization not found.</div>;
@@ -60,6 +70,7 @@ const OrgUpsertContainer = ({
         defaultValues={organization}
         onSubmit={handleUpsertOrg}
         mode={isEditMode ? "edit" : "add"}
+        categories={categories}
       />
     </div>
   );

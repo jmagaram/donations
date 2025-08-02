@@ -10,6 +10,7 @@ export const DonationKindSchema = z.enum(["idea", "pledge", "paid", "unknown"]);
 export const DonationNotesSchema = z.string();
 
 export const OrgNameSchema = z.string().trim().min(1);
+export const OrgCategorySchema = z.string().trim().optional();
 export const OrgTaxDeductibleSchema = z.boolean();
 export const OrgWebSiteSchema = z.url().optional();
 export const OrgNotesSchema = z.string();
@@ -17,6 +18,7 @@ export const OrgNotesSchema = z.string();
 export const OrgSchema = z.object({
   id: IdSchema,
   name: OrgNameSchema,
+  category: OrgCategorySchema,
   taxDeductible: OrgTaxDeductibleSchema,
   webSite: OrgWebSiteSchema,
   notes: OrgNotesSchema,

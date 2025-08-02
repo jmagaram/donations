@@ -42,6 +42,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         donationId: donation.id,
         orgId: donation.orgId,
         orgName: org?.name || "Unknown",
+        orgCategory: org?.category || "",
         date: donation.date,
         year: year,
         amount: donation.amount,
@@ -69,6 +70,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     const orgsForExport = donationsData.orgs.map((org) => ({
       orgId: org.id,
       name: org.name,
+      category: org.category || "",
       taxDeductible: org.taxDeductible,
       webSite: org.webSite || "",
       notes: org.notes,
@@ -116,7 +118,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         </a>
         <p>
           Exports all donations in CSV format. Includes donationId, orgId,
-          orgName, date, year, amount, kind, donationNotes, and taxDeductible.
+          orgName, orgCategory, date, year, amount, kind, donationNotes, and taxDeductible.
         </p>
       </div>
       <div className="export-section">
@@ -125,7 +127,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         </a>
         <p>
           Exports all organizations in CSV format. Includes orgId, name,
-          taxDeductible, webSite, and notes.
+          category, taxDeductible, webSite, and notes.
         </p>
       </div>
       <div className="export-section">

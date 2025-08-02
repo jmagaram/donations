@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import StatusBox from "./StatusBox";
 
 type YearFilter = "all" | "current" | "previous" | "last2" | string;
 type AmountFilterType = "all" | "moreThan" | "lessThan" | "between";
@@ -32,6 +33,7 @@ interface DonationsViewProps {
     maxValue?: number,
   ) => void;
   onClearFilters: () => void;
+  hasActiveFilters: boolean;
 }
 
 const DonationsView = ({
@@ -48,6 +50,7 @@ const DonationsView = ({
   maxAmountOptions,
   amountFilterChanged,
   onClearFilters,
+  hasActiveFilters,
 }: DonationsViewProps) => {
   // Amount filter change handlers
   const handleAmountFilterTypeChange = (newType: AmountFilterType) => {
@@ -215,34 +218,43 @@ const DonationsView = ({
             placeholder="Search"
           />
         </div>
-        <div className="toolbar-item">
-          <button type="button" onClick={onClearFilters}>
-            Remove filters
-          </button>
-        </div>
-      </div>
-      <div className="donations-grid">
-        <div className="header">
-          <div>Date</div>
-          <div>Amount</div>
-          <div>Organization</div>
-          <div>Kind</div>
-          <div className="hide-on-mobile">Notes</div>
-        </div>
-        {donations.map((donation) => (
-          <div key={donation.id} className="row">
-            <div>
-              <Link to={`/donations/${donation.id}/edit`}>{donation.date}</Link>
-            </div>
-            <div className="amount">{donation.amount}</div>
-            <div>
-              <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
-            </div>
-            <div className="kind">{donation.kind}</div>
-            <div className="notes hide-on-mobile">{donation.notes}</div>
+        {hasActiveFilters && (
+          <div className="toolbar-item">
+            <button type="button" onClick={onClearFilters}>
+              Remove filters
+            </button>
           </div>
-        ))}
+        )}
       </div>
+      {donations.length === 0 ? (
+        <StatusBox
+          content="No donations found that match the criteria"
+          kind="info"
+        />
+      ) : (
+        <div className="donations-grid">
+          <div className="header">
+            <div>Date</div>
+            <div>Amount</div>
+            <div>Organization</div>
+            <div>Kind</div>
+            <div className="hide-on-mobile">Notes</div>
+          </div>
+          {donations.map((donation) => (
+            <div key={donation.id} className="row">
+              <div>
+                <Link to={`/donations/${donation.id}/edit`}>{donation.date}</Link>
+              </div>
+              <div className="amount">{donation.amount}</div>
+              <div>
+                <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
+              </div>
+              <div className="kind">{donation.kind}</div>
+              <div className="notes hide-on-mobile">{donation.notes}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

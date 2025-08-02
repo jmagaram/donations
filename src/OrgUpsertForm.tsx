@@ -8,6 +8,7 @@ interface OrgUpsertFormProps {
   onSubmit: (formData: OrgUpsertFields) => void;
   defaultValues?: OrgUpsertFields;
   mode?: "add" | "edit";
+  categories?: string[];
 }
 
 import { useNavigate } from "react-router-dom";
@@ -16,6 +17,7 @@ const OrgUpsertForm = ({
   onSubmit,
   defaultValues = defaultFields,
   mode = "add",
+  categories = [],
 }: OrgUpsertFormProps) => {
   const navigate = useNavigate();
   const {
@@ -50,6 +52,22 @@ const OrgUpsertForm = ({
           <label htmlFor="name">Name</label>
           <input id="name" type="text" {...register("name")} />
           {errors.name && <span>{errors.name.message}</span>}
+        </div>
+        <div className="form-field">
+          <label htmlFor="category">Category</label>
+          <input 
+            id="category" 
+            type="text" 
+            list="categories"
+            {...register("category", {
+              setValueAs: (value) => typeof value === "string" ? value.trim() : value
+            })} 
+          />
+          <datalist id="categories">
+            {categories.map((category) => (
+              <option key={category} value={category} />
+            ))}
+          </datalist>
         </div>
         <div className="form-field">
           <label htmlFor="taxDeductible">Tax status</label>

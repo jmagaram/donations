@@ -67,7 +67,7 @@ const OrgsView = ({
         <div className="orgs-grid">
           <div className="header">
             <div className="name">Name</div>
-            <div className="tax">Tax Deductible</div>
+            <div className="tax">Charity</div>
             <div className="category">Category</div>
             <div className="notes">Notes</div>
           </div>
@@ -78,9 +78,7 @@ const OrgsView = ({
                 <div className="name">
                   <Link to={`/orgs/${org.id}`}>{org.name}</Link>
                 </div>
-                <div className="tax">
-                  {org.taxDeductible ? "Yes" : "No"}
-                </div>
+                <div className="tax">{org.taxDeductible ? "Yes" : "No"}</div>
                 <div className="category">{org.category || ""}</div>
                 <div className="notes">{org.notes}</div>
               </div>

@@ -11,34 +11,104 @@ import Exporter from "./Exporter";
 import Reports from "./Reports";
 import TotalsByYear from "./TotalsByYear";
 import TotalsByCategory from "./TotalsByCategory";
+import StatusBox from "./StatusBox";
 import "./App.css";
-import { useState } from "react";
-import { tryCreateSampleData } from "./donationsData";
-import { type DonationsData, DonationsDataSchema } from "./types";
+import { useState, useEffect } from "react";
+import { type DonationsData } from "./types";
+import { createStorageProvider, type StorageProvider } from "./storage/index";
 
 const AppContent = () => {
-  const DONATIONS_DATA_KEY = "donationsData";
+  const [storageProvider] = useState<StorageProvider>(() =>
+    createStorageProvider("sessionStorage"),
+  );
+  const [donationsData, setDonationsDataState] = useState<
+    DonationsData | undefined
+  >(undefined);
+  const [currentEtag, setCurrentEtag] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | undefined>(undefined);
 
-  const [donationsData, setDonationsDataState] = useState<DonationsData>(() => {
-    const FORCE_RESET_SAMPLE_DATA = false;
-    const saved = sessionStorage.getItem(DONATIONS_DATA_KEY);
-    if (FORCE_RESET_SAMPLE_DATA || !saved) {
-      const data = tryCreateSampleData();
-      sessionStorage.setItem(DONATIONS_DATA_KEY, JSON.stringify(data));
-      return data;
-    } else {
-      return DonationsDataSchema.parse(JSON.parse(saved));
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        setError(undefined);
+
+        const cached = storageProvider.getCachedData();
+        if (cached) {
+          console.log("Loaded cached data!");
+          setDonationsDataState(cached.data);
+          setCurrentEtag(cached.etag);
+          setIsLoading(false);
+        } else {
+          const fresh = await storageProvider.loadFresh();
+          console.log("Loaded fresh data!");
+          setDonationsDataState(fresh.data);
+          setCurrentEtag(fresh.etag);
+          setIsLoading(false);
+        }
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load data");
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [storageProvider]);
+
+  const setDonationsData = async (data: DonationsData) => {
+    try {
+      setError(undefined);
+      const result = await storageProvider.save(data, currentEtag);
+      setDonationsDataState(result.data);
+      setCurrentEtag(result.etag);
+    } catch (err) {
+      if (err instanceof Error && err.message.includes("ETag mismatch")) {
+        try {
+          const fresh = await storageProvider.loadFresh();
+          setDonationsDataState(fresh.data);
+          setCurrentEtag(fresh.etag);
+          setError(
+            "Data was changed elsewhere. Your changes were not saved. Please try again.",
+          );
+        } catch {
+          setError("Failed to refresh data after conflict");
+        }
+      } else {
+        setError(err instanceof Error ? err.message : "Failed to save data");
+      }
     }
-  });
-
-  const setDonationsData = (data: DonationsData) => {
-    setDonationsDataState(data);
-    sessionStorage.setItem(DONATIONS_DATA_KEY, JSON.stringify(data));
   };
+
+  const refreshData = async () => {
+    try {
+      setIsLoading(true);
+      setError(undefined);
+      const fresh = await storageProvider.loadFresh();
+      setDonationsDataState(fresh.data);
+      setCurrentEtag(fresh.etag);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to refresh data");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (isLoading || !donationsData) {
+    return <div>Loading donation data...</div>;
+  }
 
   return (
     <>
       <Header />
+      {error && (
+        <>
+          <StatusBox kind="error" content={error} />
+          <button onClick={refreshData} style={{ marginLeft: "10px" }}>
+            Refresh Data
+          </button>
+        </>
+      )}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route

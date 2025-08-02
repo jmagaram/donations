@@ -25,3 +25,4 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 - Persistence to a server
 - Security
+- Click a number in the report and navigate to the list of donations filtered appropriately

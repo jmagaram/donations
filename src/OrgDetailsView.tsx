@@ -22,6 +22,24 @@ const OrgDetailsView = ({
     .filter((donation) => donation.orgId === orgId)
     .sort((a, b) => compareDatesDesc(a.date, b.date));
 
+  const Toolbar = () => (
+    <div className="toolbar">
+      <button onClick={() => onAdd(organization!.id)}>Add donation</button>
+      <button onClick={() => onEdit(organization!.id)}>
+        Edit organization
+      </button>
+      <button
+        onClick={() => {
+          if (window.confirm("Delete org and donations?")) {
+            onDelete(organization!.id);
+          }
+        }}
+      >
+        Delete all
+      </button>
+    </div>
+  );
+
   const formatDate = (timestamp: string): string => {
     return timestamp;
   };
@@ -40,6 +58,7 @@ const OrgDetailsView = ({
   return (
     <div className="org-details">
       <h1>{organization.name}</h1>
+      {donations.length > 8 && <Toolbar />}
       <div className="section">
         {organization.category && organization.category.trim() !== "" && (
           <>
@@ -103,22 +122,7 @@ const OrgDetailsView = ({
           </div>
         )}
       </div>
-
-      <div className="toolbar">
-        <button onClick={() => onAdd(organization.id)}>Add donation</button>
-        <button onClick={() => onEdit(organization.id)}>
-          Edit organization
-        </button>
-        <button
-          onClick={() => {
-            if (window.confirm("Delete org and donations?")) {
-              onDelete(organization.id);
-            }
-          }}
-        >
-          Delete all
-        </button>
-      </div>
+      <Toolbar />
     </div>
   );
 };

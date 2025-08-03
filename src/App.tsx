@@ -30,10 +30,10 @@ const AppContent = () => {
       timeoutMs: 3000,
       errorSimulation: {
         networkError: 0.3,
-        unauthorized: 0.05,
-        serverError: 0.03,
-        dataCorruption: 0.02,
-        etagMismatch: 0.08,
+        unauthorized: 0.1,
+        serverError: 0.1,
+        dataCorruption: 0.1,
+        etagMismatch: 0.2,
       },
     });
     return new OfflineStoreImpl({
@@ -89,7 +89,9 @@ const AppContent = () => {
       <Header syncStatus={storageState.status} onSync={handleSync} />
       <SyncStatusBox
         syncError={syncError}
-        onRefreshData={refreshData}
+        onPull={() => offlineStore.sync("pull")}
+        onPush={() => offlineStore.sync("push")}
+        onPushForce={() => offlineStore.sync("pushForce")}
         onDismissError={() => setSyncError(undefined)}
       />
       <Routes>

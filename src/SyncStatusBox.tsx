@@ -4,13 +4,17 @@ import type { StatusBoxProps } from "./StatusBox";
 
 interface SyncStatusBoxProps {
   syncError: SyncError | undefined;
-  onRefreshData: () => void;
+  onPull: () => void;
+  onPush: () => void;
+  onPushForce: () => void;
   onDismissError: () => void;
 }
 
 const convertSyncErrorToStatusBoxProps = (
   syncError: SyncError,
-  refreshData: () => void,
+  pull: () => void,
+  push: () => void,
+  pushForce: () => void,
   dismissError: () => void,
 ): StatusBoxProps => {
   switch (syncError) {
@@ -19,58 +23,89 @@ const convertSyncErrorToStatusBoxProps = (
         kind: "error",
         header: "Data sync conflict",
         content:
-          "Your data was changed elsewhere and is not in sync with your web browser. Your recent change was not saved. Try again.",
-        buttons: [{ caption: "Refresh data", onClick: refreshData }],
+          "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data can not be merged and you need to choose which version to keep.",
+        buttons: [
+          { caption: "Dismiss", onClick: dismissError },
+          { caption: "Keep server", onClick: pull },
+          { caption: "Keep local", onClick: pushForce },
+        ],
       };
     case "network-error":
       return {
         kind: "error",
         header: "Network error",
-        content: "Unable to connect to storage",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
+        content:
+          "Unable to connect to internet storage to save and load your data.",
+        buttons: [
+          { caption: "Dismiss", onClick: dismissError },
+          { caption: "Retry", onClick: push },
+        ],
       };
     case "data-corruption":
       return {
         kind: "error",
         header: "Data corruption",
-        content: "Data could not be parsed or validated",
+        content:
+          "The data on the server seems to be corrupt. Consider importing a backup, or try saving your data again.",
         buttons: [
-          { caption: "Refresh Data", onClick: refreshData },
           { caption: "Dismiss", onClick: dismissError },
+          { caption: "Save local data", onClick: pushForce },
         ],
       };
     case "unauthorized":
       return {
         kind: "error",
         header: "Unauthorized",
-        content: "Access denied",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
+        content:
+          "Some kind of security issue prevents you from accessing data on the server.",
+        buttons: [
+          { caption: "Dismiss", onClick: dismissError },
+          { caption: "Retry", onClick: push },
+        ],
       };
     case "server-error":
       return {
         kind: "error",
         header: "Server error",
         content: "Server encountered an error",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
+        buttons: [
+          { caption: "Dismiss", onClick: dismissError },
+          { caption: "Retry", onClick: push },
+        ],
       };
     case "other":
       return {
         kind: "error",
         header: "Unknown error",
-        content: "An unknown error occurred",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
+        content: "An unexpected error occurred",
+        buttons: [
+          { caption: "Dismiss", onClick: dismissError },
+          { caption: "Retry", onClick: push },
+        ],
       };
   }
 };
 
-const SyncStatusBox = ({ syncError, onRefreshData, onDismissError }: SyncStatusBoxProps) => {
+const SyncStatusBox = ({
+  syncError,
+  onPull,
+  onPush,
+  onPushForce,
+  onDismissError,
+}: SyncStatusBoxProps) => {
   if (!syncError) {
     return null;
   }
 
   return (
     <StatusBox
-      {...convertSyncErrorToStatusBoxProps(syncError, onRefreshData, onDismissError)}
+      {...convertSyncErrorToStatusBoxProps(
+        syncError,
+        onPull,
+        onPush,
+        onPushForce,
+        onDismissError,
+      )}
     />
   );
 };

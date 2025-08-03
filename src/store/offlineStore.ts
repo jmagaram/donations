@@ -6,17 +6,27 @@ import type {
   DeleteError,
 } from "./remoteStore";
 
-export type SyncError = "network-error" | "etag-mismatch" | "other";
+export type SyncError =
+  | "network-error"
+  | "etag-mismatch"
+  | "data-corruption"
+  | "unauthorized"
+  | "server-error"
+  | "other";
 
 export type SyncStatus =
   | { kind: "idle"; requiresSync: boolean }
   | { kind: "syncing" }
   | { kind: "error"; error: SyncError };
 
-export type DataState<T> =
-  | { kind: "new"; data: T }
-  | { kind: "unchanged"; data: T }
-  | { kind: "modified"; data: T };
+// Data synchronization states:
+// - "new": Never synchronized with server, sync status unknown
+// - "unchanged": Synchronized with server, no local modifications
+// - "modified": Previously synchronized but locally changed
+export type DataState<T> = {
+  kind: "new" | "unchanged" | "modified";
+  data: T;
+};
 
 export interface StorageState<T> {
   data: DataState<T>;
@@ -25,91 +35,48 @@ export interface StorageState<T> {
 
 export interface OfflineStore<T> {
   save(data: T): void;
-  getState(): StorageState<T>;
-  sync(option: "pull" | "pushThenPull"): Promise<Result<void, SyncError>>;
-  delete(): Promise<Result<void, SyncError>>;
+  get(): StorageState<T>;
+  sync(option: "pull" | "push" | "pushForce"): Promise<Result<void, SyncError>>;
   onChange(callback: (state: StorageState<T>) => void): () => void;
 }
 
 export class OfflineStoreImpl<T> implements OfflineStore<T> {
   private readonly remoteStore: RemoteStore<T>;
-  private readonly emptyData: T;
+  private readonly isEmpty: (data: T) => boolean;
   private cachedData: DataState<T>;
   private syncStatus: SyncStatus;
   private callbacks: ((state: StorageState<T>) => void)[] = [];
   private currentEtag: string | undefined;
 
-  constructor(remoteStore: RemoteStore<T>, emptyData: T) {
-    this.remoteStore = remoteStore;
-    this.emptyData = emptyData;
-    this.syncStatus = { kind: "idle", requiresSync: false };
-    this.cachedData = { kind: "new", data: emptyData };
+  constructor(params: {
+    remoteStore: RemoteStore<T>;
+    emptyData: T;
+    isEmpty?: (data: T) => boolean;
+  }) {
+    this.remoteStore = params.remoteStore;
+    this.isEmpty = params.isEmpty || ((data) => data === params.emptyData);
+    this.syncStatus = { kind: "idle", requiresSync: true };
+    this.cachedData = { kind: "new", data: params.emptyData };
   }
 
   save(data: T): void {
-    // Update local cache immediately
-    this.cachedData = { kind: "modified", data };
+    this.cachedData = {
+      kind:
+        this.cachedData.kind === "unchanged"
+          ? "modified"
+          : this.cachedData.kind,
+      data,
+    };
     this.syncStatus = { kind: "idle", requiresSync: true };
-
     this.notifyCallbacks();
-
-    // Trigger automatic sync
-    this.performSync();
+    this.syncOnSave();
   }
 
-  getState(): StorageState<T> {
+  get(): StorageState<T> {
     return {
       data: this.cachedData,
       status: this.syncStatus,
     };
-  }
-
-  async sync(
-    option: "pull" | "pushThenPull",
-  ): Promise<Result<void, SyncError>> {
-    if (this.syncStatus.kind === "syncing") {
-      return { kind: "error", value: "other" };
-    }
-
-    return this.performSyncWithOption(option);
-  }
-
-  async delete(): Promise<Result<void, SyncError>> {
-    if (this.syncStatus.kind === "syncing") {
-      return { kind: "error", value: "other" };
-    }
-
-    this.syncStatus = { kind: "syncing" };
-    this.notifyCallbacks();
-
-    try {
-      const deleteResult = await this.remoteStore.delete();
-
-      if (deleteResult.kind === "error") {
-        const syncError = this.mapDeleteErrorToSyncError(deleteResult.value);
-        this.syncStatus = {
-          kind: "error",
-          error: syncError,
-        };
-        this.notifyCallbacks();
-        return { kind: "error", value: syncError };
-      }
-
-      // Clear local state after successful delete
-      this.cachedData = { kind: "new", data: this.emptyData };
-      this.currentEtag = undefined;
-      this.syncStatus = { kind: "idle", requiresSync: false };
-      this.notifyCallbacks();
-
-      return { kind: "success", value: undefined };
-    } catch {
-      this.syncStatus = {
-        kind: "error",
-        error: "other",
-      };
-      this.notifyCallbacks();
-      return { kind: "error", value: "other" };
-    }
   }
 
   onChange(callback: (state: StorageState<T>) => void): () => void {
@@ -122,90 +89,146 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     };
   }
 
-  private async performSync(): Promise<void> {
-    if (this.cachedData.kind === "new" || this.cachedData.kind === "modified") {
-      await this.performSyncWithOption("pushThenPull");
-    } else {
-      await this.performSyncWithOption("pull");
+  private async syncOnSave(): Promise<void> {
+    const pushResult = await this.sync("push");
+
+    // If push fails with etag-mismatch, only auto-pull if data is empty
+    if (pushResult.kind === "error" && pushResult.value === "etag-mismatch") {
+      if (this.isEmpty(this.cachedData.data)) {
+        // Safe to overwrite empty data
+        await this.sync("pull");
+      }
+      // If data is not empty, leave in error state for user to handle
     }
   }
 
-  private async performSyncWithOption(
-    option: "pull" | "pushThenPull",
+  async sync(
+    option: "pull" | "push" | "pushForce",
   ): Promise<Result<void, SyncError>> {
+    if (this.syncStatus.kind === "syncing") {
+      return { kind: "success", value: undefined };
+    }
+
     this.syncStatus = { kind: "syncing" };
     this.notifyCallbacks();
 
     try {
-      if (
-        option === "pushThenPull" &&
+      let result: Result<void, SyncError>;
+
+      if (option === "pushForce") {
+        result = await this.pushForceToRemote();
+      } else if (
+        option === "push" &&
         (this.cachedData.kind === "new" || this.cachedData.kind === "modified")
       ) {
-        // Push local changes
-        const saveResult = await this.remoteStore.save(
-          this.cachedData.data,
-          this.currentEtag,
-        );
-
-        if (saveResult.kind === "error") {
-          const syncError = this.mapSaveErrorToSyncError(saveResult.value);
-          this.syncStatus = {
-            kind: "error",
-            error: syncError,
-          };
-          this.notifyCallbacks();
-          return { kind: "error", value: syncError };
-        }
-
-        // Update local state with new etag
-        this.currentEtag = saveResult.value.etag;
-        this.cachedData = {
-          kind: "unchanged",
-          data: saveResult.value.data,
-        };
+        result = await this.pushToRemote();
       } else {
-        // Pull from remote
-        const loadResult = await this.remoteStore.load();
-
-        if (loadResult.kind === "error") {
-          const syncError = this.mapLoadErrorToSyncError(loadResult.value);
-          this.syncStatus = {
-            kind: "error",
-            error: syncError,
-          };
-          this.notifyCallbacks();
-          return { kind: "error", value: syncError };
-        }
-
-        if (loadResult.value) {
-          this.currentEtag = loadResult.value.etag;
-          this.cachedData = {
-            kind: "unchanged",
-            data: loadResult.value.data,
-          };
-        }
+        result = await this.pullFromRemote();
       }
 
-      this.syncStatus = {
-        kind: "idle",
-        requiresSync: false,
-      };
+      if (result.kind === "error") {
+        this.syncStatus = { kind: "error", error: result.value };
+        this.notifyCallbacks();
+        return result;
+      }
+
+      this.syncStatus = { kind: "idle", requiresSync: false };
       this.notifyCallbacks();
 
       return { kind: "success", value: undefined };
     } catch {
-      this.syncStatus = {
-        kind: "error",
-        error: "other",
-      };
+      this.syncStatus = { kind: "error", error: "other" };
       this.notifyCallbacks();
 
       return { kind: "error", value: "other" };
     }
   }
 
+  private async pullFromRemote(): Promise<Result<void, SyncError>> {
+    const loadResult = await this.remoteStore.load();
+
+    if (loadResult.kind === "error") {
+      return {
+        kind: "error",
+        value: this.mapLoadErrorToSyncError(loadResult.value),
+      };
+    }
+
+    if (loadResult.value) {
+      this.currentEtag = loadResult.value.etag;
+      this.cachedData = {
+        kind: "unchanged",
+        data: loadResult.value.data,
+      };
+    }
+
+    return { kind: "success", value: undefined };
+  }
+
+  private async pushToRemote(): Promise<Result<void, SyncError>> {
+    const saveResult = await this.remoteStore.save(
+      this.cachedData.data,
+      this.currentEtag,
+    );
+
+    if (saveResult.kind === "error") {
+      return {
+        kind: "error",
+        value: this.mapSaveErrorToSyncError(saveResult.value),
+      };
+    }
+
+    // Update local state with new etag
+    this.currentEtag = saveResult.value.etag;
+    this.cachedData = {
+      kind: "unchanged",
+      data: saveResult.value.data,
+    };
+
+    return { kind: "success", value: undefined };
+  }
+
+  private async pushForceToRemote(): Promise<Result<void, SyncError>> {
+    // Delete corrupted server data
+    const deleteResult = await this.remoteStore.delete();
+    if (deleteResult.kind === "error") {
+      return {
+        kind: "error",
+        value: this.mapDeleteErrorToSyncError(deleteResult.value),
+      };
+    }
+
+    // Save current data (creates new record without etag)
+    const saveResult = await this.remoteStore.save(this.cachedData.data);
+    if (saveResult.kind === "error") {
+      return {
+        kind: "error",
+        value: this.mapSaveErrorToSyncError(saveResult.value),
+      };
+    }
+
+    // Load to get fresh etag
+    const loadResult = await this.remoteStore.load();
+    if (loadResult.kind === "error") {
+      return {
+        kind: "error",
+        value: this.mapLoadErrorToSyncError(loadResult.value),
+      };
+    }
+
+    if (loadResult.value) {
+      this.currentEtag = loadResult.value.etag;
+      this.cachedData = {
+        kind: "unchanged",
+        data: loadResult.value.data,
+      };
+    }
+
+    return { kind: "success", value: undefined };
+  }
+
   private notifyCallbacks(): void {
-    const state = this.getState();
+    const state = this.get();
     this.callbacks.forEach((callback) => callback(state));
   }
 
@@ -213,10 +236,12 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     switch (loadError) {
       case "network-error":
         return "network-error";
-      case "unauthorized":
-      case "server-error":
       case "data-corruption":
-        return "other";
+        return "data-corruption";
+      case "unauthorized":
+        return "unauthorized";
+      case "server-error":
+        return "server-error";
     }
   }
 
@@ -227,8 +252,9 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
       case "etag-mismatch":
         return "etag-mismatch";
       case "unauthorized":
+        return "unauthorized";
       case "server-error":
-        return "other";
+        return "server-error";
     }
   }
 
@@ -237,8 +263,9 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
       case "network-error":
         return "network-error";
       case "unauthorized":
+        return "unauthorized";
       case "server-error":
-        return "other";
+        return "server-error";
     }
   }
 }

@@ -1,5 +1,5 @@
 export type {
-  VersionedData,
+  Versioned as VersionedData,
   LoadError,
   SaveError,
   DeleteError,

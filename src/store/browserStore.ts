@@ -1,7 +1,7 @@
 import type { Result } from "../types";
 import type {
   RemoteStore,
-  VersionedData,
+  Versioned,
   LoadError,
   SaveError,
   DeleteError,
@@ -35,7 +35,7 @@ export class BrowserStore<T> implements RemoteStore<T> {
     this.isValidData = isValidData;
   }
 
-  async load(): Promise<Result<VersionedData<T> | undefined, LoadError>> {
+  async load(): Promise<Result<Versioned<T> | undefined, LoadError>> {
     await new Promise((resolve) => setTimeout(resolve, this.timeoutMs));
 
     if (this.shouldSimulateError("networkError")) {
@@ -70,10 +70,7 @@ export class BrowserStore<T> implements RemoteStore<T> {
     }
   }
 
-  async save(
-    data: T,
-    etag?: string,
-  ): Promise<Result<VersionedData<T>, SaveError>> {
+  async save(data: T, etag?: string): Promise<Result<Versioned<T>, SaveError>> {
     await new Promise((resolve) => setTimeout(resolve, this.timeoutMs));
 
     if (this.shouldSimulateError("networkError")) {

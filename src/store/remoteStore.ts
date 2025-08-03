@@ -1,6 +1,6 @@
 import type { Result } from "../types";
 
-export interface VersionedData<T> {
+export interface Versioned<T> {
   data: T;
   etag: string;
 }
@@ -24,15 +24,12 @@ export type DeleteError =
 
 export interface RemoteStore<T> {
   // Returns server data if it exists; otherwise undefined
-  load(): Promise<Result<VersionedData<T> | undefined, LoadError>>;
+  load(): Promise<Result<Versioned<T> | undefined, LoadError>>;
 
   // Creates new server data if none exists (etag parameter ignored)
   // Updates existing server data only if etag matches current server version
   // Returns etag-mismatch error if server data exists but provided etag doesn't match
-  save(
-    data: T,
-    etag?: string,
-  ): Promise<Result<VersionedData<T>, SaveError>>;
+  save(data: T, etag?: string): Promise<Result<Versioned<T>, SaveError>>;
 
   // Deletes server data completely - used for corruption recovery
   delete(): Promise<Result<void, DeleteError>>;

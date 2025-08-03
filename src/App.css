@@ -373,3 +373,7 @@ nav a {
 .sync-red path {
     stroke: #dc3545;
 }
+
+.sync-green path {
+    stroke: green;
+}

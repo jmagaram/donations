@@ -25,7 +25,7 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
         if (status.requiresSync) {
           return { text: "Needs sync", iconClass: "sync-red" };
         } else {
-          return { text: "Up to date", iconClass: "sync-complete sync-black" };
+          return { text: "Up to date", iconClass: "sync-complete sync-green" };
         }
       case "error":
         return { text: "Sync error", iconClass: "sync-error sync-red" };

@@ -4,6 +4,7 @@ import type {
   LoadError,
   SaveError,
   DeleteError,
+  VersionedData,
 } from "./remoteStore";
 
 export type SyncError =
@@ -113,23 +114,41 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     this.notifyCallbacks();
 
     try {
-      let result: Result<void, SyncError>;
-
       if (option === "pushForce") {
-        result = await this.pushForceToRemote();
+        const result = await this.pushForceToRemote();
+        if (result.kind === "error") {
+          this.syncStatus = { kind: "error", error: result.value };
+          this.notifyCallbacks();
+          return result;
+        }
+        // Update state with force push result
+        this.currentEtag = result.value.etag;
+        this.cachedData = { kind: "unchanged", data: result.value.data };
       } else if (
         option === "push" &&
         (this.cachedData.kind === "new" || this.cachedData.kind === "modified")
       ) {
-        result = await this.pushToRemote();
+        const result = await this.pushToRemote();
+        if (result.kind === "error") {
+          this.syncStatus = { kind: "error", error: result.value };
+          this.notifyCallbacks();
+          return result;
+        }
+        // Update state with push result
+        this.currentEtag = result.value.etag;
+        this.cachedData = { kind: "unchanged", data: result.value.data };
       } else {
-        result = await this.pullFromRemote();
-      }
-
-      if (result.kind === "error") {
-        this.syncStatus = { kind: "error", error: result.value };
-        this.notifyCallbacks();
-        return result;
+        const result = await this.pullFromRemote();
+        if (result.kind === "error") {
+          this.syncStatus = { kind: "error", error: result.value };
+          this.notifyCallbacks();
+          return result;
+        }
+        // Update state with pull result (if server has data)
+        if (result.value) {
+          this.currentEtag = result.value.etag;
+          this.cachedData = { kind: "unchanged", data: result.value.data };
+        }
       }
 
       this.syncStatus = { kind: "idle", requiresSync: false };
@@ -144,7 +163,9 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     }
   }
 
-  private async pullFromRemote(): Promise<Result<void, SyncError>> {
+  private async pullFromRemote(): Promise<
+    Result<VersionedData<T> | undefined, SyncError>
+  > {
     const loadResult = await this.remoteStore.load();
 
     if (loadResult.kind === "error") {
@@ -154,18 +175,10 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
       };
     }
 
-    if (loadResult.value) {
-      this.currentEtag = loadResult.value.etag;
-      this.cachedData = {
-        kind: "unchanged",
-        data: loadResult.value.data,
-      };
-    }
-
-    return { kind: "success", value: undefined };
+    return { kind: "success", value: loadResult.value };
   }
 
-  private async pushToRemote(): Promise<Result<void, SyncError>> {
+  private async pushToRemote(): Promise<Result<VersionedData<T>, SyncError>> {
     const saveResult = await this.remoteStore.save(
       this.cachedData.data,
       this.currentEtag,
@@ -178,17 +191,12 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
       };
     }
 
-    // Update local state with new etag
-    this.currentEtag = saveResult.value.etag;
-    this.cachedData = {
-      kind: "unchanged",
-      data: saveResult.value.data,
-    };
-
-    return { kind: "success", value: undefined };
+    return { kind: "success", value: saveResult.value };
   }
 
-  private async pushForceToRemote(): Promise<Result<void, SyncError>> {
+  private async pushForceToRemote(): Promise<
+    Result<VersionedData<T>, SyncError>
+  > {
     // Delete corrupted server data
     const deleteResult = await this.remoteStore.delete();
     if (deleteResult.kind === "error") {
@@ -216,15 +224,11 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
       };
     }
 
-    if (loadResult.value) {
-      this.currentEtag = loadResult.value.etag;
-      this.cachedData = {
-        kind: "unchanged",
-        data: loadResult.value.data,
-      };
+    if (!loadResult.value) {
+      return { kind: "error", value: "other" };
     }
 
-    return { kind: "success", value: undefined };
+    return { kind: "success", value: loadResult.value };
   }
 
   private notifyCallbacks(): void {

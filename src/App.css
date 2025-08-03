@@ -26,6 +26,7 @@ button {
 .form-field #date,
 .form-field #amount,
 .form-field #category,
+.form-field #orgId,
 .form-field #taxDeductible {
     width: fit-content;
 }

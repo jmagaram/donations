@@ -114,51 +114,46 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     this.notifyCallbacks();
 
     try {
-      if (option === "pushForce") {
-        const result = await this.pushForceToRemote();
-        if (result.kind === "error") {
-          this.syncStatus = { kind: "error", error: result.value };
-          this.notifyCallbacks();
-          return result;
-        }
-        // Update state with force push result
+      let result: Result<VersionedData<T> | undefined, SyncError>;
+
+      switch (option) {
+        case "pushForce":
+          result = await this.pushForceToRemote();
+          break;
+        case "push":
+          switch (this.cachedData.kind) {
+            case "new":
+            case "modified":
+              result = await this.pushToRemote();
+              break;
+            case "unchanged":
+              result = await this.pullFromRemote();
+              break;
+          }
+          break;
+        case "pull":
+          result = await this.pullFromRemote();
+          break;
+      }
+
+      if (result.kind === "error") {
+        this.syncStatus = { kind: "error", error: result.value };
+        this.notifyCallbacks();
+        return { kind: "error", value: result.value };
+      }
+
+      // Update state with sync result (if server has data)
+      if (result.value) {
         this.currentEtag = result.value.etag;
         this.cachedData = { kind: "unchanged", data: result.value.data };
-      } else if (
-        option === "push" &&
-        (this.cachedData.kind === "new" || this.cachedData.kind === "modified")
-      ) {
-        const result = await this.pushToRemote();
-        if (result.kind === "error") {
-          this.syncStatus = { kind: "error", error: result.value };
-          this.notifyCallbacks();
-          return result;
-        }
-        // Update state with push result
-        this.currentEtag = result.value.etag;
-        this.cachedData = { kind: "unchanged", data: result.value.data };
-      } else {
-        const result = await this.pullFromRemote();
-        if (result.kind === "error") {
-          this.syncStatus = { kind: "error", error: result.value };
-          this.notifyCallbacks();
-          return result;
-        }
-        // Update state with pull result (if server has data)
-        if (result.value) {
-          this.currentEtag = result.value.etag;
-          this.cachedData = { kind: "unchanged", data: result.value.data };
-        }
       }
 
       this.syncStatus = { kind: "idle", requiresSync: false };
       this.notifyCallbacks();
-
       return { kind: "success", value: undefined };
     } catch {
       this.syncStatus = { kind: "error", error: "other" };
       this.notifyCallbacks();
-
       return { kind: "error", value: "other" };
     }
   }

@@ -14,7 +14,7 @@ import TotalsByCategory from "./TotalsByCategory";
 import StatusBox from "./StatusBox";
 import Admin from "./Admin";
 import "./App.css";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { type DonationsData, DonationsDataSchema } from "./types";
 import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
 import { BrowserStore } from "./store/browserStore";
@@ -119,11 +119,15 @@ const AppContent = () => {
     await offlineStore.sync("pull");
   };
 
+  const handleSync = useCallback(
+    (option: "pull" | "push" | "pushForce") => {
+      return offlineStore.sync(option);
+    },
+    [offlineStore],
+  );
+
   const donationsData = storageState.data.data;
   const isLoading = storageState.status.kind === "syncing";
-  const isSaving =
-    storageState.status.kind === "syncing" &&
-    storageState.data.kind === "modified";
 
   if (isLoading && storageState.data.kind === "new") {
     return <div>Loading donation data...</div>;
@@ -131,11 +135,7 @@ const AppContent = () => {
 
   return (
     <>
-      <Header
-        networkStatus={
-          isLoading ? "Loading..." : isSaving ? "Saving..." : undefined
-        }
-      />
+      <Header syncStatus={storageState.status} onSync={handleSync} />
       {syncError && (
         <StatusBox
           {...convertSyncErrorToStatusBoxProps(syncError, refreshData, () =>

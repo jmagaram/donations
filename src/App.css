@@ -321,3 +321,55 @@ nav a {
 .totals-by-year-grid a {
     text-decoration: none;
 }
+
+.sync-status-button {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: inherit;
+    border-radius: 3px;
+}
+
+.sync-status-button:hover:not(:disabled) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sync-status-button:disabled {
+    cursor: default;
+}
+
+.sync-status-icon {
+    flex-shrink: 0;
+    display: block;
+}
+
+.sync-status-text {
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.sync-spinning {
+    animation: sync-spin 1s linear infinite;
+}
+
+@keyframes sync-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.sync-black path {
+    stroke: #000;
+}
+
+.sync-red path {
+    stroke: #dc3545;
+}

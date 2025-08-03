@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
+import SyncStatus from "./SyncStatus";
+import { type SyncStatus as SyncStatusType, type SyncError } from "./store/offlineStore";
+import { type Result } from "./types";
 
 interface HeaderProps {
-  networkStatus?: string;
+  syncStatus: SyncStatusType;
+  onSync: (option: "pull" | "push" | "pushForce") => Promise<Result<void, SyncError>>;
 }
 
-const Header = ({ networkStatus }: HeaderProps) => {
+const Header = ({ syncStatus, onSync }: HeaderProps) => {
   return (
     <header>
       <nav>
@@ -12,9 +16,7 @@ const Header = ({ networkStatus }: HeaderProps) => {
         <Link to="/donations">Donations</Link>
         <Link to="/orgs">Organizations</Link>
         <Link to="/reports">Reports</Link>
-        {networkStatus && (
-          <span className="network-status">{networkStatus}</span>
-        )}
+        <SyncStatus status={syncStatus} sync={onSync} />
       </nav>
     </header>
   );

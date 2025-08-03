@@ -5,7 +5,6 @@ import { type DonationsData } from "./types";
 interface AdminProps {
   storageProvider: OfflineStore<DonationsData>;
   refreshData: () => Promise<void>;
-  currentEtag: string;
 }
 
 const Admin = ({ storageProvider, refreshData }: AdminProps) => {

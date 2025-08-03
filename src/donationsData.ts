@@ -5,6 +5,9 @@ export const empty = (): DonationsData => ({
   donations: [],
 });
 
+export const isEmpty = (data: Readonly<DonationsData>): boolean =>
+  data.orgs.length === 0 && data.donations.length === 0;
+
 export const findOrgById = (
   data: Readonly<DonationsData>,
   id: string,

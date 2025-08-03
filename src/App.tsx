@@ -19,7 +19,7 @@ import { type DonationsData, DonationsDataSchema } from "./types";
 import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
 import { BrowserStore } from "./store/browserStore";
 import type { StatusBoxProps } from "./StatusBox";
-import { empty } from "./donationsData";
+import { empty, isEmpty } from "./donationsData";
 
 const convertSyncErrorToStatusBoxProps = (
   syncError: SyncError,
@@ -33,24 +33,14 @@ const convertSyncErrorToStatusBoxProps = (
         header: "Data sync conflict",
         content:
           "Your data was changed elsewhere and is not in sync with your web browser. Your recent change was not saved. Try again.",
-        buttons: [
-          {
-            caption: "Refresh data",
-            onClick: refreshData,
-          },
-        ],
+        buttons: [{ caption: "Refresh data", onClick: refreshData }],
       };
     case "network-error":
       return {
         kind: "error",
         header: "Network error",
         content: "Unable to connect to storage",
-        buttons: [
-          {
-            caption: "Dismiss",
-            onClick: dismissError,
-          },
-        ],
+        buttons: [{ caption: "Dismiss", onClick: dismissError }],
       };
     case "data-corruption":
       return {
@@ -58,14 +48,8 @@ const convertSyncErrorToStatusBoxProps = (
         header: "Data corruption",
         content: "Data could not be parsed or validated",
         buttons: [
-          {
-            caption: "Refresh Data",
-            onClick: refreshData,
-          },
-          {
-            caption: "Dismiss",
-            onClick: dismissError,
-          },
+          { caption: "Refresh Data", onClick: refreshData },
+          { caption: "Dismiss", onClick: dismissError },
         ],
       };
     case "unauthorized":
@@ -73,36 +57,21 @@ const convertSyncErrorToStatusBoxProps = (
         kind: "error",
         header: "Unauthorized",
         content: "Access denied",
-        buttons: [
-          {
-            caption: "Dismiss",
-            onClick: dismissError,
-          },
-        ],
+        buttons: [{ caption: "Dismiss", onClick: dismissError }],
       };
     case "server-error":
       return {
         kind: "error",
         header: "Server error",
         content: "Server encountered an error",
-        buttons: [
-          {
-            caption: "Dismiss",
-            onClick: dismissError,
-          },
-        ],
+        buttons: [{ caption: "Dismiss", onClick: dismissError }],
       };
     case "other":
       return {
         kind: "error",
         header: "Unknown error",
         content: "An unknown error occurred",
-        buttons: [
-          {
-            caption: "Dismiss",
-            onClick: dismissError,
-          },
-        ],
+        buttons: [{ caption: "Dismiss", onClick: dismissError }],
       };
   }
 };
@@ -119,7 +88,7 @@ const AppContent = () => {
     return new OfflineStoreImpl({
       remote: browserStore,
       emptyData,
-      isEmpty: (data) => data.orgs.length === 0 && data.donations.length === 0,
+      isEmpty: isEmpty,
     });
   });
 
@@ -259,11 +228,7 @@ const AppContent = () => {
         <Route
           path="/admin"
           element={
-            <Admin
-              storageProvider={offlineStore}
-              refreshData={refreshData}
-              currentEtag={storageState.etag}
-            />
+            <Admin storageProvider={offlineStore} refreshData={refreshData} />
           }
         />
       </Routes>

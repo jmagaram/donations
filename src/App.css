@@ -114,6 +114,13 @@ nav a {
     text-decoration: none;
 }
 
+.network-status {
+    margin-left: auto;
+    font-style: italic;
+    color: #666;
+    font-size: 0.9em;
+}
+
 .donations-grid {
     display: grid;
     grid-template-columns: auto auto auto auto 1fr;
@@ -215,6 +222,13 @@ nav a {
 
 .status-box .content {
     white-space: pre-line;
+}
+
+.status-box .buttons {
+    margin-top: 0.5rem;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5em;
 }
 
 .export-section {

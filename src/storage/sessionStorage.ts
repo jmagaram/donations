@@ -1,7 +1,8 @@
-import type { DonationsData } from "../types";
-import type { StorageProvider, CachedData } from "./interface";
+import type { DonationsData, Result } from "../types";
+import type { StorageProvider, CachedData, StorageError } from "./interface";
 import { DonationsDataSchema } from "../types";
 import { empty } from "../donationsData";
+import { success, error } from "../result";
 
 export class SessionStorageProvider implements StorageProvider {
   private readonly STORAGE_KEY = "donationsData";
@@ -12,7 +13,7 @@ export class SessionStorageProvider implements StorageProvider {
     return this.cachedData;
   }
 
-  async refreshFromRemote(): Promise<CachedData> {
+  async refreshFromRemote(): Promise<Result<CachedData, StorageError>> {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // Try to load from sessionStorage
@@ -26,12 +27,16 @@ export class SessionStorageProvider implements StorageProvider {
       try {
         data = DonationsDataSchema.parse(JSON.parse(dataStr));
         finalEtag = etag;
-      } catch (error) {
-        // Corrupted data in sessionStorage - throw error instead of auto-healing
-        throw new Error(
-          "Corrupted data in sessionStorage: " +
-            (error instanceof Error ? error.message : "Unknown parsing error"),
-        );
+      } catch (parseError) {
+        // Corrupted data in sessionStorage
+        return error({
+          kind: "data-corruption",
+          message:
+            "Corrupted data in sessionStorage: " +
+            (parseError instanceof Error
+              ? parseError.message
+              : "Unknown parsing error"),
+        });
       }
     } else {
       // No data in sessionStorage - return empty data structure
@@ -41,14 +46,19 @@ export class SessionStorageProvider implements StorageProvider {
     }
 
     this.cachedData = { data, etag: finalEtag };
-    return this.cachedData;
+    return success(this.cachedData);
   }
 
-  async save(data: DonationsData, etag: string): Promise<CachedData> {
+  async save(
+    data: DonationsData,
+    etag: string,
+  ): Promise<Result<CachedData, StorageError>> {
+    console.log("Trying session storage saving");
+
     // Check ETag against sessionStorage (remote storage)
     const storedEtag = sessionStorage.getItem(this.ETAG_KEY);
     if (storedEtag && storedEtag !== etag) {
-      throw new Error("ETag mismatch: data has changed locally.");
+      return error({ kind: "etag-mismatch" });
     }
 
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -62,18 +72,18 @@ export class SessionStorageProvider implements StorageProvider {
     return await this.refreshFromRemote();
   }
 
-  async delete(etag: string): Promise<void> {
+  async delete(etag: string): Promise<Result<void, StorageError>> {
     // Check current ETag against sessionStorage (remote storage)
     const storedEtag = sessionStorage.getItem(this.ETAG_KEY);
 
     if (!storedEtag) {
       // No data exists - treat as success (idempotent delete)
       this.cachedData = undefined;
-      return;
+      return success(undefined);
     }
 
     if (etag !== storedEtag) {
-      throw new Error("ETag mismatch: data has changed locally.");
+      return error({ kind: "etag-mismatch" });
     }
 
     // Simulate network delay
@@ -85,6 +95,8 @@ export class SessionStorageProvider implements StorageProvider {
 
     // Clear in-memory cache
     this.cachedData = undefined;
+
+    return success(undefined);
   }
 
   clearCache(): void {

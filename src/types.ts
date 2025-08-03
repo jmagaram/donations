@@ -45,3 +45,7 @@ export const DonationsDataSchema = z.object({
 });
 
 export type DonationsData = z.infer<typeof DonationsDataSchema>;
+
+export type Result<T, U> = 
+  | { kind: "success"; value: T }
+  | { kind: "error"; value: U };

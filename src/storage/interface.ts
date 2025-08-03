@@ -1,4 +1,10 @@
-import type { DonationsData } from "../types";
+import type { DonationsData, Result } from "../types";
+
+export type StorageError = 
+  | { kind: "etag-mismatch" }
+  | { kind: "network-error"; message: string }
+  | { kind: "data-corruption"; message: string }
+  | { kind: "not-found" };
 
 export interface CachedData {
   data: DonationsData;
@@ -22,18 +28,18 @@ export interface StorageProvider {
   // Bypasses cache and loads data from remote storage, updating the local cache.
   // Always makes a network request (or simulates one for testing providers).
   // Returns empty data structure if no data exists.
-  // Throws error on network failures or corrupted data.
-  refreshFromRemote(): Promise<CachedData>;
+  // Returns error on network failures or corrupted data.
+  refreshFromRemote(): Promise<Result<CachedData, StorageError>>;
 
   // Saves data to remote storage with ETag validation. Returns fresh data from
-  // remote storage after successful save. Promise fails if ETag mismatch,
+  // remote storage after successful save. Returns error if ETag mismatch,
   // remote storage cannot be accessed, or other fatal errors.
-  save(data: DonationsData, etag: string): Promise<CachedData>;
+  save(data: DonationsData, etag: string): Promise<Result<CachedData, StorageError>>;
 
   // Deletes all data from remote storage with ETag validation. Clears local cache.
-  // Idempotent operation: succeeds if data already deleted. Only throws error
+  // Idempotent operation: succeeds if data already deleted. Returns error only
   // if ETag mismatch or remote storage cannot be accessed.
-  delete(etag: string): Promise<void>;
+  delete(etag: string): Promise<Result<void, StorageError>>;
 
   // Clears only the local cache without affecting remote storage.
   clearCache(): void;

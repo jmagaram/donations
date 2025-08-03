@@ -17,6 +17,74 @@ import "./App.css";
 import { useState, useEffect } from "react";
 import { type DonationsData } from "./types";
 import { createStorageProvider, type StorageProvider } from "./storage/index";
+import type { StorageError } from "./storage/interface";
+import type { StatusBoxProps } from "./StatusBox";
+
+const convertStorageErrorToStatusBoxProps = (
+  storageError: StorageError,
+  refreshData: () => void,
+  dismissError: () => void,
+): StatusBoxProps => {
+  switch (storageError.kind) {
+    case "etag-mismatch":
+      return {
+        kind: "error",
+        header: "Data sync conflict",
+        content:
+          "Your data was changed elsewhere and is not in sync with your web browser. Your recent change was not saved. Try again.",
+        buttons: [
+          {
+            caption: "Refresh data",
+            onClick: refreshData,
+          },
+        ],
+      };
+    case "network-error":
+      return {
+        kind: "error",
+        header: "Network error",
+        content: storageError.message,
+        buttons: [
+          {
+            caption: "Dismiss",
+            onClick: dismissError,
+          },
+        ],
+      };
+    case "data-corruption":
+      return {
+        kind: "error",
+        header: "Data corruption",
+        content: storageError.message,
+        buttons: [
+          {
+            caption: "Refresh Data",
+            onClick: refreshData,
+          },
+          {
+            caption: "Dismiss",
+            onClick: dismissError,
+          },
+        ],
+      };
+    case "not-found":
+      return {
+        kind: "error",
+        header: "Data not found",
+        content: "Data not found",
+        buttons: [
+          {
+            caption: "Refresh Data",
+            onClick: refreshData,
+          },
+          {
+            caption: "Dismiss",
+            onClick: dismissError,
+          },
+        ],
+      };
+  }
+};
 
 const AppContent = () => {
   const [storageProvider] = useState<StorageProvider>(() =>
@@ -25,76 +93,76 @@ const AppContent = () => {
   const [forceUpdate, setForceUpdate] = useState(0);
   const [currentEtag, setCurrentEtag] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | undefined>(undefined);
+  const [isSaving, setIsSaving] = useState(false);
+  const [storageError, setStorageError] = useState<StorageError | undefined>(
+    undefined,
+  );
 
   useEffect(() => {
     const loadData = async () => {
-      try {
-        console.log("App: Starting loadData()");
-        setIsLoading(true);
-        setError(undefined);
-        const cached = storageProvider.getCachedData();
-        if (cached) {
-          console.log("App: Using cached data");
-          setCurrentEtag(cached.etag);
-          setIsLoading(false);
-        } else {
-          console.log("App: No cache, calling loadFresh()");
-          const fresh = await storageProvider.refreshFromRemote();
-          console.log("App: loadFresh() completed successfully");
-          setCurrentEtag(fresh.etag);
+      setIsLoading(true);
+      setStorageError(undefined);
+      const cached = storageProvider.getCachedData();
+      if (cached) {
+        setCurrentEtag(cached.etag);
+        setIsLoading(false);
+      } else {
+        const result = await storageProvider.refreshFromRemote();
+        if (result.kind === "success") {
+          setCurrentEtag(result.value.etag);
           setForceUpdate((prev) => prev + 1);
           setIsLoading(false);
+        } else {
+          setStorageError(result.value);
+          setIsLoading(false);
         }
-      } catch (err) {
-        console.log("App: Error caught in loadData():", err);
-        const errorMessage =
-          err instanceof Error ? err.message : "Failed to load data";
-        console.log("App: Setting error state to:", errorMessage);
-        setError(errorMessage);
-        console.log("App: Setting isLoading to false");
-        setIsLoading(false);
       }
     };
     loadData();
   }, [storageProvider]);
 
   const setDonationsData = async (data: DonationsData) => {
-    try {
-      setError(undefined);
-      const result = await storageProvider.save(data, currentEtag);
-      setCurrentEtag(result.etag);
+    setIsSaving(true);
+    setStorageError(undefined);
+    const result = await storageProvider.save(data, currentEtag);
+
+    if (result.kind === "success") {
+      setCurrentEtag(result.value.etag);
       setForceUpdate((prev) => prev + 1);
-    } catch (err) {
-      if (err instanceof Error && err.message.includes("ETag mismatch")) {
-        try {
-          const fresh = await storageProvider.refreshFromRemote();
-          setCurrentEtag(fresh.etag);
+    } else {
+      console.error("Could not save in App.tsx");
+      if (result.value.kind === "etag-mismatch") {
+        const refreshResult = await storageProvider.refreshFromRemote();
+        if (refreshResult.kind === "success") {
+          setCurrentEtag(refreshResult.value.etag);
           setForceUpdate((prev) => prev + 1);
-          setError(
-            "Data was changed elsewhere. Your changes were not saved. Please try again.",
-          );
-        } catch {
-          setError("Failed to refresh data after conflict");
+          setStorageError(result.value);
+        } else {
+          setStorageError({
+            kind: "data-corruption",
+            message: "Failed to refresh data after conflict",
+          });
         }
       } else {
-        setError(err instanceof Error ? err.message : "Failed to save data");
+        setStorageError(result.value);
       }
     }
+    setIsSaving(false);
   };
 
   const refreshData = async () => {
-    try {
-      setIsLoading(true);
-      setError(undefined);
-      const fresh = await storageProvider.refreshFromRemote();
-      setCurrentEtag(fresh.etag);
+    setIsLoading(true);
+    setStorageError(undefined);
+    const result = await storageProvider.refreshFromRemote();
+
+    if (result.kind === "success") {
+      setCurrentEtag(result.value.etag);
       setForceUpdate((prev) => prev + 1);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to refresh data");
-    } finally {
-      setIsLoading(false);
+    } else {
+      setStorageError(result.value);
     }
+
+    setIsLoading(false);
   };
 
   // Separate effect to handle force updates without causing infinite loops
@@ -105,29 +173,8 @@ const AppContent = () => {
 
   const donationsData = storageProvider.getCachedData()?.data;
 
-  console.log(
-    "App: Render - isLoading:",
-    isLoading,
-    "error:",
-    error,
-    "donationsData:",
-    !!donationsData,
-  );
-
   if (isLoading) {
     return <div>Loading donation data...</div>;
-  }
-
-  if (error) {
-    return (
-      <>
-        <Header />
-        <StatusBox kind="error" content={error} />
-        <button onClick={refreshData} style={{ marginLeft: "10px" }}>
-          Refresh Data
-        </button>
-      </>
-    );
   }
 
   if (!donationsData) {
@@ -136,14 +183,15 @@ const AppContent = () => {
 
   return (
     <>
-      <Header />
-      {error && (
-        <>
-          <StatusBox kind="error" content={error} />
-          <button onClick={refreshData} style={{ marginLeft: "10px" }}>
-            Refresh Data
-          </button>
-        </>
+      <Header networkStatus={isLoading ? "Loading..." : isSaving ? "Saving..." : undefined} />
+      {storageError && (
+        <StatusBox
+          {...convertStorageErrorToStatusBoxProps(
+            storageError,
+            refreshData,
+            () => setStorageError(undefined),
+          )}
+        />
       )}
       <Routes>
         <Route path="/" element={<Home />} />

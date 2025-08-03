@@ -1,3 +1,4 @@
+import { empty } from "./donationsData";
 import { type StorageProvider } from "./storage/index";
 
 interface AdminProps {
@@ -7,7 +8,7 @@ interface AdminProps {
 }
 
 const Admin = ({ storageProvider, refreshData, currentEtag }: AdminProps) => {
-  const testGetCachedData = () => {
+  const goGetCachedData = () => {
     const cached = storageProvider.getCachedData();
     console.log("Debug: getCachedData():", cached);
     alert(
@@ -15,32 +16,32 @@ const Admin = ({ storageProvider, refreshData, currentEtag }: AdminProps) => {
     );
   };
 
-  const testLoadFresh = async () => {
+  const goRefreshFromRemote = async () => {
     try {
-      console.log("Debug: Calling loadFresh()...");
+      console.log("Debug: Calling refreshFromRemote()...");
       const fresh = await storageProvider.refreshFromRemote();
-      console.log("Debug: loadFresh() result:", fresh);
+      console.log("Debug: refreshFromRemote() result:", fresh);
       alert(
         `Fresh data loaded! ETag: ${fresh.etag}, Orgs: ${fresh.data.orgs.length}, Donations: ${fresh.data.donations.length}`,
       );
     } catch (error) {
-      console.error("Debug: loadFresh() error:", error);
+      console.error("Debug: refreshFromRemote() error:", error);
       alert(
         `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
       );
     }
   };
 
-  const testClearCache = () => {
+  const goClearCache = () => {
     storageProvider.clearCache();
     console.log("Debug: Cache cleared");
     alert("Cache cleared!");
   };
 
-  const testSave = async () => {
+  const goSave = async () => {
     try {
       console.log("Debug: Testing save with current ETag:", currentEtag);
-      const testData = { orgs: [], donations: [] };
+      const testData = empty();
       const result = await storageProvider.save(testData, currentEtag);
       console.log("Debug: Save successful:", result);
       alert(`Save successful! New ETag: ${result.etag}`);
@@ -69,7 +70,7 @@ const Admin = ({ storageProvider, refreshData, currentEtag }: AdminProps) => {
     }
   };
 
-  const testDelete = async () => {
+  const goDelete = async () => {
     if (!confirm("DELETE ALL DATA from the server? This cannot be undone!")) {
       return;
     }
@@ -95,13 +96,13 @@ const Admin = ({ storageProvider, refreshData, currentEtag }: AdminProps) => {
         Current ETag: <code>{currentEtag || "none"}</code>
       </p>
       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-        <button onClick={testGetCachedData}>Test getCachedData()</button>
-        <button onClick={testLoadFresh}>Test loadFresh()</button>
-        <button onClick={testClearCache}>Clear Cache</button>
+        <button onClick={goGetCachedData}>getCachedData</button>
+        <button onClick={goRefreshFromRemote}>refreshFromRemote</button>
+        <button onClick={goClearCache}>clearCache</button>
+        <button onClick={goDelete}>delete</button>
         <button onClick={refreshData}>App refreshData()</button>
-        <button onClick={testSave}>Test Save (Empty Data)</button>
-        <button onClick={checkEtagSync}>Check ETag Sync</button>
-        <button onClick={testDelete}>Delete all data</button>
+        <button onClick={goSave}>save (empty data)</button>
+        <button onClick={checkEtagSync}>Check etag sync</button>
       </div>
     </div>
   );

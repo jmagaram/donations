@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 
-const Header = () => {
+interface HeaderProps {
+  networkStatus?: string;
+}
+
+const Header = ({ networkStatus }: HeaderProps) => {
   return (
     <header>
       <nav>
@@ -8,6 +12,9 @@ const Header = () => {
         <Link to="/donations">Donations</Link>
         <Link to="/orgs">Organizations</Link>
         <Link to="/reports">Reports</Link>
+        {networkStatus && (
+          <span className="network-status">{networkStatus}</span>
+        )}
       </nav>
     </header>
   );

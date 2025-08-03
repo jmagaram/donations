@@ -42,7 +42,7 @@ export interface OfflineStore<T> {
 }
 
 export class OfflineStoreImpl<T> implements OfflineStore<T> {
-  private readonly remoteStore: RemoteStore<T>;
+  private readonly remote: RemoteStore<T>;
   private readonly isEmpty: (data: T) => boolean;
   private cachedData: DataState<T>;
   private syncStatus: SyncStatus;
@@ -50,11 +50,11 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   private currentEtag: string | undefined;
 
   constructor(params: {
-    remoteStore: RemoteStore<T>;
+    remote: RemoteStore<T>;
     emptyData: T;
     isEmpty?: (data: T) => boolean;
   }) {
-    this.remoteStore = params.remoteStore;
+    this.remote = params.remote;
     this.isEmpty = params.isEmpty || ((data) => data === params.emptyData);
     this.syncStatus = { kind: "idle", requiresSync: true };
     this.cachedData = { kind: "new", data: params.emptyData };
@@ -168,7 +168,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   private async pullFromRemote(): Promise<
     Result<Versioned<T> | undefined, SyncError>
   > {
-    const loadResult = await this.remoteStore.load();
+    const loadResult = await this.remote.load();
     if (loadResult.kind === "error") {
       return {
         kind: "error",
@@ -179,24 +179,22 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   }
 
   private async pushToRemote(): Promise<Result<Versioned<T>, SyncError>> {
-    const saveResult = await this.remoteStore.save(
+    const saveResult = await this.remote.save(
       this.cachedData.data,
       this.currentEtag,
     );
-
     if (saveResult.kind === "error") {
       return {
         kind: "error",
         value: this.mapSaveErrorToSyncError(saveResult.value),
       };
     }
-
     return { kind: "success", value: saveResult.value };
   }
 
   private async pushForceToRemote(): Promise<Result<Versioned<T>, SyncError>> {
-    // Delete corrupted server data
-    const deleteResult = await this.remoteStore.delete();
+    // Delete existing data (might be corrupted)
+    const deleteResult = await this.remote.delete();
     if (deleteResult.kind === "error") {
       return {
         kind: "error",
@@ -205,7 +203,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     }
 
     // Save current data (creates new record without etag)
-    const saveResult = await this.remoteStore.save(this.cachedData.data);
+    const saveResult = await this.remote.save(this.cachedData.data);
     if (saveResult.kind === "error") {
       return {
         kind: "error",
@@ -214,7 +212,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     }
 
     // Load to get fresh etag
-    const loadResult = await this.remoteStore.load();
+    const loadResult = await this.remote.load();
     if (loadResult.kind === "error") {
       return {
         kind: "error",

@@ -11,70 +11,14 @@ import Exporter from "./Exporter";
 import Reports from "./Reports";
 import TotalsByYear from "./TotalsByYear";
 import TotalsByCategory from "./TotalsByCategory";
-import StatusBox from "./StatusBox";
+import SyncStatusBox from "./SyncStatusBox";
 import Admin from "./Admin";
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
 import { type DonationsData, DonationsDataSchema } from "./types";
 import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
 import { BrowserStore } from "./store/browserStore";
-import type { StatusBoxProps } from "./StatusBox";
 import { empty, isEmpty } from "./donationsData";
-
-const convertSyncErrorToStatusBoxProps = (
-  syncError: SyncError,
-  refreshData: () => void,
-  dismissError: () => void,
-): StatusBoxProps => {
-  switch (syncError) {
-    case "etag-mismatch":
-      return {
-        kind: "error",
-        header: "Data sync conflict",
-        content:
-          "Your data was changed elsewhere and is not in sync with your web browser. Your recent change was not saved. Try again.",
-        buttons: [{ caption: "Refresh data", onClick: refreshData }],
-      };
-    case "network-error":
-      return {
-        kind: "error",
-        header: "Network error",
-        content: "Unable to connect to storage",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
-      };
-    case "data-corruption":
-      return {
-        kind: "error",
-        header: "Data corruption",
-        content: "Data could not be parsed or validated",
-        buttons: [
-          { caption: "Refresh Data", onClick: refreshData },
-          { caption: "Dismiss", onClick: dismissError },
-        ],
-      };
-    case "unauthorized":
-      return {
-        kind: "error",
-        header: "Unauthorized",
-        content: "Access denied",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
-      };
-    case "server-error":
-      return {
-        kind: "error",
-        header: "Server error",
-        content: "Server encountered an error",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
-      };
-    case "other":
-      return {
-        kind: "error",
-        header: "Unknown error",
-        content: "An unknown error occurred",
-        buttons: [{ caption: "Dismiss", onClick: dismissError }],
-      };
-  }
-};
 
 const AppContent = () => {
   const [offlineStore] = useState(() => {
@@ -84,6 +28,13 @@ const AppContent = () => {
       isValidData: (data): data is DonationsData =>
         DonationsDataSchema.safeParse(data).success,
       timeoutMs: 3000,
+      errorSimulation: {
+        networkError: 0.3,
+        unauthorized: 0.05,
+        serverError: 0.03,
+        dataCorruption: 0.02,
+        etagMismatch: 0.08,
+      },
     });
     return new OfflineStoreImpl({
       remote: browserStore,
@@ -136,13 +87,11 @@ const AppContent = () => {
   return (
     <>
       <Header syncStatus={storageState.status} onSync={handleSync} />
-      {syncError && (
-        <StatusBox
-          {...convertSyncErrorToStatusBoxProps(syncError, refreshData, () =>
-            setSyncError(undefined),
-          )}
-        />
-      )}
+      <SyncStatusBox
+        syncError={syncError}
+        onRefreshData={refreshData}
+        onDismissError={() => setSyncError(undefined)}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
         <Route

@@ -1,11 +1,16 @@
 import { Link } from "react-router-dom";
-import SyncStatus from "./SyncStatus";
-import { type SyncStatus as SyncStatusType, type SyncError } from "./store/offlineStore";
+import SyncSpinner from "./SyncSpinner";
+import {
+  type SyncStatus as SyncStatusType,
+  type SyncError,
+} from "./store/offlineStore";
 import { type Result } from "./types";
 
 interface HeaderProps {
   syncStatus: SyncStatusType;
-  onSync: (option: "pull" | "push" | "pushForce") => Promise<Result<void, SyncError>>;
+  onSync: (
+    option: "pull" | "push" | "pushForce",
+  ) => Promise<Result<void, SyncError>>;
 }
 
 const Header = ({ syncStatus, onSync }: HeaderProps) => {
@@ -16,7 +21,7 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
         <Link to="/donations">Donations</Link>
         <Link to="/orgs">Organizations</Link>
         <Link to="/reports">Reports</Link>
-        <SyncStatus status={syncStatus} sync={onSync} />
+        <SyncSpinner status={syncStatus} sync={onSync} />
       </nav>
     </header>
   );

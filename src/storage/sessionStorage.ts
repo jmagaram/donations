@@ -14,7 +14,7 @@ export class SessionStorageProvider implements StorageProvider {
   }
 
   async refreshFromRemote(): Promise<Result<CachedData, StorageError>> {
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // Try to load from sessionStorage
     const dataStr = sessionStorage.getItem(this.STORAGE_KEY);
@@ -61,7 +61,7 @@ export class SessionStorageProvider implements StorageProvider {
       return error({ kind: "etag-mismatch" });
     }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     const newEtag = this.generateEtag(data);
 
@@ -87,7 +87,7 @@ export class SessionStorageProvider implements StorageProvider {
     }
 
     // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // Delete from sessionStorage (remote storage)
     sessionStorage.removeItem(this.STORAGE_KEY);

@@ -12,20 +12,20 @@ import Reports from "./Reports";
 import TotalsByYear from "./TotalsByYear";
 import TotalsByCategory from "./TotalsByCategory";
 import StatusBox from "./StatusBox";
-import Admin from "./Admin";
 import "./App.css";
 import { useState, useEffect } from "react";
-import { type DonationsData } from "./types";
-import { createStorageProvider, type StorageProvider } from "./storage/index";
-import type { StorageError } from "./storage/interface";
+import { type DonationsData, DonationsDataSchema } from "./types";
+import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
+import { BrowserStore } from "./store/browserStore";
 import type { StatusBoxProps } from "./StatusBox";
+import { empty } from "./donationsData";
 
-const convertStorageErrorToStatusBoxProps = (
-  storageError: StorageError,
+const convertSyncErrorToStatusBoxProps = (
+  syncError: SyncError,
   refreshData: () => void,
   dismissError: () => void,
 ): StatusBoxProps => {
-  switch (storageError.kind) {
+  switch (syncError) {
     case "etag-mismatch":
       return {
         kind: "error",
@@ -43,7 +43,7 @@ const convertStorageErrorToStatusBoxProps = (
       return {
         kind: "error",
         header: "Network error",
-        content: storageError.message,
+        content: "Unable to connect to storage",
         buttons: [
           {
             caption: "Dismiss",
@@ -55,7 +55,7 @@ const convertStorageErrorToStatusBoxProps = (
       return {
         kind: "error",
         header: "Data corruption",
-        content: storageError.message,
+        content: "Data could not be parsed or validated",
         buttons: [
           {
             caption: "Refresh Data",
@@ -67,16 +67,36 @@ const convertStorageErrorToStatusBoxProps = (
           },
         ],
       };
-    case "not-found":
+    case "unauthorized":
       return {
         kind: "error",
-        header: "Data not found",
-        content: "Data not found",
+        header: "Unauthorized",
+        content: "Access denied",
         buttons: [
           {
-            caption: "Refresh Data",
-            onClick: refreshData,
+            caption: "Dismiss",
+            onClick: dismissError,
           },
+        ],
+      };
+    case "server-error":
+      return {
+        kind: "error",
+        header: "Server error",
+        content: "Server encountered an error",
+        buttons: [
+          {
+            caption: "Dismiss",
+            onClick: dismissError,
+          },
+        ],
+      };
+    case "other":
+      return {
+        kind: "error",
+        header: "Unknown error",
+        content: "An unknown error occurred",
+        buttons: [
           {
             caption: "Dismiss",
             onClick: dismissError,
@@ -87,109 +107,69 @@ const convertStorageErrorToStatusBoxProps = (
 };
 
 const AppContent = () => {
-  const [storageProvider] = useState<StorageProvider>(() =>
-    createStorageProvider("sessionStorage"),
-  );
-  const [forceUpdate, setForceUpdate] = useState(0);
-  const [currentEtag, setCurrentEtag] = useState<string>("");
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [storageError, setStorageError] = useState<StorageError | undefined>(
-    undefined,
-  );
+  const [offlineStore] = useState(() => {
+    const emptyData: DonationsData = empty();
+    const browserStore = new BrowserStore({
+      storageKey: "donations-data",
+      isValidData: (data): data is DonationsData =>
+        DonationsDataSchema.safeParse(data).success,
+      timeoutMs: 3000,
+    });
+    return new OfflineStoreImpl({
+      remote: browserStore,
+      emptyData,
+      isEmpty: (data) => data.orgs.length === 0 && data.donations.length === 0,
+    });
+  });
+
+  const [storageState, setStorageState] = useState(() => offlineStore.get());
+  const [syncError, setSyncError] = useState<SyncError | undefined>(undefined);
 
   useEffect(() => {
-    const loadData = async () => {
-      setIsLoading(true);
-      setStorageError(undefined);
-      const cached = storageProvider.getCachedData();
-      if (cached) {
-        setCurrentEtag(cached.etag);
-        setIsLoading(false);
+    const unsubscribe = offlineStore.onChange((newState) => {
+      setStorageState(newState);
+      if (newState.status.kind === "error") {
+        setSyncError(newState.status.error);
       } else {
-        const result = await storageProvider.refreshFromRemote();
-        if (result.kind === "success") {
-          setCurrentEtag(result.value.etag);
-          setForceUpdate((prev) => prev + 1);
-          setIsLoading(false);
-        } else {
-          setStorageError(result.value);
-          setIsLoading(false);
-        }
+        setSyncError(undefined);
       }
-    };
-    loadData();
-  }, [storageProvider]);
+    });
 
-  const setDonationsData = async (data: DonationsData) => {
-    setIsSaving(true);
-    setStorageError(undefined);
-    const result = await storageProvider.save(data, currentEtag);
+    // Initial sync to load data
+    offlineStore.sync("pull");
 
-    if (result.kind === "success") {
-      setCurrentEtag(result.value.etag);
-      setForceUpdate((prev) => prev + 1);
-    } else {
-      console.error("Could not save in App.tsx");
-      if (result.value.kind === "etag-mismatch") {
-        const refreshResult = await storageProvider.refreshFromRemote();
-        if (refreshResult.kind === "success") {
-          setCurrentEtag(refreshResult.value.etag);
-          setForceUpdate((prev) => prev + 1);
-          setStorageError(result.value);
-        } else {
-          setStorageError({
-            kind: "data-corruption",
-            message: "Failed to refresh data after conflict",
-          });
-        }
-      } else {
-        setStorageError(result.value);
-      }
-    }
-    setIsSaving(false);
+    return unsubscribe;
+  }, [offlineStore]);
+
+  const setDonationsData = (data: DonationsData) => {
+    offlineStore.save(data);
   };
 
   const refreshData = async () => {
-    setIsLoading(true);
-    setStorageError(undefined);
-    const result = await storageProvider.refreshFromRemote();
-
-    if (result.kind === "success") {
-      setCurrentEtag(result.value.etag);
-      setForceUpdate((prev) => prev + 1);
-    } else {
-      setStorageError(result.value);
-    }
-
-    setIsLoading(false);
+    await offlineStore.sync("pull");
   };
 
-  // Separate effect to handle force updates without causing infinite loops
-  useEffect(() => {
-    // This effect just triggers re-renders when forceUpdate changes
-    // It doesn't need to do anything, just existing causes a re-render
-  }, [forceUpdate]);
+  const donationsData = storageState.data.data;
+  const isLoading = storageState.status.kind === "syncing";
+  const isSaving =
+    storageState.status.kind === "syncing" &&
+    storageState.data.kind === "modified";
 
-  const donationsData = storageProvider.getCachedData()?.data;
-
-  if (isLoading) {
+  if (isLoading && storageState.data.kind === "new") {
     return <div>Loading donation data...</div>;
-  }
-
-  if (!donationsData) {
-    return <div>No data available</div>;
   }
 
   return (
     <>
-      <Header networkStatus={isLoading ? "Loading..." : isSaving ? "Saving..." : undefined} />
-      {storageError && (
+      <Header
+        networkStatus={
+          isLoading ? "Loading..." : isSaving ? "Saving..." : undefined
+        }
+      />
+      {syncError && (
         <StatusBox
-          {...convertStorageErrorToStatusBoxProps(
-            storageError,
-            refreshData,
-            () => setStorageError(undefined),
+          {...convertSyncErrorToStatusBoxProps(syncError, refreshData, () =>
+            setSyncError(undefined),
           )}
         />
       )}
@@ -278,11 +258,7 @@ const AppContent = () => {
         <Route
           path="/admin"
           element={
-            <Admin
-              storageProvider={storageProvider}
-              refreshData={refreshData}
-              currentEtag={currentEtag}
-            />
+            <div>Admin panel temporarily disabled during storage migration</div>
           }
         />
       </Routes>

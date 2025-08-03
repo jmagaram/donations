@@ -22,17 +22,17 @@ export class BrowserStore<T> implements RemoteStore<T> {
   private readonly errorSimulation?: ErrorSimulation;
   private isValidData: (data: unknown) => data is T;
 
-  constructor(
-    storageKey: string,
-    isValidData: (data: unknown) => data is T,
-    timeoutMs: number,
-    errorSimulation?: ErrorSimulation,
-  ) {
-    this.storageKey = storageKey;
-    this.etagKey = `${storageKey}_etag`;
-    this.timeoutMs = timeoutMs;
-    this.errorSimulation = errorSimulation;
-    this.isValidData = isValidData;
+  constructor(params: {
+    storageKey: string;
+    isValidData: (data: unknown) => data is T;
+    timeoutMs: number;
+    errorSimulation?: ErrorSimulation;
+  }) {
+    this.storageKey = params.storageKey;
+    this.etagKey = `${params.storageKey}_etag`;
+    this.timeoutMs = params.timeoutMs;
+    this.errorSimulation = params.errorSimulation;
+    this.isValidData = params.isValidData;
   }
 
   async load(): Promise<Result<Versioned<T> | undefined, LoadError>> {

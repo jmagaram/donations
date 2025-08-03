@@ -12,6 +12,7 @@ import Reports from "./Reports";
 import TotalsByYear from "./TotalsByYear";
 import TotalsByCategory from "./TotalsByCategory";
 import StatusBox from "./StatusBox";
+import Admin from "./Admin";
 import "./App.css";
 import { useState, useEffect } from "react";
 import { type DonationsData, DonationsDataSchema } from "./types";
@@ -258,7 +259,11 @@ const AppContent = () => {
         <Route
           path="/admin"
           element={
-            <div>Admin panel temporarily disabled during storage migration</div>
+            <Admin
+              storageProvider={offlineStore}
+              refreshData={refreshData}
+              currentEtag={storageState.etag}
+            />
           }
         />
       </Routes>

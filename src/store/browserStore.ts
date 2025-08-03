@@ -7,25 +7,49 @@ import type {
   DeleteError,
 } from "./remoteStore";
 
+interface ErrorSimulation {
+  networkError?: number;
+  unauthorized?: number;
+  serverError?: number;
+  dataCorruption?: number;
+  etagMismatch?: number;
+}
+
 export class BrowserStore<T> implements RemoteStore<T> {
   private readonly storageKey: string;
   private readonly etagKey: string;
   private readonly timeoutMs: number;
+  private readonly errorSimulation?: ErrorSimulation;
   private isValidData: (data: unknown) => data is T;
 
   constructor(
     storageKey: string,
     isValidData: (data: unknown) => data is T,
-    timeoutMs: number = 500,
+    timeoutMs: number,
+    errorSimulation?: ErrorSimulation,
   ) {
     this.storageKey = storageKey;
     this.etagKey = `${storageKey}_etag`;
     this.timeoutMs = timeoutMs;
+    this.errorSimulation = errorSimulation;
     this.isValidData = isValidData;
   }
 
   async load(): Promise<Result<VersionedData<T> | undefined, LoadError>> {
     await new Promise((resolve) => setTimeout(resolve, this.timeoutMs));
+
+    if (this.shouldSimulateError("networkError")) {
+      return { kind: "error", value: "network-error" };
+    }
+    if (this.shouldSimulateError("unauthorized")) {
+      return { kind: "error", value: "unauthorized" };
+    }
+    if (this.shouldSimulateError("serverError")) {
+      return { kind: "error", value: "server-error" };
+    }
+    if (this.shouldSimulateError("dataCorruption")) {
+      return { kind: "error", value: "data-corruption" };
+    }
 
     try {
       const dataStr = sessionStorage.getItem(this.storageKey);
@@ -52,6 +76,19 @@ export class BrowserStore<T> implements RemoteStore<T> {
   ): Promise<Result<VersionedData<T>, SaveError>> {
     await new Promise((resolve) => setTimeout(resolve, this.timeoutMs));
 
+    if (this.shouldSimulateError("networkError")) {
+      return { kind: "error", value: "network-error" };
+    }
+    if (this.shouldSimulateError("unauthorized")) {
+      return { kind: "error", value: "unauthorized" };
+    }
+    if (this.shouldSimulateError("serverError")) {
+      return { kind: "error", value: "server-error" };
+    }
+    if (this.shouldSimulateError("etagMismatch")) {
+      return { kind: "error", value: "etag-mismatch" };
+    }
+
     try {
       if (etag) {
         const currentEtag = sessionStorage.getItem(this.etagKey);
@@ -72,6 +109,16 @@ export class BrowserStore<T> implements RemoteStore<T> {
 
   async delete(): Promise<Result<void, DeleteError>> {
     await new Promise((resolve) => setTimeout(resolve, this.timeoutMs));
+
+    if (this.shouldSimulateError("networkError")) {
+      return { kind: "error", value: "network-error" };
+    }
+    if (this.shouldSimulateError("unauthorized")) {
+      return { kind: "error", value: "unauthorized" };
+    }
+    if (this.shouldSimulateError("serverError")) {
+      return { kind: "error", value: "server-error" };
+    }
 
     try {
       sessionStorage.removeItem(this.storageKey);
@@ -95,5 +142,11 @@ export class BrowserStore<T> implements RemoteStore<T> {
       hash = hash & hash;
     }
     return Math.abs(hash).toString(16);
+  }
+
+  private shouldSimulateError(errorType: keyof ErrorSimulation): boolean {
+    if (!this.errorSimulation) return false;
+    const rate = this.errorSimulation[errorType] || 0;
+    return Math.random() < rate;
   }
 }

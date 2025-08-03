@@ -95,6 +95,10 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
     if (pushResult.kind === "error" && pushResult.value === "etag-mismatch") {
       if (this.isEmpty(this.cachedData.data)) {
         await this.sync("pull");
+      } else {
+        // Report the error to the UI when data is not empty
+        this.syncStatus = { kind: "error", error: "etag-mismatch" };
+        this.notifyCallbacks();
       }
     }
   }

@@ -27,13 +27,13 @@ const AppContent = () => {
       storageKey: "donations-data",
       isValidData: (data): data is DonationsData =>
         DonationsDataSchema.safeParse(data).success,
-      timeoutMs: 3000,
+      timeoutMs: 2000,
       errorSimulation: {
-        networkError: 0.3,
+        networkError: 0.1,
         unauthorized: 0.1,
         serverError: 0.1,
         dataCorruption: 0.1,
-        etagMismatch: 0.2,
+        etagMismatch: 0.1,
       },
     });
     return new OfflineStoreImpl({

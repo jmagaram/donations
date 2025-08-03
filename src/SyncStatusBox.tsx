@@ -17,70 +17,89 @@ const convertSyncErrorToStatusBoxProps = (
   pushForce: () => void,
   dismissError: () => void,
 ): StatusBoxProps => {
+  const confirmPushForce = () => {
+    if (
+      confirm(
+        "This will delete all data on the server and replace it with the data you see now in your web browser. Are you sure?",
+      )
+    ) {
+      pushForce();
+    }
+  };
+
+  const confirmPull = () => {
+    if (
+      confirm(
+        "All data you see here in the web browser will be deleted and replaced with the data on the server. Are you sure?",
+      )
+    ) {
+      pull();
+    }
+  };
   switch (syncError) {
     case "etag-mismatch":
       return {
         kind: "error",
-        header: "Data sync conflict",
+        header: "Sync conflict detected",
         content:
           "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data can not be merged and you need to choose which version to keep.",
         buttons: [
-          { caption: "Dismiss", onClick: dismissError },
-          { caption: "Keep server", onClick: pull },
-          { caption: "Keep local", onClick: pushForce },
+          { caption: "Keep server data only", onClick: confirmPull },
+          { caption: "Keep my local only", onClick: confirmPushForce },
+          { caption: "Close", onClick: dismissError },
         ],
       };
     case "network-error":
       return {
         kind: "error",
-        header: "Network error",
+        header: "Connection failed",
         content:
           "Unable to connect to internet storage to save and load your data.",
         buttons: [
-          { caption: "Dismiss", onClick: dismissError },
-          { caption: "Retry", onClick: push },
+          { caption: "Try again", onClick: push },
+          { caption: "Close", onClick: dismissError },
         ],
       };
     case "data-corruption":
       return {
         kind: "error",
-        header: "Data corruption",
+        header: "Data corruption detected",
         content:
           "The data on the server seems to be corrupt. Consider importing a backup, or try saving your data again.",
         buttons: [
-          { caption: "Dismiss", onClick: dismissError },
-          { caption: "Save local data", onClick: pushForce },
+          { caption: "Keep my local data only", onClick: push },
+          { caption: "Close", onClick: dismissError },
         ],
       };
     case "unauthorized":
       return {
         kind: "error",
-        header: "Unauthorized",
+        header: "Access denied",
         content:
-          "Some kind of security issue prevents you from accessing data on the server.",
+          "A security issue prevents you from accessing data on the server.",
         buttons: [
-          { caption: "Dismiss", onClick: dismissError },
-          { caption: "Retry", onClick: push },
+          { caption: "Try again", onClick: push },
+          { caption: "Close", onClick: dismissError },
         ],
       };
     case "server-error":
       return {
         kind: "error",
-        header: "Server error",
+        header: "Server unavailable",
         content: "Server encountered an error",
         buttons: [
-          { caption: "Dismiss", onClick: dismissError },
-          { caption: "Retry", onClick: push },
+          { caption: "Try again", onClick: push },
+          { caption: "Close", onClick: dismissError },
         ],
       };
     case "other":
       return {
         kind: "error",
-        header: "Unknown error",
+        header: "Unexpected error",
         content: "An unexpected error occurred",
         buttons: [
-          { caption: "Dismiss", onClick: dismissError },
-          { caption: "Retry", onClick: push },
+          { caption: "Try again", onClick: push },
+          { caption: "Close", onClick: dismissError },
         ],
       };
   }

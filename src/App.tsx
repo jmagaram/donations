@@ -29,11 +29,11 @@ const AppContent = () => {
         DonationsDataSchema.safeParse(data).success,
       timeoutMs: 2000,
       errorSimulation: {
-        networkError: 0.1,
-        unauthorized: 0.1,
-        serverError: 0.1,
-        dataCorruption: 0.1,
-        etagMismatch: 0.1,
+        networkError: 0.3,
+        unauthorized: 0.0,
+        serverError: 0.0,
+        dataCorruption: 0.0,
+        etagMismatch: 0.0,
       },
     });
     return new OfflineStoreImpl({

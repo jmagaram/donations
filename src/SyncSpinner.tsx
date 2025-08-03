@@ -41,8 +41,6 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
     }
   };
 
-  const partialCirclePath =
-    "M 12 2 A 10 10 0 0 1 20.66 7 A 10 10 0 0 1 20.66 17 A 10 10 0 0 1 12 22";
   const fullCirclePath = "M 12 2 A 10 10 0 1 1 12 22 A 10 10 0 1 1 12 2";
 
   return (
@@ -58,15 +56,24 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
         viewBox="0 0 24 24"
         fill="none"
       >
-        <path
-          d={
-            statusInfo.iconClass.includes("sync-complete")
-              ? fullCirclePath
-              : partialCirclePath
-          }
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
+        {statusInfo.iconClass.includes("sync-complete") ? (
+          <path
+            d={fullCirclePath}
+            strokeWidth="2"
+            strokeLinecap="round"
+          />
+        ) : (
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeDasharray="14 14"
+            strokeLinecap="round"
+            fill="none"
+          />
+        )}
       </svg>
       <span className="sync-status-text">{statusInfo.text}</span>
     </button>

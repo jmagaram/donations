@@ -366,14 +366,17 @@ nav a {
     }
 }
 
-.sync-black path {
+.sync-black path,
+.sync-black circle {
     stroke: #000;
 }
 
-.sync-red path {
+.sync-red path,
+.sync-red circle {
     stroke: #dc3545;
 }
 
-.sync-green path {
+.sync-green path,
+.sync-green circle {
     stroke: green;
 }

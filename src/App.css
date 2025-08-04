@@ -190,7 +190,7 @@ nav a {
 @media (max-width: 480px) {
     .donations-grid {
         display: grid;
-        grid-template-columns: auto auto auto;
+        grid-template-columns: max-content max-content auto;
         gap: 0.25rem 0.25rem;
     }
 }
@@ -205,13 +205,19 @@ nav a {
         display: block;
     }
 
+    .toolbar-item.medium-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .large-screen {
         display: none;
     }
 
     .donations-grid {
         display: grid;
-        grid-template-columns: auto auto auto auto;
+        grid-template-columns: max-content max-content max-content max-content;
         gap: 0.25rem 0.25rem;
     }
 }
@@ -224,9 +230,15 @@ nav a {
         display: block;
     }
 
+    .toolbar-item.large-screen {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
     .donations-grid {
         display: grid;
-        grid-template-columns: auto auto auto auto 1fr;
+        grid-template-columns: max-content max-content max-content max-content 1fr;
         gap: 0.25rem 0.25rem;
     }
 }

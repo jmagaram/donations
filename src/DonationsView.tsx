@@ -108,7 +108,7 @@ const DonationsView = ({
         <Link to="/donations/add">New donation</Link>
       </div>
       <div className="toolbar">
-        <div className="toolbar-item">
+        <div className="toolbar-item large-screen">
           <label htmlFor="year-filter">Year</label>
           <select
             id="year-filter"
@@ -122,7 +122,7 @@ const DonationsView = ({
             ))}
           </select>
         </div>
-        <div className="toolbar-item">
+        <div className="toolbar-item large-screen">
           <label htmlFor="category-filter">Category</label>
           <select
             id="category-filter"
@@ -136,7 +136,7 @@ const DonationsView = ({
             ))}
           </select>
         </div>
-        <div className="toolbar-item">
+        <div className="toolbar-item large-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select
             id="amount-filter"
@@ -269,9 +269,7 @@ const DonationsView = ({
               <div>
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
               </div>
-              <div className="kind medium-screen">
-                {donation.kind}
-              </div>
+              <div className="kind medium-screen">{donation.kind}</div>
               <div className="notes large-screen">{donation.notes}</div>
             </div>
           ))}

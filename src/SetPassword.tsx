@@ -5,6 +5,7 @@ const SetPassword = () => {
   const [password, setPassword] = useState("");
   const [hasPassword, setHasPassword] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [passwordChanged, setPasswordChanged] = useState(false);
 
   useEffect(() => {
     // Check if password is already set
@@ -20,7 +21,7 @@ const SetPassword = () => {
     if (password.trim()) {
       localStorage.setItem("donations-api-key", password.trim());
       setHasPassword(true);
-      setPassword("");
+      setPasswordChanged(true);
     }
   };
 
@@ -29,6 +30,7 @@ const SetPassword = () => {
     localStorage.removeItem("donations-api-key");
     setHasPassword(false);
     setPassword("");
+    setPasswordChanged(false);
   };
 
   return (
@@ -44,9 +46,9 @@ const SetPassword = () => {
       )}
       {!hasPassword && (
         <p className="instructions">
-          A password is required to use this web site; please type it below. You
-          will know if it is set correctly when you try to sync or change some
-          data. If the password is incorrect, a security error message will be
+          A password is required to use this web site; type it below. You will
+          know if it is set correctly when you try to sync or change some data.
+          If the password is incorrect, a security error message will be
           displayed and you will then have an opportunity to try again.
         </p>
       )}
@@ -58,7 +60,10 @@ const SetPassword = () => {
               type={showPassword ? "text" : "password"}
               id="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setPasswordChanged(false);
+              }}
             />
             <label
               style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}
@@ -66,7 +71,10 @@ const SetPassword = () => {
               <input
                 type="checkbox"
                 checked={showPassword}
-                onChange={(e) => setShowPassword(e.target.checked)}
+                onChange={(e) => {
+                  setShowPassword(e.target.checked);
+                  setPasswordChanged(false);
+                }}
               />
               Show
             </label>
@@ -82,6 +90,9 @@ const SetPassword = () => {
             </button>
           )}
         </div>
+        {passwordChanged && (
+          <p style={{ color: "green", fontWeight: "bold" }}>Password changed</p>
+        )}
       </form>
     </div>
   );

@@ -25,5 +25,6 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 - Make sure CDK works for "production" (that delete stuff)
 - Upload correct data for our donations
-- Styling of CSS
-- Verify works well on ios
+- Can't update with sample data
+- Verify versions are saved
+- Send Amy the information

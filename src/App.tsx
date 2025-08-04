@@ -22,6 +22,7 @@ import { BrowserStore } from "./store/browserStore";
 import { WebApiStore } from "./store/webApi";
 import { empty, isEmpty } from "./donationsData";
 import type { RemoteStore } from "./store";
+import StatusBox from "./StatusBox";
 
 const createStore = (
   kind: "browser" | "webApi",
@@ -98,7 +99,7 @@ const AppContent = () => {
     return (
       <>
         <Header syncStatus={storageState.status} onSync={handleSync} />
-        <div>Loading donation data...</div>
+        <StatusBox content="Loading donation data..." kind="info" />
       </>
     );
   }

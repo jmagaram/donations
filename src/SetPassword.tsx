@@ -22,6 +22,7 @@ const SetPassword = () => {
       localStorage.setItem("donations-api-key", password.trim());
       setHasPassword(true);
       setPasswordChanged(true);
+      setTimeout(() => setPasswordChanged(false), 3000);
     }
   };
 
@@ -53,32 +54,30 @@ const SetPassword = () => {
         </p>
       )}
       <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>
-        <div className="form-field">
-          <label htmlFor="password">Password</label>
-          <div className="form-row">
+        <label htmlFor="password">Password</label>
+        <div className="form-row">
+          <input
+            type={showPassword ? "text" : "password"}
+            id="password"
+            value={password}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordChanged(false);
+            }}
+          />
+          <label
+            style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}
+          >
             <input
-              type={showPassword ? "text" : "password"}
-              id="password"
-              value={password}
+              type="checkbox"
+              checked={showPassword}
               onChange={(e) => {
-                setPassword(e.target.value);
+                setShowPassword(e.target.checked);
                 setPasswordChanged(false);
               }}
             />
-            <label
-              style={{ display: "flex", alignItems: "center", gap: "0.25rem" }}
-            >
-              <input
-                type="checkbox"
-                checked={showPassword}
-                onChange={(e) => {
-                  setShowPassword(e.target.checked);
-                  setPasswordChanged(false);
-                }}
-              />
-              Show
-            </label>
-          </div>
+            Show
+          </label>
         </div>
         <div className="toolbar">
           <button type="submit" disabled={!password.trim()}>
@@ -91,7 +90,12 @@ const SetPassword = () => {
           )}
         </div>
         {passwordChanged && (
-          <p style={{ color: "green", fontWeight: "bold" }}>Password changed</p>
+          <p
+            className="password-changed"
+            style={{ color: "green", fontWeight: "bold" }}
+          >
+            Password changed
+          </p>
         )}
       </form>
     </div>

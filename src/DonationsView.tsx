@@ -33,7 +33,7 @@ interface DonationsViewProps {
   amountFilterChanged: (
     filterType: AmountFilterType,
     minValue?: number,
-    maxValue?: number,
+    maxValue?: number
   ) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
@@ -74,7 +74,7 @@ const DonationsView = ({
         amountFilterChanged(
           "between",
           minAmountOptions[0],
-          maxAmountOptions[0],
+          maxAmountOptions[0]
         );
         break;
     }
@@ -105,9 +105,7 @@ const DonationsView = ({
     <div>
       <div className="page-header">
         <h1>Donations</h1>
-        <Link to="/donations/add">
-          <button type="button">New donation</button>
-        </Link>
+        <Link to="/donations/add">New donation</Link>
       </div>
       <div className="toolbar">
         <div className="toolbar-item">

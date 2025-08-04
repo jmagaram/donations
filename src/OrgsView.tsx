@@ -23,14 +23,11 @@ const OrgsView = ({
   onClearFilters,
   hasActiveFilters,
 }: OrgsViewProps) => {
-  const navigate = useNavigate();
   return (
     <div>
       <div className="page-header">
         <h1>Orgs</h1>
-        <button type="button" onClick={() => navigate("/orgs/add")}>
-          New org
-        </button>
+        <Link to="/orgs/add">New org</Link>
       </div>
       <div className="toolbar">
         <input

@@ -18,15 +18,26 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## Technology
 
+### Client
+
 - React
 - TypeScript
 
+### Server
+
+AWS, using the CDK to manage infrastructure and deployment.
+
+- S3 for static website hosting
+- S3 for storing application data (donations data, not public).
+- CloudFront Distribution: For serving the static website securely and efficiently via CDN.
+- Lambda Function for handling API requests related to donations.
+- API Gateway (REST API): For exposing the Lambda function as a RESTful API endpoint.
+- SSM Parameter Store: For securely storing and retrieving the API shared secret.
+- IAM Policies: For granting Lambda permissions to access S3 and SSM resources.
+
 ## To do
 
-- Make sure CDK works for "production" (that delete stuff)
 - Upload correct data for our donations
 - Verify versions are saved
 - Send Amy the information
 - Security error on sub-route navigation if no key
-- Import all
-- Newer Node runtime for AWS lambda

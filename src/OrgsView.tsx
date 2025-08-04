@@ -37,20 +37,22 @@ const OrgsView = ({
           onChange={(e) => textFilterChanged(e.target.value)}
           placeholder="Search"
         />
-        {availableCategories.length > 0 && (
-          <select
-            id="categoryFilter"
-            value={currentCategoryFilter}
-            onChange={(e) => categoryFilterChanged(e.target.value)}
-          >
-            <option value="all">All categories</option>
-            {availableCategories.map((category) => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        )}
+        <div className="toolbar-item large-screen">
+          {availableCategories.length > 0 && (
+            <select
+              id="categoryFilter"
+              value={currentCategoryFilter}
+              onChange={(e) => categoryFilterChanged(e.target.value)}
+            >
+              <option value="all">All categories</option>
+              {availableCategories.map((category) => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
         {hasActiveFilters && (
           <button type="button" onClick={onClearFilters}>
             Remove filters
@@ -66,8 +68,8 @@ const OrgsView = ({
         <div className="orgs-grid">
           <div className="header">
             <div className="name">Name</div>
-            <div className="category">Category</div>
-            <div className="notes hide-on-mobile">Notes</div>
+            <div className="category medium-screen">Category</div>
+            <div className="notes large-screen">Notes</div>
           </div>
           {orgs
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -79,8 +81,10 @@ const OrgsView = ({
                     <span title="Not tax-deductible"> *</span>
                   )}
                 </div>
-                <div className="category">{org.category || ""}</div>
-                <div className="notes hide-on-mobile">{org.notes}</div>
+                <div className="category medium-screen">
+                  {org.category || ""}
+                </div>
+                <div className="notes large-screen">{org.notes}</div>
               </div>
             ))}
         </div>

@@ -43,8 +43,8 @@ button {
     width: fit-content;
 }
 
-.form-field #password {
-    min-width: 23ch;
+.form-row #password {
+    min-width: 27ch;
 }
 
 .form-row # .form-field #amount {

@@ -1,6 +1,7 @@
 import StatusBox from "./StatusBox";
 import { type SyncError } from "./store/offlineStore";
 import type { StatusBoxProps } from "./StatusBox";
+import { useNavigate } from "react-router-dom";
 
 interface SyncStatusBoxProps {
   syncError: SyncError | undefined;
@@ -16,6 +17,7 @@ const convertSyncErrorToStatusBoxProps = (
   push: () => void,
   pushForce: () => void,
   dismissError: () => void,
+  navigate: (path: string) => void,
 ): StatusBoxProps => {
   const confirmPushForce = () => {
     if (
@@ -75,9 +77,15 @@ const convertSyncErrorToStatusBoxProps = (
       return {
         kind: "error",
         header: "Access denied",
-        content:
-          "A security issue prevents you from accessing data on the server.",
+        content: "Wrong password? You can change the password to fix this.",
         buttons: [
+          {
+            caption: "Set password",
+            onClick: () => {
+              dismissError();
+              navigate("/set-password");
+            },
+          },
           { caption: "Try again", onClick: push },
           { caption: "Close", onClick: dismissError },
         ],
@@ -112,6 +120,8 @@ const SyncStatusBox = ({
   onPushForce,
   onDismissError,
 }: SyncStatusBoxProps) => {
+  const navigate = useNavigate();
+
   if (!syncError) {
     return null;
   }
@@ -124,6 +134,7 @@ const SyncStatusBox = ({
         onPush,
         onPushForce,
         onDismissError,
+        navigate,
       )}
     />
   );

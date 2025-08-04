@@ -1,6 +1,6 @@
 export interface StatusBoxProps {
   header?: string;
-  content: string;
+  content: string | React.ReactNode;
   kind: "error" | "info" | "success";
   buttons?: Array<{
     caption: string;

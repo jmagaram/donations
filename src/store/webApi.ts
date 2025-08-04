@@ -13,8 +13,12 @@ const API_URL =
 
 const API_KEY_STORAGE_KEY = "donations-api-key";
 
-export const getApiKey = (): string | null => {
-  return localStorage.getItem(API_KEY_STORAGE_KEY);
+export const getApiKey = (): string | undefined => {
+  const value = localStorage.getItem(API_KEY_STORAGE_KEY);
+  if (!value || value.trim() === "") {
+    return undefined;
+  }
+  return value.trim();
 };
 
 export const setApiKey = (key: string): void => {
@@ -26,12 +30,8 @@ export const clearApiKey = (): void => {
 };
 
 export class WebApiStore implements RemoteStore<DonationsData> {
-  private getApiKey(): string | null {
-    return localStorage.getItem(API_KEY_STORAGE_KEY);
-  }
-
   private getHeaders(): Record<string, string> {
-    const apiKey = this.getApiKey();
+    const apiKey = getApiKey();
     return apiKey ? { "x-api-key": apiKey } : {};
   }
 

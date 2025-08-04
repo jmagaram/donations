@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SyncSpinner from "./SyncSpinner";
+import SignOut from "./SignOut";
 import {
   type SyncStatus as SyncStatusType,
   type SyncError,
@@ -22,6 +23,7 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
         <Link to="/orgs">Organizations</Link>
         <Link to="/reports">Reports</Link>
         <SyncSpinner status={syncStatus} sync={onSync} />
+        <SignOut />
       </nav>
     </header>
   );

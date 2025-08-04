@@ -152,6 +152,11 @@ nav a {
     font-size: 0.9em;
 }
 
+.sign-out-link {
+    margin-left: auto;
+    text-decoration: none;
+}
+
 .donations-grid {
     display: grid;
     grid-template-columns: auto auto auto auto 1fr;

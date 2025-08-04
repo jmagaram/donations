@@ -23,9 +23,6 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## To do
 
-- Styling of header got messed up somehow
-- Security
-- Persist security key to session or local storage
 - Make sure CDK works for "production" (that delete stuff)
 - Upload correct data for our donations
 - Styling of CSS

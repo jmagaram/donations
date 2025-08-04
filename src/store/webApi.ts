@@ -11,15 +11,30 @@ import { DonationsDataSchema } from "../types";
 const API_URL =
   "https://kpukc066rd.execute-api.us-west-2.amazonaws.com/prod/donations";
 
+const API_KEY_STORAGE_KEY = "donations-api-key";
+
+export const getApiKey = (): string | null => {
+  return localStorage.getItem(API_KEY_STORAGE_KEY);
+};
+
+export const setApiKey = (key: string): void => {
+  localStorage.setItem(API_KEY_STORAGE_KEY, key);
+};
+
+export const clearApiKey = (): void => {
+  localStorage.removeItem(API_KEY_STORAGE_KEY);
+};
+
 export class WebApiStore implements RemoteStore<DonationsData> {
   private getApiKey(): string | null {
-    return localStorage.getItem("donations-api-key");
+    return localStorage.getItem(API_KEY_STORAGE_KEY);
   }
 
   private getHeaders(): Record<string, string> {
     const apiKey = this.getApiKey();
     return apiKey ? { "x-api-key": apiKey } : {};
   }
+
   async load(): Promise<
     Result<Versioned<DonationsData> | undefined, LoadError>
   > {

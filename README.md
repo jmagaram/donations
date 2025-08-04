@@ -23,6 +23,7 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## To do
 
+- Styling of header got messed up somehow
 - Security
 - Persist security key to session or local storage
 - Make sure CDK works for "production" (that delete stuff)
@@ -30,3 +31,4 @@ A web app for tracking a family's personal donations to various tax-deductible a
 - Styling of CSS
 - Verify works well on ios
 - favicon
+- "Sign out" link in Header (or some kind of expiration)

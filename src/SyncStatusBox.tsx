@@ -46,8 +46,8 @@ const convertSyncErrorToStatusBoxProps = (
         content:
           "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data can not be merged and you need to choose which version to keep.",
         buttons: [
-          { caption: "Keep server data only", onClick: confirmPull },
-          { caption: "Keep my local only", onClick: confirmPushForce },
+          { caption: "Keep server data", onClick: confirmPull },
+          { caption: "Keep only my local data", onClick: confirmPushForce },
           { caption: "Close", onClick: dismissError },
         ],
       };

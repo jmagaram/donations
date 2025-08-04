@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
+import SetPassword from "./SetPassword";
 import OrgsContainer from "./OrgsContainer";
 import DonationsContainer from "./DonationsContainer";
 import OrgDetailsContainer from "./OrgDetailsContainer";
@@ -46,8 +47,6 @@ const createStore = (
 };
 
 const AppContent = () => {
-  const [hasApiKey, setHasApiKey] = useState(false);
-  
   const [offlineStore] = useState(() => {
     const emptyData: DonationsData = empty();
     const remote = createStore("webApi");
@@ -61,33 +60,6 @@ const AppContent = () => {
   const [storageState, setStorageState] = useState(() => offlineStore.get());
   const [syncError, setSyncError] = useState<SyncError | undefined>(undefined);
 
-  // Check for API key on mount and set up listener for changes
-  useEffect(() => {
-    const checkApiKey = () => {
-      const apiKey = localStorage.getItem("donations-api-key");
-      setHasApiKey(!!apiKey);
-    };
-
-    checkApiKey();
-
-    // Listen for storage changes to update API key status
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "donations-api-key") {
-        checkApiKey();
-      }
-    };
-
-    window.addEventListener("storage", handleStorageChange);
-    
-    // Also check periodically in case of same-tab changes
-    const interval = setInterval(checkApiKey, 1000);
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange);
-      clearInterval(interval);
-    };
-  }, []);
-
   useEffect(() => {
     const unsubscribe = offlineStore.onChange((newState) => {
       setStorageState(newState);
@@ -98,13 +70,11 @@ const AppContent = () => {
       }
     });
 
-    // Initial sync to load data only if API key is set
-    if (hasApiKey) {
-      offlineStore.sync("pull");
-    }
+    // Initial sync to load data
+    offlineStore.sync("pull");
 
     return unsubscribe;
-  }, [offlineStore, hasApiKey]);
+  }, [offlineStore]);
 
   const setDonationsData = (data: DonationsData) => {
     offlineStore.save(data);
@@ -124,21 +94,6 @@ const AppContent = () => {
   const donationsData = storageState.data.data;
   const isLoading = storageState.status.kind === "syncing";
 
-  if (!hasApiKey) {
-    return (
-      <>
-        <Header syncStatus={storageState.status} onSync={handleSync} />
-        <div style={{ textAlign: "center", padding: "2rem" }}>
-          <h2>API Key Required</h2>
-          <p>Please set your API key using the "Set API Key" button above to access the donations tracker.</p>
-          <p style={{ fontSize: "0.9rem", color: "#666" }}>
-            You'll need the shared secret that was configured when the application was deployed.
-          </p>
-        </div>
-      </>
-    );
-  }
-
   if (isLoading && storageState.data.kind === "new") {
     return (
       <>
@@ -151,17 +106,16 @@ const AppContent = () => {
   return (
     <>
       <Header syncStatus={storageState.status} onSync={handleSync} />
-      {hasApiKey && (
-        <SyncStatusBox
-          syncError={syncError}
-          onPull={() => offlineStore.sync("pull")}
-          onPush={() => offlineStore.sync("push")}
-          onPushForce={() => offlineStore.sync("pushForce")}
-          onDismissError={() => setSyncError(undefined)}
-        />
-      )}
+      <SyncStatusBox
+        syncError={syncError}
+        onPull={() => offlineStore.sync("pull")}
+        onPush={() => offlineStore.sync("push")}
+        onPushForce={() => offlineStore.sync("pushForce")}
+        onDismissError={() => setSyncError(undefined)}
+      />
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/set-password" element={<SetPassword />} />
         <Route
           path="/donations"
           element={

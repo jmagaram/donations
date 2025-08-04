@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import StatusBox from "./StatusBox";
+import { getApiKey, setApiKey, clearApiKey } from "./store/webApi";
 
 const SetPassword = () => {
   const [password, setPassword] = useState("");
@@ -8,8 +8,7 @@ const SetPassword = () => {
   const [passwordChanged, setPasswordChanged] = useState(false);
 
   useEffect(() => {
-    // Check if password is already set
-    const storedPassword = localStorage.getItem("donations-api-key");
+    const storedPassword = getApiKey();
     setHasPassword(!!storedPassword);
     if (storedPassword) {
       setPassword(storedPassword);
@@ -19,16 +18,15 @@ const SetPassword = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password.trim()) {
-      localStorage.setItem("donations-api-key", password.trim());
+      setApiKey(password.trim());
       setHasPassword(true);
       setPasswordChanged(true);
       setTimeout(() => setPasswordChanged(false), 3000);
     }
   };
 
-  // centralize the code for managing this key?
   const handleClear = () => {
-    localStorage.removeItem("donations-api-key");
+    clearApiKey();
     setHasPassword(false);
     setPassword("");
     setPasswordChanged(false);

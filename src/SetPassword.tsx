@@ -39,18 +39,14 @@ const SetPassword = () => {
       <h1>Set password</h1>
       {hasPassword && (
         <p className="instructions">
-          A password is required to use this web site. You will know if it is
-          set correctly when you try to sync or change some data. If the
-          password is incorrect, a security error message will be displayed and
-          you will then have an opportunity to try again.
+          Password is configured. If incorrect, you'll see a security warning
+          when using the site.
         </p>
       )}
       {!hasPassword && (
         <p className="instructions">
-          A password is required to use this web site; type it below. You will
-          know if it is set correctly when you try to sync or change some data.
-          If the password is incorrect, a security error message will be
-          displayed and you will then have an opportunity to try again.
+          Enter your password to access the donation tracker. If incorrect,
+          you'll see a security warning when using the site.
         </p>
       )}
       <form onSubmit={handleSubmit} style={{ marginBottom: "1rem" }}>

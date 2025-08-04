@@ -134,7 +134,11 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         <a href="#" onClick={handleExportJson}>
           Everything
         </a>
-        <p>Exports all organizations and donations in a single JSON file.</p>
+        <p>
+          Saves all organizations and donations in a single JSON file. This is a{" "}
+          <strong>comprehensive backup</strong> that can be restored later if
+          needed.
+        </p>
       </div>
     </div>
   );

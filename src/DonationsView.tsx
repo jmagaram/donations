@@ -33,7 +33,7 @@ interface DonationsViewProps {
   amountFilterChanged: (
     filterType: AmountFilterType,
     minValue?: number,
-    maxValue?: number
+    maxValue?: number,
   ) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
@@ -74,7 +74,7 @@ const DonationsView = ({
         amountFilterChanged(
           "between",
           minAmountOptions[0],
-          maxAmountOptions[0]
+          maxAmountOptions[0],
         );
         break;
     }
@@ -255,8 +255,8 @@ const DonationsView = ({
             <div>Date</div>
             <div>Amount</div>
             <div>Organization</div>
-            <div className="hide-on-mobile">Kind</div>
-            <div className="hide-on-mobile">Notes</div>
+            <div className="medium-screen">Kind</div>
+            <div className="large-screen">Notes</div>
           </div>
           {donations.map((donation) => (
             <div key={donation.id} className="row">
@@ -269,8 +269,10 @@ const DonationsView = ({
               <div>
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
               </div>
-              <div className="kind hide-on-mobile">{donation.kind}</div>
-              <div className="notes hide-on-mobile">{donation.notes}</div>
+              <div className="kind medium-screen">
+                {donation.kind}
+              </div>
+              <div className="notes large-screen">{donation.notes}</div>
             </div>
           ))}
         </div>

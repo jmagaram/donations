@@ -9,6 +9,10 @@ button {
     min-width: 8ch;
 }
 
+h1 {
+    margin-top: 0.5rem;
+}
+
 .form {
     display: flex;
     flex-direction: column;
@@ -148,7 +152,6 @@ nav {
 
 .nav-right {
     display: flex;
-    gap: 0.5rem;
 }
 
 nav a {

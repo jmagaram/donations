@@ -91,49 +91,54 @@ const DonationUpsertForm = ({
           </select>
           {errors.orgId && <span>{errors.orgId.message}</span>}
         </div>
-        <div className="form-field">
-          <label htmlFor="amount">Amount</label>
-          <input
-            id="amount"
-            type="number"
-            step="0.01"
-            {...register("amount", { valueAsNumber: true })}
-          />
-          {errors.amount && <span>{errors.amount.message}</span>}
-        </div>
-        <div className="form-field">
-          <label htmlFor="kind">Type</label>
-          <select id="kind" {...register("kind")}>
-            <option value="idea">Idea</option>
-            <option value="pledge">Pledge</option>
-            <option value="paid">Paid</option>
-            <option value="unknown">Unknown</option>
-          </select>
-          {errors.kind && <span>{errors.kind.message}</span>}
-        </div>
-        <div className="form-field">
-          <label htmlFor="date">Date</label>
-          <input id="date" type="date" {...register("date")} />
-          {errors.date && <span>{errors.date.message}</span>}
-        </div>
-        <div className="form-field">
-          <label htmlFor="paymentMethod">Payment method</label>
-          <input
-            id="paymentMethod"
-            list="paymentMethods"
-            {...register("paymentMethod")}
-          />
+        <div className="form-row">
           <div className="form-field">
-            <label htmlFor="notes">Notes</label>
-            <textarea id="notes" rows={5} {...register("notes")} />
+            <label htmlFor="date">Date</label>
+            <input id="date" type="date" {...register("date")} />
+            {errors.date && <span>{errors.date.message}</span>}
           </div>
-          <datalist id="paymentMethods">
-            <option value="Stock" />
-            <option value="Amex" />
-            <option value="Wells Fargo Credit" />
-            <option value="Wells Fargo Check" />
-          </datalist>
+          <div className="form-field">
+            <label htmlFor="amount">Amount</label>
+            <input
+              id="amount"
+              type="number"
+              step="0.01"
+              {...register("amount", { valueAsNumber: true })}
+            />
+            {errors.amount && <span>{errors.amount.message}</span>}
+          </div>
         </div>
+        <div className="form-row">
+          <div className="form-field">
+            <label htmlFor="kind">Type</label>
+            <select id="kind" {...register("kind")}>
+              <option value="idea">Idea</option>
+              <option value="pledge">Pledge</option>
+              <option value="paid">Paid</option>
+              <option value="unknown">Unknown</option>
+            </select>
+            {errors.kind && <span>{errors.kind.message}</span>}
+          </div>
+          <div className="form-field">
+            <label htmlFor="paymentMethod">Payment method</label>
+            <input
+              id="paymentMethod"
+              list="paymentMethods"
+              {...register("paymentMethod")}
+            />
+            {errors.paymentMethod && <span>{errors.paymentMethod.message}</span>}
+          </div>
+        </div>
+        <div className="form-field">
+          <label htmlFor="notes">Notes</label>
+          <textarea id="notes" rows={5} {...register("notes")} />
+        </div>
+        <datalist id="paymentMethods">
+          <option value="Stock" />
+          <option value="Amex" />
+          <option value="Wells Fargo Credit" />
+          <option value="Wells Fargo Check" />
+        </datalist>
         <div className="toolbar">
           <button type="submit">Save changes</button>
           <button type="button" onClick={() => navigate(-1)}>

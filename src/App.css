@@ -22,13 +22,33 @@ button {
     gap: 0.25em;
 }
 
+.form-row {
+    display: flex;
+    gap: 1em;
+    margin-bottom: 1em;
+}
+
+.form-row .form-field {
+    margin-bottom: 0;
+}
+
 .form-field #kind,
 .form-field #date,
 .form-field #amount,
 .form-field #category,
 .form-field #orgId,
+.form-field #paymentMethod,
 .form-field #taxDeductible {
     width: fit-content;
+}
+
+.form-field #amount {
+    min-width: 8ch;
+    max-width: 12ch;
+}
+
+.form-field #paymentMethod {
+    min-width: 34ch;
 }
 
 .toolbar {

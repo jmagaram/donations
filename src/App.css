@@ -268,6 +268,7 @@ nav a {
     padding: 0.5em;
     border-radius: 4px;
     border: 1px solid;
+    max-width: 50ch;
 }
 
 .status-box.error {

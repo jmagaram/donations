@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import OrgDetailsView from "./OrgDetailsView";
 import { orgDelete } from "./donationsData";
 import type { DonationsData, Org } from "./types";
+import StatusBox from "./StatusBox";
 
 interface OrgDetailsContainerProps {
   donationsData: DonationsData;
@@ -34,7 +35,12 @@ const OrgDetailsContainer = ({
   };
 
   if (!organization) {
-    return <div>Organization not found.</div>;
+    return (
+      <StatusBox
+        kind="error"
+        content={`Organization with ID ${id} not found.`}
+      ></StatusBox>
+    );
   }
 
   return (

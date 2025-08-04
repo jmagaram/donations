@@ -32,7 +32,12 @@ const DonationUpsertContainer = ({
     : undefined;
 
   if (isEditMode && !donation) {
-    return <div>Donation with ID {donationId} not found.</div>;
+    return (
+      <StatusBox
+        kind="error"
+        content={`Donation with ID ${donationId} not found.`}
+      />
+    );
   }
 
   const defaultValues = donation ? { ...donation } : undefined;
@@ -52,7 +57,7 @@ const DonationUpsertContainer = ({
       const newData = donationUpdate(donationsData, updatedDonation);
       if (!newData) {
         setError(
-          "Failed to update the donation. Either the donation does not exist, or the organization was not found. Go back to the Home page, reload data, and try again."
+          "Failed to update the donation. Either the donation does not exist, or the organization was not found. Go back to the Home page, reload data, and try again.",
         );
         return;
       }

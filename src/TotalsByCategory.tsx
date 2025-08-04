@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 
@@ -222,7 +222,13 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
             return (
               <>
                 <div key={category} className="totals-by-year-row">
-                  {category}
+                  {category === "(No category)" ? (
+                    <Link to={`/donations?category=`}>{category}</Link>
+                  ) : (
+                    <Link to={`/donations?category=${encodeURIComponent(category)}`}>
+                      {category}
+                    </Link>
+                  )}
                 </div>
                 {processedData.years.map((year) => (
                   <div

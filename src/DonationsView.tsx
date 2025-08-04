@@ -22,6 +22,9 @@ interface DonationsViewProps {
   yearFilter: YearFilter;
   yearFilterOptions: { value: string; label: string }[];
   yearFilterChanged: (yearFilter: YearFilter) => void;
+  categoryFilter: string;
+  categoryFilterOptions: { value: string; label: string }[];
+  categoryFilterChanged: (categoryFilter: string) => void;
   amountFilter: AmountFilterType;
   minAmount: number;
   maxAmount: number;
@@ -43,6 +46,9 @@ const DonationsView = ({
   yearFilter,
   yearFilterOptions,
   yearFilterChanged,
+  categoryFilter,
+  categoryFilterOptions,
+  categoryFilterChanged,
   amountFilter,
   minAmount,
   maxAmount,
@@ -112,6 +118,20 @@ const DonationsView = ({
             onChange={(e) => yearFilterChanged(e.target.value as YearFilter)}
           >
             {yearFilterOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="toolbar-item">
+          <label htmlFor="category-filter">Category</label>
+          <select
+            id="category-filter"
+            value={categoryFilter}
+            onChange={(e) => categoryFilterChanged(e.target.value)}
+          >
+            {categoryFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>

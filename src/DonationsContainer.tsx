@@ -27,6 +27,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const amountFilter = (searchParams.get("amountFilter") as AmountFilterType) || "all";
   const minAmount = parseInt(searchParams.get("min") || "0") || 0;
   const maxAmount = parseInt(searchParams.get("max") || "") || Number.POSITIVE_INFINITY;
+  const categoryFilter = searchParams.get("category") || "";
 
   // URL update functions
   const updateSearchParams = (updates: Record<string, string | undefined>) => {
@@ -47,6 +48,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const updateYearFilter = (newYearFilter: YearFilter) => {
     updateSearchParams({ year: newYearFilter });
+  };
+
+  const updateCategoryFilter = (newCategoryFilter: string) => {
+    updateSearchParams({ category: newCategoryFilter || undefined });
   };
 
   const updateAmountFilter = (
@@ -143,6 +148,31 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const yearFilterOptions = generateYearFilterOptions();
 
+  // Generate dynamic category filter options
+  const generateCategoryFilterOptions = () => {
+    const options = [{ value: "", label: "Any category" }];
+
+    // Extract unique categories from organizations, filtering out empty/undefined
+    const uniqueCategories = [
+      ...new Set(
+        donationsData.orgs
+          .map((org) => org.category)
+          .filter((category): category is string => 
+            category !== undefined && category.trim() !== ""
+          )
+      ),
+    ];
+
+    uniqueCategories.sort(); // Alphabetical order
+    uniqueCategories.forEach((category) => {
+      options.push({ value: category, label: category });
+    });
+
+    return options;
+  };
+
+  const categoryFilterOptions = generateCategoryFilterOptions();
+
   // Generate dynamic amount filter options
   const generateAmountOptions = () => {
     const minAmountPresets = [100, 250, 500, 1000, 2500, 5000];
@@ -204,10 +234,14 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       const org = donationsData.orgs.find((o) => o.id === d.orgId) || {
         name: "",
         notes: "",
+        category: undefined,
       };
+      // Category filtering logic
+      const matchesCategory = categoryFilter === "" || 
+        (org.category && org.category === categoryFilter);
       const matchesText =
         filter.trim() === "" || donationTextMatch(filter, d, org);
-      return matchesYear && matchesAmount && matchesText;
+      return matchesYear && matchesAmount && matchesCategory && matchesText;
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))
     .map((donation) => {
@@ -230,7 +264,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     setSearchParams(new URLSearchParams());
   };
 
-  const hasActiveFilters = filter !== "" || yearFilter !== "all" || amountFilter !== "all";
+  const hasActiveFilters = filter !== "" || yearFilter !== "all" || amountFilter !== "all" || categoryFilter !== "";
 
   return (
     <DonationsView
@@ -240,6 +274,9 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       yearFilter={yearFilter}
       yearFilterOptions={yearFilterOptions}
       yearFilterChanged={updateYearFilter}
+      categoryFilter={categoryFilter}
+      categoryFilterOptions={categoryFilterOptions}
+      categoryFilterChanged={updateCategoryFilter}
       amountFilter={amountFilter}
       minAmount={minAmount}
       maxAmount={maxAmount}

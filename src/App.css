@@ -353,6 +353,12 @@ nav a {
     background-color: #d4edda;
 }
 
+.status-box.warning {
+    color: #856404;
+    border-color: #fdbf47;
+    background-color: #fff3cd;
+}
+
 .status-box .content {
     white-space: pre-line;
 }

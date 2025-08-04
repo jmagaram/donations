@@ -363,7 +363,19 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   const handleJsonFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     setJsonFile(selectedFile || undefined);
-    setStatus(undefined);
+    if (selectedFile) {
+      setStatus({
+        content:
+          "All data (organizations and donations) will be replaced with the contents of the file. Click Restore to start the process.",
+        kind: "warning",
+      });
+    } else {
+      setStatus({
+        kind: "info",
+        content:
+          "Select a backup file you previously created on the Export page of this web site.",
+      });
+    }
     setOrgErrors([]);
     setDonationErrors([]);
   };
@@ -371,7 +383,15 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   const handleModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const mode = event.target.value as ImportMode;
     setImportMode(mode);
-    setStatus(undefined);
+    if (mode === "json") {
+      setStatus({
+        kind: "info",
+        content:
+          "Select a backup file you previously created on the Export page of this web site.",
+      });
+    } else {
+      setStatus(undefined);
+    }
     setOrgErrors([]);
     setDonationErrors([]);
     setOrgFile(undefined);
@@ -401,19 +421,14 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
       setDonationsData(validatedData);
       setStatus({
         header: "Restore successful",
-        content: `Restored ${validatedData.orgs.length} organizations and ${validatedData.donations.length} donations from backup`,
+        content: `${validatedData.orgs.length} organizations and ${validatedData.donations.length} donations were restored.`,
         kind: "success",
       });
-    } catch (error) {
-      let errorMessage = "Failed to restore backup";
-      if (error instanceof SyntaxError) {
-        errorMessage = "Invalid JSON file format";
-      } else if (error instanceof z.ZodError) {
-        errorMessage = "Invalid backup file structure";
-      }
+    } catch {
       setStatus({
         header: "Restore failed",
-        content: errorMessage,
+        content:
+          "There was a problem with the data in the file. It did not have the expected format.",
         kind: "error",
       });
     }
@@ -550,7 +565,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
               onClick={handleJsonRestore}
               disabled={!jsonFile || isWorking}
             >
-              Restore from backup now
+              Restore
             </button>
           </>
         )}

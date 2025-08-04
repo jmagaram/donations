@@ -10,6 +10,7 @@ import {
   DonationKindSchema,
   DonationSchema,
   type DonationsData,
+  DonationsDataSchema,
   type Org,
   OrgNameSchema,
   OrgNotesSchema,
@@ -96,7 +97,10 @@ const convertDonationRowCsvToDonation = (
     amount: row.Amount,
     kind: row.Kind,
     notes: row.Notes,
-    paymentMethod: row.PaymentMethod && row.PaymentMethod.trim().length > 0 ? row.PaymentMethod.trim() : undefined,
+    paymentMethod:
+      row.PaymentMethod && row.PaymentMethod.trim().length > 0
+        ? row.PaymentMethod.trim()
+        : undefined,
   };
   return DonationSchema.parse(donation);
 };
@@ -105,7 +109,10 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
   const org = {
     id: nanoid(),
     name: row.Organization,
-    category: row.Category && row.Category.trim().length > 0 ? row.Category.trim() : undefined,
+    category:
+      row.Category && row.Category.trim().length > 0
+        ? row.Category.trim()
+        : undefined,
     taxDeductible: row.TaxDeductible === "Yes" || row.TaxDeductible === "yes",
     webSite: row.WebSite && row.WebSite.length > 0 ? row.WebSite : undefined,
     notes: row.Notes,
@@ -187,22 +194,24 @@ const processImportData = (
   orgImportErrors: string[],
   donationImportErrors: string[],
 ): ProcessImportResult => {
-  const totalValidationErrors = orgImportErrors.length + donationImportErrors.length;
-  
+  const totalValidationErrors =
+    orgImportErrors.length + donationImportErrors.length;
+
   if (totalValidationErrors > 0) {
     return {
       success: false,
       errorMessage: `${totalValidationErrors} validation errors occurred`,
     };
   }
-  
+
   const result = createFinalData(orgs, donations);
-  
+
   if (result.donationData) {
-    const successMessage = donations.length > 0
-      ? `${orgs.length} organizations and ${donations.length} donations imported`
-      : `${orgs.length} organizations imported`;
-      
+    const successMessage =
+      donations.length > 0
+        ? `${orgs.length} organizations and ${donations.length} donations imported`
+        : `${orgs.length} organizations imported`;
+
     return {
       success: true,
       donationData: result.donationData,
@@ -321,9 +330,13 @@ interface ImportContainerProps {
   setDonationsData: (data: DonationsData) => void;
 }
 
+type ImportMode = "csv" | "json";
+
 const Importer = ({ setDonationsData }: ImportContainerProps) => {
+  const [importMode, setImportMode] = useState<ImportMode>("csv");
   const [orgFile, setOrgFile] = useState<File | undefined>(undefined);
   const [donationFile, setDonationFile] = useState<File | undefined>(undefined);
+  const [jsonFile, setJsonFile] = useState<File | undefined>(undefined);
   const [status, setStatus] = useState<StatusBoxProps | undefined>(undefined);
   const [orgErrors, setOrgErrors] = useState<string[]>([]);
   const [donationErrors, setDonationErrors] = useState<string[]>([]);
@@ -347,6 +360,67 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
     setDonationErrors([]);
   };
 
+  const handleJsonFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = event.target.files?.[0];
+    setJsonFile(selectedFile || undefined);
+    setStatus(undefined);
+    setOrgErrors([]);
+    setDonationErrors([]);
+  };
+
+  const handleModeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const mode = event.target.value as ImportMode;
+    setImportMode(mode);
+    setStatus(undefined);
+    setOrgErrors([]);
+    setDonationErrors([]);
+    setOrgFile(undefined);
+    setDonationFile(undefined);
+    setJsonFile(undefined);
+  };
+
+  const handleJsonRestore = async () => {
+    if (!jsonFile) {
+      setStatus({
+        content: "Please select a JSON backup file",
+        kind: "error",
+      });
+      return;
+    }
+
+    setIsWorking(true);
+    setStatus({ content: "Working...", kind: "info" });
+    setOrgErrors([]);
+    setDonationErrors([]);
+
+    try {
+      const fileContent = await jsonFile.text();
+      const parsedData = JSON.parse(fileContent);
+      const validatedData = DonationsDataSchema.parse(parsedData);
+
+      setDonationsData(validatedData);
+      setStatus({
+        header: "Restore successful",
+        content: `Restored ${validatedData.orgs.length} organizations and ${validatedData.donations.length} donations from backup`,
+        kind: "success",
+      });
+    } catch (error) {
+      let errorMessage = "Failed to restore backup";
+      if (error instanceof SyntaxError) {
+        errorMessage = "Invalid JSON file format";
+      } else if (error instanceof z.ZodError) {
+        errorMessage = "Invalid backup file structure";
+      }
+      setStatus({
+        header: "Restore failed",
+        content: errorMessage,
+        kind: "error",
+      });
+    }
+
+    setIsWorking(false);
+  };
+
   const handleImport = async () => {
     if (!orgFile) {
       setStatus({
@@ -366,13 +440,13 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 
     let donationImportErrors: string[] = [];
     let donations: Donation[] = [];
-    
+
     if (donationFile && orgs.length > 0) {
       const donationResult = await parseDonationFile(donationFile, orgs);
       donationImportErrors = donationResult.errors;
       donations = donationResult.donations;
     }
-    
+
     setDonationErrors(donationImportErrors);
 
     const result = processImportData(
@@ -384,7 +458,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 
     if (result.success && result.donationData) {
       setDonationsData(result.donationData);
-      sessionStorage.setItem("donationsData", JSON.stringify(result.donationData));
       setStatus({
         header: "Import successful",
         content: result.successMessage || "Import completed",
@@ -406,28 +479,82 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
       <h1>Import</h1>
       <div>
         <div className="form-field">
-          <label htmlFor="orgCsvFile">Organizations CSV file</label>
-          <input
-            id="orgCsvFile"
-            type="file"
-            accept=".csv"
-            onChange={handleOrgFileChange}
-            disabled={isWorking}
-          />
+          <label>Import type</label>
+          <div className="import-type-options">
+            <label>
+              <input
+                type="radio"
+                name="importMode"
+                value="csv"
+                checked={importMode === "csv"}
+                onChange={handleModeChange}
+                disabled={isWorking}
+              />
+              CSV (comma separated value) files
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="importMode"
+                value="json"
+                checked={importMode === "json"}
+                onChange={handleModeChange}
+                disabled={isWorking}
+              />
+              JSON single file backup
+            </label>
+          </div>
         </div>
-        <div className="form-field">
-          <label htmlFor="donationCsvFile">Donations CSV file</label>
-          <input
-            id="donationCsvFile"
-            type="file"
-            accept=".csv"
-            onChange={handleDonationFileChange}
-            disabled={isWorking}
-          />
-        </div>
-        <button onClick={handleImport} disabled={!orgFile || isWorking}>
-          Start import
-        </button>
+
+        {importMode === "csv" && (
+          <>
+            <div className="form-field">
+              <label htmlFor="orgCsvFile">Organizations CSV file</label>
+              <input
+                id="orgCsvFile"
+                type="file"
+                accept=".csv"
+                onChange={handleOrgFileChange}
+                disabled={isWorking}
+              />
+            </div>
+            <div className="form-field">
+              <label htmlFor="donationCsvFile">Donations CSV file</label>
+              <input
+                id="donationCsvFile"
+                type="file"
+                accept=".csv"
+                onChange={handleDonationFileChange}
+                disabled={isWorking}
+              />
+            </div>
+            <button onClick={handleImport} disabled={!orgFile || isWorking}>
+              Start import
+            </button>
+          </>
+        )}
+
+        {importMode === "json" && (
+          <>
+            <div className="form-field">
+              <label htmlFor="jsonBackupFile">JSON backup file</label>
+              <input
+                id="jsonBackupFile"
+                type="file"
+                accept=".json"
+                onChange={handleJsonFileChange}
+                disabled={isWorking}
+              />
+            </div>
+            <button
+              onClick={handleJsonRestore}
+              disabled={!jsonFile || isWorking}
+            >
+              Restore from backup now
+            </button>
+          </>
+        )}
+
         {status && <StatusBox {...status} />}
         {orgErrors.length > 0 && (
           <StatusBox
@@ -444,9 +571,10 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
           />
         )}
       </div>
-      <StatusBox
-        header="CSV Format Requirements"
-        content={`Organizations CSV
+      {importMode === "csv" && (
+        <StatusBox
+          header="CSV file format"
+          content={`Organizations CSV
 • Organization: Organization name (required)
 • Category: Organization category (optional)
 • TaxDeductible: "Yes" or "No" (required)
@@ -460,8 +588,9 @@ Donations CSV
 • Kind: "idea", "pledge", "paid", or "unknown" (required)
 • Notes: Any notes about the donation (optional)
 • PaymentMethod: Payment method used (optional)`}
-        kind="info"
-      />
+          kind="info"
+        />
+      )}
     </div>
   );
 };

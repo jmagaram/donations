@@ -553,3 +553,14 @@ nav a {
 .page-header a {
     margin-bottom: 1rem;
 }
+
+.import-type-options {
+    display: flex;
+    flex-direction: column;
+}
+
+.import-type-options label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}

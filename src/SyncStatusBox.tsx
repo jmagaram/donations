@@ -11,14 +11,21 @@ interface SyncStatusBoxProps {
   onDismissError: () => void;
 }
 
-const convertSyncErrorToStatusBoxProps = (
-  syncError: SyncError,
-  pull: () => void,
-  push: () => void,
-  pushForce: () => void,
-  dismissError: () => void,
-  navigate: (path: string) => void,
-): StatusBoxProps => {
+const convertSyncErrorToStatusBoxProps = ({
+  syncError,
+  pull,
+  push,
+  pushForce,
+  dismissError,
+  navigate,
+}: {
+  syncError: SyncError;
+  pull: () => void;
+  push: () => void;
+  pushForce: () => void;
+  dismissError: () => void;
+  navigate: (path: string) => void;
+}): StatusBoxProps => {
   const confirmPushForce = () => {
     if (
       confirm(
@@ -128,14 +135,14 @@ const SyncStatusBox = ({
 
   return (
     <StatusBox
-      {...convertSyncErrorToStatusBoxProps(
+      {...convertSyncErrorToStatusBoxProps({
         syncError,
-        onPull,
-        onPush,
-        onPushForce,
-        onDismissError,
+        pull: onPull,
+        push: onPush,
+        pushForce: onPushForce,
+        dismissError: onDismissError,
         navigate,
-      )}
+      })}
     />
   );
 };

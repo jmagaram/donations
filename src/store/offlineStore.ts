@@ -104,7 +104,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   }
 
   async sync(
-    option: "pull" | "push" | "pushForce",
+    option: "pull" | "push" | "pushForce"
   ): Promise<Result<void, SyncError>> {
     if (this.syncStatus.kind === "syncing") {
       return { kind: "success", value: undefined };
@@ -185,7 +185,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   private async pushToRemote(): Promise<Result<Versioned<T>, SyncError>> {
     const saveResult = await this.remote.save(
       this.cachedData.data,
-      this.currentEtag,
+      this.currentEtag
     );
     if (saveResult.kind === "error") {
       return {
@@ -215,20 +215,11 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
       };
     }
 
-    // Load to get fresh etag
-    const loadResult = await this.remote.load();
-    if (loadResult.kind === "error") {
-      return {
-        kind: "error",
-        value: this.mapLoadErrorToSyncError(loadResult.value),
-      };
-    }
-
-    if (!loadResult.value) {
+    if (!saveResult.value) {
       return { kind: "error", value: "other" };
     }
 
-    return { kind: "success", value: loadResult.value };
+    return { kind: "success", value: saveResult.value };
   }
 
   private notifyCallbacks(): void {

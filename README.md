@@ -23,8 +23,14 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## To do
 
+- Can't "Keep local only"
 - Make sure CDK works for "production" (that delete stuff)
 - Upload correct data for our donations
 - Can't update with sample data
 - Verify versions are saved
 - Send Amy the information
+- Use regular link for "Add donation" and "Add org"
+- Security error on sub-route navigation if no key
+- Button styling looks weird, especially on mobile
+- Import all
+- Move import link to Admin page

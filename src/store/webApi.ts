@@ -13,48 +13,30 @@ const API_URL =
 const SHARED_SECRET = "MY_SHARED_SECRET";
 
 export class WebApiStore implements RemoteStore<DonationsData> {
-  async load(): Promise<Result<Versioned<DonationsData> | undefined, LoadError>> {
-    console.log("WebApiStore: Starting load(), fetching from:", API_URL);
-
+  async load(): Promise<
+    Result<Versioned<DonationsData> | undefined, LoadError>
+  > {
     try {
       const res = await fetch(API_URL, {
         method: "GET",
-        headers: {
-          "x-api-key": SHARED_SECRET,
-        },
+        headers: { "x-api-key": SHARED_SECRET },
       });
 
-      console.log("WebApiStore: Fetch response status:", res.status, res.statusText);
-
-      if (res.status === 401) {
-        return { kind: "error", value: "unauthorized" };
-      }
-
-      if (res.status >= 500) {
-        return { kind: "error", value: "server-error" };
-      }
-
-      if (!res.ok) {
-        console.error("WebApiStore: Fetch failed with status:", res.status);
-        return { kind: "error", value: "network-error" };
-      }
+      if (res.status === 401) return { kind: "error", value: "unauthorized" };
+      if (res.status >= 500) return { kind: "error", value: "server-error" };
+      if (!res.ok) return { kind: "error", value: "network-error" };
 
       const { data, etag } = await res.json();
-      console.log("WebApiStore: Received data length:", data?.length, "etag:", etag);
 
-      if (!data || !etag) {
-        return { kind: "success", value: undefined };
-      }
+      if (!data || !etag) return { kind: "success", value: undefined };
 
       try {
         const parsedData = DonationsDataSchema.parse(JSON.parse(data));
         return { kind: "success", value: { data: parsedData, etag } };
-      } catch (parseError) {
-        console.error("WebApiStore: Data parsing error:", parseError);
+      } catch {
         return { kind: "error", value: "data-corruption" };
       }
     } catch (error) {
-      console.error("WebApiStore: Error in load():", error);
       if (
         error instanceof TypeError &&
         error.message.includes("Failed to fetch")
@@ -65,9 +47,10 @@ export class WebApiStore implements RemoteStore<DonationsData> {
     }
   }
 
-  async save(data: DonationsData, etag?: string): Promise<Result<Versioned<DonationsData>, SaveError>> {
-    console.log("WebApiStore: Starting save with ETag:", etag);
-
+  async save(
+    data: DonationsData,
+    etag?: string,
+  ): Promise<Result<Versioned<DonationsData>, SaveError>> {
     try {
       const res = await fetch(API_URL, {
         method: "PUT",
@@ -78,20 +61,15 @@ export class WebApiStore implements RemoteStore<DonationsData> {
         body: JSON.stringify({ data: JSON.stringify(data), etag }),
       });
 
-      console.log("WebApiStore: Save response status:", res.status, res.statusText);
-
       if (res.status === 401) {
         return { kind: "error", value: "unauthorized" };
       }
-
       if (res.status === 412 || res.status === 409) {
         return { kind: "error", value: "etag-mismatch" };
       }
-
       if (res.status >= 500) {
         return { kind: "error", value: "server-error" };
       }
-
       if (!res.ok) {
         return { kind: "error", value: "network-error" };
       }
@@ -109,7 +87,6 @@ export class WebApiStore implements RemoteStore<DonationsData> {
 
       return { kind: "success", value: loadResult.value };
     } catch (error) {
-      console.error("WebApiStore: Error in save():", error);
       if (
         error instanceof TypeError &&
         error.message.includes("Failed to fetch")
@@ -121,8 +98,6 @@ export class WebApiStore implements RemoteStore<DonationsData> {
   }
 
   async delete(): Promise<Result<void, DeleteError>> {
-    console.log("WebApiStore: Starting delete");
-
     try {
       const res = await fetch(API_URL, {
         method: "DELETE",
@@ -133,30 +108,13 @@ export class WebApiStore implements RemoteStore<DonationsData> {
         body: JSON.stringify({}),
       });
 
-      console.log("WebApiStore: Delete response status:", res.status, res.statusText);
+      if (res.status === 401) return { kind: "error", value: "unauthorized" };
+      if (res.status >= 500) return { kind: "error", value: "server-error" };
+      if (res.status === 404) return { kind: "success", value: undefined };
+      if (!res.ok) return { kind: "error", value: "network-error" };
 
-      if (res.status === 401) {
-        return { kind: "error", value: "unauthorized" };
-      }
-
-      if (res.status >= 500) {
-        return { kind: "error", value: "server-error" };
-      }
-
-      if (res.status === 404) {
-        // File not found - treat as success (idempotent delete)
-        console.log("WebApiStore: Delete successful (file already deleted)");
-        return { kind: "success", value: undefined };
-      }
-
-      if (!res.ok) {
-        return { kind: "error", value: "network-error" };
-      }
-
-      console.log("WebApiStore: Delete successful");
       return { kind: "success", value: undefined };
     } catch (error) {
-      console.error("WebApiStore: Error in delete():", error);
       if (
         error instanceof TypeError &&
         error.message.includes("Failed to fetch")

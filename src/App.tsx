@@ -200,7 +200,7 @@ const AppContent = () => {
         <Route
           path="/admin"
           element={
-            <Admin storageProvider={offlineStore} refreshData={refreshData} />
+            <Admin storageProvider={offlineStore} />
           }
         />
       </Routes>

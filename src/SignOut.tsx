@@ -6,6 +6,7 @@ const SignOut = () => {
 
   useEffect(() => {
     const checkApiKey = () => {
+      console.log("Checking API key...");
       setHasApiKey(getApiKey() !== undefined);
     };
     checkApiKey();
@@ -23,10 +24,7 @@ const SignOut = () => {
   }
 
   return (
-    <button
-      className="sign-out-button hide-on-ios-safari"
-      onClick={handleSignOut}
-    >
+    <button className="sign-out-button large-screen" onClick={handleSignOut}>
       Sign out
     </button>
   );

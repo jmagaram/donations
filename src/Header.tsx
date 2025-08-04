@@ -22,6 +22,9 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>
           <Link to="/orgs">Orgs</Link>
+          <Link className="large-screen" to="/reports">
+            Reports
+          </Link>
         </div>
         <div className="nav-right">
           <SyncSpinner status={syncStatus} sync={onSync} />

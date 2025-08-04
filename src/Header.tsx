@@ -10,7 +10,7 @@ import { type Result } from "./types";
 interface HeaderProps {
   syncStatus: SyncStatusType;
   onSync: (
-    option: "pull" | "push" | "pushForce",
+    option: "pull" | "push" | "pushForce"
   ) => Promise<Result<void, SyncError>>;
 }
 

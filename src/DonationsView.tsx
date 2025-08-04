@@ -97,7 +97,7 @@ const DonationsView = ({
   };
 
   function formatAmountOption(val: number) {
-    if (val === Number.POSITIVE_INFINITY) return "Unlimited";
+    if (val === Number.POSITIVE_INFINITY) return "No limit";
     return `$${val.toLocaleString()}`;
   }
 
@@ -105,7 +105,7 @@ const DonationsView = ({
     <div>
       <div className="page-header">
         <h1>Donations</h1>
-        <Link to="/donations/add">New donation</Link>
+        <Link to="/donations/add">Add donation</Link>
       </div>
       <div className="toolbar">
         <div className="toolbar-item large-screen">
@@ -239,14 +239,14 @@ const DonationsView = ({
         {hasActiveFilters && (
           <div className="toolbar-item">
             <button type="button" onClick={onClearFilters}>
-              Remove filters
+              Clear filters
             </button>
           </div>
         )}
       </div>
       {donations.length === 0 ? (
         <StatusBox
-          content="No donations found that match the criteria"
+          content="No donations found"
           kind="info"
         />
       ) : (

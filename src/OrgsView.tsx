@@ -27,7 +27,7 @@ const OrgsView = ({
     <div>
       <div className="page-header">
         <h1>Orgs</h1>
-        <Link to="/orgs/add">New org</Link>
+        <Link to="/orgs/add">Add organization</Link>
       </div>
       <div className="toolbar">
         <input
@@ -55,13 +55,13 @@ const OrgsView = ({
         </div>
         {hasActiveFilters && (
           <button type="button" onClick={onClearFilters}>
-            Remove filters
+            Clear filters
           </button>
         )}
       </div>
       {orgs.length === 0 ? (
         <StatusBox
-          content="No organizations found that match the criteria"
+          content="No organizations found"
           kind="info"
         />
       ) : (

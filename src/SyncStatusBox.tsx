@@ -51,7 +51,7 @@ const convertSyncErrorToStatusBoxProps = ({
         kind: "error",
         header: "Sync conflict detected",
         content:
-          "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data can not be merged.",
+          "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data cannot be merged.",
         buttons: [
           { caption: "Keep server data", onClick: confirmPull },
           { caption: "Keep only my local data", onClick: confirmPushForce },
@@ -63,7 +63,7 @@ const convertSyncErrorToStatusBoxProps = ({
         kind: "error",
         header: "Connection failed",
         content:
-          "Unable to connect to internet storage to save and load your data.",
+          "Unable to connect to online storage to save or load your data.",
         buttons: [
           { caption: "Try again", onClick: push },
           { caption: "Close", onClick: dismissError },
@@ -74,7 +74,7 @@ const convertSyncErrorToStatusBoxProps = ({
         kind: "error",
         header: "Data corruption detected",
         content:
-          "The data on the server seems to be corrupt. Consider importing a backup, or try saving your data again.",
+          "The data on the server appears to be corrupt. Consider importing a backup or try saving your data again.",
         buttons: [
           { caption: "Keep my local data only", onClick: push },
           { caption: "Close", onClick: dismissError },

@@ -30,7 +30,7 @@ const OrgDetailsView = ({
       </button>
       <button
         onClick={() => {
-          if (window.confirm("Delete org and donations?")) {
+          if (window.confirm("Delete organization and all donations?")) {
             onDelete(organization!.id);
           }
         }}
@@ -124,7 +124,7 @@ const OrgDetailsView = ({
         ) : (
           <div className="section">
             <div className="header">Donations</div>
-            <div className="content">None</div>
+            <div className="content">No donations</div>
           </div>
         )}
       </div>

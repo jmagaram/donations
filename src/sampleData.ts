@@ -1,4 +1,4 @@
-import { type DonationsData, type Org } from "./types";
+import { type DonationsData } from "./types";
 import { nanoid } from "nanoid";
 import { empty, orgAdd, donationAdd } from "./donationsData";
 

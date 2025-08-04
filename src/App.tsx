@@ -18,26 +18,39 @@ import { useState, useEffect, useCallback } from "react";
 import { type DonationsData, DonationsDataSchema } from "./types";
 import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
 import { BrowserStore } from "./store/browserStore";
+import { WebApiStore } from "./store/webApi";
 import { empty, isEmpty } from "./donationsData";
+import type { RemoteStore } from "./store";
+
+const createStore = (
+  kind: "browser" | "webApi",
+): RemoteStore<DonationsData> => {
+  switch (kind) {
+    case "browser":
+      return new BrowserStore({
+        storageKey: "donations-data",
+        isValidData: (data): data is DonationsData =>
+          DonationsDataSchema.safeParse(data).success,
+        timeoutMs: 2000,
+        errorSimulation: {
+          networkError: 0.3,
+          unauthorized: 0.0,
+          serverError: 0.0,
+          dataCorruption: 0.0,
+          etagMismatch: 0.0,
+        },
+      });
+    case "webApi":
+      return new WebApiStore();
+  }
+};
 
 const AppContent = () => {
   const [offlineStore] = useState(() => {
     const emptyData: DonationsData = empty();
-    const browserStore = new BrowserStore({
-      storageKey: "donations-data",
-      isValidData: (data): data is DonationsData =>
-        DonationsDataSchema.safeParse(data).success,
-      timeoutMs: 2000,
-      errorSimulation: {
-        networkError: 0.3,
-        unauthorized: 0.0,
-        serverError: 0.0,
-        dataCorruption: 0.0,
-        etagMismatch: 0.0,
-      },
-    });
+    const remote = createStore("webApi");
     return new OfflineStoreImpl({
-      remote: browserStore,
+      remote,
       emptyData,
       isEmpty: isEmpty,
     });

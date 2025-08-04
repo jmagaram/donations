@@ -6,6 +6,7 @@
 
 button {
     width: fit-content;
+    min-width: 8ch;
 }
 
 .form {
@@ -42,13 +43,21 @@ button {
     width: fit-content;
 }
 
-.form-field #amount {
+.form-field #password {
+    min-width: 23ch;
+}
+
+.form-row # .form-field #amount {
     min-width: 8ch;
     max-width: 12ch;
 }
 
 .form-field #paymentMethod {
     min-width: 34ch;
+}
+
+.instructions {
+    max-width: 60ch;
 }
 
 .toolbar {
@@ -399,4 +408,19 @@ nav a {
 .sync-green path,
 .sync-green circle {
     stroke: green;
+}
+
+.password-changed {
+    animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }

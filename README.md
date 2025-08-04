@@ -23,6 +23,10 @@ A web app for tracking a family's personal donations to various tax-deductible a
 
 ## To do
 
-- Persistence to a server
 - Security
-- Click a number in the report and navigate to the list of donations filtered appropriately
+- Persist security key to session or local storage
+- Make sure CDK works for "production" (that delete stuff)
+- Upload correct data for our donations
+- Styling of CSS
+- Verify works well on ios
+- favicon

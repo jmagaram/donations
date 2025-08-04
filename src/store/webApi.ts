@@ -10,16 +10,23 @@ import { DonationsDataSchema } from "../types";
 
 const API_URL =
   "https://kpukc066rd.execute-api.us-west-2.amazonaws.com/prod/donations";
-const SHARED_SECRET = "MY_SHARED_SECRET";
 
 export class WebApiStore implements RemoteStore<DonationsData> {
+  private getApiKey(): string | null {
+    return localStorage.getItem("donations-api-key");
+  }
+
+  private getHeaders(): Record<string, string> {
+    const apiKey = this.getApiKey();
+    return apiKey ? { "x-api-key": apiKey } : {};
+  }
   async load(): Promise<
     Result<Versioned<DonationsData> | undefined, LoadError>
   > {
     try {
       const res = await fetch(API_URL, {
         method: "GET",
-        headers: { "x-api-key": SHARED_SECRET },
+        headers: this.getHeaders(),
       });
 
       if (res.status === 401) return { kind: "error", value: "unauthorized" };
@@ -56,7 +63,7 @@ export class WebApiStore implements RemoteStore<DonationsData> {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": SHARED_SECRET,
+          ...this.getHeaders(),
         },
         body: JSON.stringify({ data: JSON.stringify(data), etag }),
       });
@@ -103,7 +110,7 @@ export class WebApiStore implements RemoteStore<DonationsData> {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          "x-api-key": SHARED_SECRET,
+          ...this.getHeaders(),
         },
         body: JSON.stringify({}),
       });

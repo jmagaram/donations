@@ -26,11 +26,13 @@ const OrgsView = ({
   const navigate = useNavigate();
   return (
     <div>
-      <h1>Organizations</h1>
-      <div className="toolbar">
+      <div className="page-header">
+        <h1>Orgs</h1>
         <button type="button" onClick={() => navigate("/orgs/add")}>
-          New organization
+          New org
         </button>
+      </div>
+      <div className="toolbar">
         <input
           type="search"
           id="filter"
@@ -68,7 +70,7 @@ const OrgsView = ({
           <div className="header">
             <div className="name">Name</div>
             <div className="category">Category</div>
-            <div className="notes">Notes</div>
+            <div className="notes hide-on-mobile">Notes</div>
           </div>
           {orgs
             .sort((a, b) => a.name.localeCompare(b.name))
@@ -81,7 +83,7 @@ const OrgsView = ({
                   )}
                 </div>
                 <div className="category">{org.category || ""}</div>
-                <div className="notes">{org.notes}</div>
+                <div className="notes hide-on-mobile">{org.notes}</div>
               </div>
             ))}
         </div>

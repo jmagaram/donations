@@ -1,4 +1,4 @@
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .hide-on-mobile {
         display: none;
     }
@@ -17,6 +17,10 @@ button {
 
 h1 {
     margin-top: 0.5rem;
+}
+
+#filter {
+    max-width: 18ch;
 }
 
 .form {
@@ -77,6 +81,10 @@ h1 {
     margin-top: 1em;
     margin-bottom: 1em;
     flex-wrap: wrap;
+}
+
+.page-header + .toolbar {
+    margin-top: 0rem;
 }
 
 .toolbar-item {
@@ -177,9 +185,9 @@ nav a {
     gap: 0.25rem 0.25rem;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
     .donations-grid {
-        grid-template-columns: auto auto auto 1fr;
+        grid-template-columns: auto auto 1fr;
     }
 }
 
@@ -216,6 +224,12 @@ nav a {
     display: grid;
     grid-template-columns: auto auto 1fr;
     gap: 0.25rem 0.25rem;
+}
+
+@media (max-width: 700px) {
+    .orgs-grid {
+        grid-template-columns: auto 1fr;
+    }
 }
 
 .orgs-grid a {
@@ -457,4 +471,15 @@ nav a {
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+.page-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+}
+
+.page-header button {
+    margin-bottom: 1rem;
 }

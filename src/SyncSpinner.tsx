@@ -18,7 +18,7 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
     switch (status.kind) {
       case "syncing":
         return {
-          text: "Synchronizing...",
+          text: "Sync...",
           iconClass: "sync-spinning sync-black",
         };
       case "idle":
@@ -57,11 +57,7 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
         fill="none"
       >
         {statusInfo.iconClass.includes("sync-complete") ? (
-          <path
-            d={fullCirclePath}
-            strokeWidth="2"
-            strokeLinecap="round"
-          />
+          <path d={fullCirclePath} strokeWidth="2" strokeLinecap="round" />
         ) : (
           <circle
             cx="12"

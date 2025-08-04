@@ -110,7 +110,6 @@ h1 {
 
 .org-details .donation-grid {
     display: grid;
-    grid-template-columns: auto auto auto 1fr;
     gap: 0.25rem 0.25rem;
 }
 
@@ -197,6 +196,10 @@ nav a {
     .orgs-grid {
         grid-template-columns: 1fr;
     }
+
+    .org-details .donation-grid {
+        grid-template-columns: max-content max-content max-content;
+    }
 }
 
 /* Medium screens: 481px - 768px (phone landscape, small tablet) */
@@ -228,6 +231,10 @@ nav a {
     .orgs-grid {
         grid-template-columns: max-content max-content;
     }
+
+    .org-details .donation-grid {
+        grid-template-columns: max-content max-content max-content max-content;
+    }
 }
 
 /* Large screens: ≥ 769px (tablet landscape, desktop) */
@@ -246,12 +253,16 @@ nav a {
 
     .donations-grid {
         display: grid;
-        grid-template-columns: max-content max-content max-content max-content 1fr;
+        grid-template-columns: max-content max-content max-content max-content auto 1fr;
         gap: 0.25rem 0.25rem;
     }
 
     .orgs-grid {
         grid-template-columns: max-content max-content 1fr;
+    }
+
+    .org-details .donation-grid {
+        grid-template-columns: max-content max-content max-content auto 1fr;
     }
 }
 

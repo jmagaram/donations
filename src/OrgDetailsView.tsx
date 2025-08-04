@@ -100,7 +100,8 @@ const OrgDetailsView = ({
               <div>Date</div>
               <div>Amount</div>
               <div>Kind</div>
-              <div>Notes</div>
+              <div className="medium-screen">Paid by</div>
+              <div className="large-screen">Notes</div>
             </div>
             {donations.map((donation) => (
               <div key={donation.id} className="row">
@@ -111,10 +112,11 @@ const OrgDetailsView = ({
                 </div>
                 <div className="amount">{formatAmount(donation.amount)}</div>
                 <div className="kind">{donation.kind}</div>
-                <div className="notes">
-                  {donation.paymentMethod 
-                    ? `${donation.notes || ""}${donation.notes ? '\n' : ''}${donation.paymentMethod}` 
-                    : donation.notes || "-"}
+                <div className="payment-method medium-screen">
+                  {donation.paymentMethod || "-"}
+                </div>
+                <div className="notes large-screen">
+                  {donation.notes || "-"}
                 </div>
               </div>
             ))}

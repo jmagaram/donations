@@ -256,6 +256,7 @@ const DonationsView = ({
             <div>Amount</div>
             <div>Organization</div>
             <div className="medium-screen">Kind</div>
+            <div className="large-screen">Paid by</div>
             <div className="large-screen">Notes</div>
           </div>
           {donations.map((donation) => (
@@ -270,6 +271,7 @@ const DonationsView = ({
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
               </div>
               <div className="kind medium-screen">{donation.kind}</div>
+              <div className="payment-method large-screen">{donation.paymentMethod || "-"}</div>
               <div className="notes large-screen">{donation.notes}</div>
             </div>
           ))}

@@ -4,6 +4,12 @@
     }
 }
 
+@supports (-webkit-touch-callout: none) {
+    .hide-on-ios-safari {
+        display: none;
+    }
+}
+
 button {
     width: fit-content;
     min-width: 8ch;
@@ -51,7 +57,7 @@ h1 {
     min-width: 27ch;
 }
 
-.form-row # .form-field #amount {
+.form-row .form-field #amount {
     min-width: 8ch;
     max-width: 12ch;
 }

@@ -27,5 +27,3 @@ A web app for tracking a family's personal donations to various tax-deductible a
 - Upload correct data for our donations
 - Styling of CSS
 - Verify works well on ios
-- favicon
-- "Sign out" link in Header (or some kind of expiration)

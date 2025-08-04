@@ -23,7 +23,10 @@ const SignOut = () => {
   }
 
   return (
-    <button className="sign-out-button" onClick={handleSignOut}>
+    <button
+      className="sign-out-button hide-on-ios-safari"
+      onClick={handleSignOut}
+    >
       Sign out
     </button>
   );

@@ -23,24 +23,15 @@ const convertSyncErrorToStatusBoxProps = ({
   dismissError: () => void;
   navigate: (path: string) => void;
 }): StatusBoxProps => {
-  const confirmPull = () => {
-    if (
-      confirm(
-        "All data you see here in the web browser will be deleted and replaced with the data on the server. Are you sure?",
-      )
-    ) {
-      pull();
-    }
-  };
   switch (syncError) {
     case "etag-mismatch":
       return {
         kind: "error",
         header: "Sync conflict detected",
         content:
-          "The data on the server is not in sync with the local data you see in your web browser. Any changes you've made recently will be lost.",
+          "The data on the server is not in sync with the data you see in your web browser, perhaps because it was changed by someone else on a different device. If you've made recent changes on this device, those changes will be lost.",
         buttons: [
-          { caption: "Keep server data only", onClick: confirmPull },
+          { caption: "Keep server data only", onClick: pull },
           { caption: "Close", onClick: dismissError },
         ],
       };

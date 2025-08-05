@@ -8,7 +8,7 @@ interface AdminProps {
 }
 
 const Admin = ({ storageProvider }: AdminProps) => {
-  const useSampleData = async () => {
+  const confirmUseSampleData = async () => {
     if (!confirm("Are you sure replace all data?")) {
       return;
     }
@@ -24,7 +24,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
     }
   };
 
-  const deleteAllData = async () => {
+  const confirmDeleteAll = async () => {
     if (
       !confirm(
         "Are you sure you want to delete ALL data? This cannot be undone.",
@@ -33,23 +33,29 @@ const Admin = ({ storageProvider }: AdminProps) => {
       return;
     }
 
-    try {
-      const emptyData = empty();
-      storageProvider.save(emptyData);
-      await storageProvider.sync("pushForce");
-    } catch (error) {
-      alert(
-        `Failed to delete data: ${error instanceof Error ? error.message : "Unknown error"}`,
-      );
+    const emptyData = empty();
+    storageProvider.save(emptyData);
+    await storageProvider.sync("pushForce");
+  };
+
+  const confirmPushForceSync = async () => {
+    if (
+      !confirm(
+        "Replace all data on the server with your local data. Are you sure?",
+      )
+    ) {
+      return;
     }
+    await storageProvider.sync("pushForce");
   };
 
   return (
     <div>
       <h1>Admin</h1>
       <div className="toolbar">
-        <button onClick={useSampleData}>Use sample data</button>
-        <button onClick={deleteAllData}>Delete all data</button>
+        <button onClick={confirmUseSampleData}>Use sample data</button>
+        <button onClick={confirmDeleteAll}>Delete all data</button>
+        <button onClick={confirmPushForceSync}>Push force</button>
       </div>
     </div>
   );

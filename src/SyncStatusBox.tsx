@@ -7,7 +7,6 @@ interface SyncStatusBoxProps {
   syncError: SyncError | undefined;
   onPull: () => void;
   onPush: () => void;
-  onPushForce: () => void;
   onDismissError: () => void;
 }
 
@@ -15,27 +14,15 @@ const convertSyncErrorToStatusBoxProps = ({
   syncError,
   pull,
   push,
-  pushForce,
   dismissError,
   navigate,
 }: {
   syncError: SyncError;
   pull: () => void;
   push: () => void;
-  pushForce: () => void;
   dismissError: () => void;
   navigate: (path: string) => void;
 }): StatusBoxProps => {
-  const confirmPushForce = () => {
-    if (
-      confirm(
-        "This will delete ALL data on the server and replace it with the data in your web browser. Note that the data in your web browser is probably less up-to-date than what is on the server. Are you sure?",
-      )
-    ) {
-      pushForce();
-    }
-  };
-
   const confirmPull = () => {
     if (
       confirm(
@@ -51,13 +38,9 @@ const convertSyncErrorToStatusBoxProps = ({
         kind: "error",
         header: "Sync conflict detected",
         content:
-          "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data cannot be merged.",
+          "The data on the server is not in sync with the local data you see in your web browser. Any changes you've made recently will be lost.",
         buttons: [
-          { caption: "Keep server data", onClick: confirmPull },
-          {
-            caption: "Keep only local data (NOT recommended)",
-            onClick: confirmPushForce,
-          },
+          { caption: "Keep server data only", onClick: confirmPull },
           { caption: "Close", onClick: dismissError },
         ],
       };
@@ -127,7 +110,6 @@ const SyncStatusBox = ({
   syncError,
   onPull,
   onPush,
-  onPushForce,
   onDismissError,
 }: SyncStatusBoxProps) => {
   const navigate = useNavigate();
@@ -142,7 +124,6 @@ const SyncStatusBox = ({
         syncError,
         pull: onPull,
         push: onPush,
-        pushForce: onPushForce,
         dismissError: onDismissError,
         navigate,
       })}

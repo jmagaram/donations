@@ -25,7 +25,7 @@ import type { RemoteStore } from "./store";
 import StatusBox from "./StatusBox";
 
 const createStore = (
-  kind: "browser" | "webApi"
+  kind: "browser" | "webApi",
 ): RemoteStore<DonationsData> => {
   switch (kind) {
     case "browser":
@@ -85,7 +85,7 @@ const AppContent = () => {
     (option: "pull" | "push" | "pushForce") => {
       return offlineStore.sync(option);
     },
-    [offlineStore]
+    [offlineStore],
   );
 
   const donationsData = storageState.data.data;
@@ -107,7 +107,6 @@ const AppContent = () => {
         syncError={syncError}
         onPull={() => offlineStore.sync("pull")}
         onPush={() => offlineStore.sync("push")}
-        onPushForce={() => offlineStore.sync("pushForce")}
         onDismissError={() => setSyncError(undefined)}
       />
       <Routes>

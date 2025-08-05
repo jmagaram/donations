@@ -6,7 +6,6 @@ const SignOut = () => {
 
   useEffect(() => {
     const checkApiKey = () => {
-      console.log("Checking API key...");
       setHasApiKey(getApiKey() !== undefined);
     };
     checkApiKey();

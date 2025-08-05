@@ -200,6 +200,10 @@ nav a {
     .org-details .donation-grid {
         grid-template-columns: max-content max-content max-content;
     }
+
+    .toolbar-item label {
+        display:none;
+    }
 }
 
 /* Medium screens: 481px - 768px (phone landscape, small tablet) */

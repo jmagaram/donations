@@ -103,6 +103,11 @@ const DonationUpsertForm = ({
               id="amount"
               type="number"
               step="0.01"
+              onFocus={(e) => {
+                if (e.target.value === "0") {
+                  e.target.value = "";
+                }
+              }}
               {...register("amount", { valueAsNumber: true })}
             />
             {errors.amount && <span>{errors.amount.message}</span>}
@@ -126,7 +131,9 @@ const DonationUpsertForm = ({
               list="paymentMethods"
               {...register("paymentMethod")}
             />
-            {errors.paymentMethod && <span>{errors.paymentMethod.message}</span>}
+            {errors.paymentMethod && (
+              <span>{errors.paymentMethod.message}</span>
+            )}
           </div>
         </div>
         <div className="form-field">

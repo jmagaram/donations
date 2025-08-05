@@ -29,7 +29,7 @@ const convertSyncErrorToStatusBoxProps = ({
   const confirmPushForce = () => {
     if (
       confirm(
-        "This will delete all data on the server and replace it with the data you see now in your web browser. Are you sure?",
+        "This will delete ALL data on the server and replace it with the data in your web browser. Note that the data in your web browser is probably less up-to-date than what is on the server. Are you sure?",
       )
     ) {
       pushForce();
@@ -54,7 +54,10 @@ const convertSyncErrorToStatusBoxProps = ({
           "The data on the server is not in sync with the local data you see in your web browser. Your local data has not been saved. The data cannot be merged.",
         buttons: [
           { caption: "Keep server data", onClick: confirmPull },
-          { caption: "Keep only my local data", onClick: confirmPushForce },
+          {
+            caption: "Keep only local data (NOT recommended)",
+            onClick: confirmPushForce,
+          },
           { caption: "Close", onClick: dismissError },
         ],
       };

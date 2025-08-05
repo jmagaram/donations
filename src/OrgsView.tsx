@@ -37,7 +37,7 @@ const OrgsView = ({
           onChange={(e) => textFilterChanged(e.target.value)}
           placeholder="Search"
         />
-        <div className="toolbar-item large-screen">
+        <div className="toolbar-item medium-screen">
           {availableCategories.length > 0 && (
             <select
               id="categoryFilter"
@@ -60,10 +60,7 @@ const OrgsView = ({
         )}
       </div>
       {orgs.length === 0 ? (
-        <StatusBox
-          content="No organizations found"
-          kind="info"
-        />
+        <StatusBox content="No organizations found" kind="info" />
       ) : (
         <div className="orgs-grid">
           <div className="header">

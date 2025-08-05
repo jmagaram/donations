@@ -261,12 +261,12 @@ const DonationsView = ({
           </div>
           {donations.map((donation) => (
             <div key={donation.id} className="row">
-              <div>
+              <div>{donation.date}</div>
+              <div className="amount">
                 <Link to={`/donations/${donation.id}/edit`}>
-                  {donation.date}
+                  {donation.amount}
                 </Link>
               </div>
-              <div className="amount">{donation.amount}</div>
               <div>
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
               </div>

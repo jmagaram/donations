@@ -10,7 +10,7 @@ import { type Result } from "./types";
 interface HeaderProps {
   syncStatus: SyncStatusType;
   onSync: (
-    option: "pull" | "push" | "pushForce"
+    option: "pull" | "push" | "pushForce",
   ) => Promise<Result<void, SyncError>>;
 }
 
@@ -22,7 +22,7 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>
           <Link to="/orgs">Orgs</Link>
-          <Link className="large-screen" to="/reports">
+          <Link className="medium-screen" to="/reports">
             Reports
           </Link>
         </div>

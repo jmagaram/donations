@@ -13,10 +13,6 @@ button {
     min-width: 8ch;
 }
 
-h1 {
-    margin-top: 0.5rem;
-}
-
 #filter {
     max-width: 18ch;
 }
@@ -558,10 +554,6 @@ nav a {
     flex-direction: row;
     align-items: center;
     gap: 1rem;
-}
-
-.page-header a {
-    margin-bottom: 1rem;
 }
 
 .import-type-options {

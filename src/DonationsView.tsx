@@ -136,7 +136,7 @@ const DonationsView = ({
             ))}
           </select>
         </div>
-        <div className="toolbar-item medium-screen large-screen">
+        <div className="toolbar-item medium-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select
             id="amount-filter"
@@ -152,7 +152,7 @@ const DonationsView = ({
           </select>
         </div>
         {amountFilter === "moreThan" && (
-          <div className="toolbar-item">
+          <div className="toolbar-item medium-screen">
             <label htmlFor="min-amount">Min</label>
             <select
               id="min-amount"
@@ -168,7 +168,7 @@ const DonationsView = ({
           </div>
         )}
         {amountFilter === "lessThan" && (
-          <div className="toolbar-item">
+          <div className="toolbar-item medium-screen">
             <label htmlFor="max-amount">Max</label>
             <select
               id="max-amount"
@@ -189,7 +189,7 @@ const DonationsView = ({
         )}
         {amountFilter === "between" && (
           <>
-            <div className="toolbar-item">
+            <div className="toolbar-item medium-screen">
               <label htmlFor="min-amount">Min</label>
               <select
                 id="min-amount"
@@ -205,7 +205,7 @@ const DonationsView = ({
                 ))}
               </select>
             </div>
-            <div className="toolbar-item">
+            <div className="toolbar-item medium-screen">
               <label htmlFor="max-amount">Max</label>
               <select
                 id="max-amount"

@@ -62,7 +62,7 @@ const DonationUpsertContainer = ({
         return;
       }
       setDonationsData(newData);
-      navigate("/orgs/" + updatedDonation.orgId);
+      navigate(-1);
     } else {
       const newDonation = { ...formData, id: nanoid() };
       const updatedData = donationAdd(donationsData, newDonation);
@@ -71,7 +71,7 @@ const DonationUpsertContainer = ({
         return;
       }
       setDonationsData(updatedData);
-      navigate(`/orgs/${newDonation.orgId}`);
+      navigate(-1);
     }
   };
 

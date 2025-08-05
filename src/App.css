@@ -556,6 +556,23 @@ nav a {
     gap: 1rem;
 }
 
+.exporter section {
+    margin-bottom:1rem;
+}
+
+.exporter section > div {
+    display:flex;
+    flex-direction: row;
+    align-items: center;
+    gap:1rem;
+}
+
+.exporter section p {
+    max-width:50ch;
+    margin-bottom:0px;
+    margin-top:0px;
+}
+
 .import-type-options {
     display: flex;
     flex-direction: column;

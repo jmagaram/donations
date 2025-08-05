@@ -108,24 +108,38 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     <div className="exporter">
       <h1>Export</h1>
       {exportStatus && <StatusBox {...exportStatus} />}
-      <StatusBox
-        header="Donations"
-        content="All donations are saved to a CSV file with columns for donationId, orgId, orgName, orgCategory, date, year, amount, kind, donationNotes, paymentMethod, and taxDeductible."
-        kind="info"
-        buttons={[{ caption: "Export", onClick: handleExportDonations }]}
-      />
-      <StatusBox
-        header="Organizations"
-        content="All organizations are saved to a CSV file with columns for orgId, name, category, taxDeductible, webSite, and notes."
-        kind="info"
-        buttons={[{ caption: "Export", onClick: handleExportOrganizations }]}
-      />
-      <StatusBox
-        header="Everything"
-        content=" All organizations and donations are saved to a single JSON file. This is a comprehensive backup that can be restored later if needed."
-        kind="info"
-        buttons={[{ caption: "Export", onClick: handleExportJson }]}
-      />
+      <section>
+        <div>
+          <h2>Donations</h2>
+          <button onClick={handleExportDonations}>Export</button>
+        </div>
+        <p>
+          All donations are saved to a CSV file with columns for donationId,
+          orgId, orgName, orgCategory, date, year, amount, kind, donationNotes,
+          paymentMethod, and taxDeductible.
+        </p>
+      </section>
+      <section>
+        <div>
+          <h2>Organizations</h2>
+          <button onClick={handleExportOrganizations}>Export</button>
+        </div>
+        <p>
+          All organizations are saved to a CSV file with columns for orgId,
+          name, category, taxDeductible, webSite, and notes.
+        </p>
+      </section>
+      <section>
+        <div>
+          <h2>Everything</h2>
+          <button onClick={handleExportJson}>Export</button>
+        </div>
+        <p>
+          All organizations and donations are saved to a single JSON file. This
+          is a <strong>comprehensive backup</strong> that can be restored later
+          if needed.
+        </p>
+      </section>
     </div>
   );
 };

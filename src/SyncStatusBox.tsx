@@ -29,7 +29,7 @@ const convertSyncErrorToStatusBoxProps = ({
         kind: "error",
         header: "Sync conflict detected",
         content:
-          "The data on the server is not in sync with the data you see in your web browser, perhaps because it was changed by someone else on a different device. If you've made recent changes on this device, those changes will be lost.",
+          "The data on the server is not in sync with the data you see in your web browser, perhaps because it was changed on a different device. If you've made recent changes on this device, those changes will be lost.",
         buttons: [
           { caption: "Keep server data only", onClick: pull },
           { caption: "Close", onClick: dismissError },

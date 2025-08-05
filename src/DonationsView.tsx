@@ -245,10 +245,7 @@ const DonationsView = ({
         )}
       </div>
       {donations.length === 0 ? (
-        <StatusBox
-          content="No donations found"
-          kind="info"
-        />
+        <StatusBox content="No donations found" kind="info" />
       ) : (
         <div className="donations-grid">
           <div className="header">
@@ -271,7 +268,9 @@ const DonationsView = ({
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
               </div>
               <div className="kind medium-screen">{donation.kind}</div>
-              <div className="payment-method large-screen">{donation.paymentMethod || "-"}</div>
+              <div className="payment-method large-screen">
+                {donation.paymentMethod || ""}
+              </div>
               <div className="notes large-screen">{donation.notes}</div>
             </div>
           ))}

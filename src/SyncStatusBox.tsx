@@ -51,7 +51,7 @@ const convertSyncErrorToStatusBoxProps = ({
         kind: "error",
         header: "Data corruption detected",
         content:
-          "The data on the server appears to be corrupt. Consider importing a backup or try saving your data again.",
+          "The data on the server seems to be corrupt. Consider importing a backup.",
         buttons: [
           { caption: "Keep my local data only", onClick: push },
           { caption: "Close", onClick: dismissError },

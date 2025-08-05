@@ -136,7 +136,7 @@ const DonationsView = ({
             ))}
           </select>
         </div>
-        <div className="toolbar-item large-screen">
+        <div className="toolbar-item medium-screen large-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select
             id="amount-filter"

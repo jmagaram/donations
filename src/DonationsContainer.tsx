@@ -24,9 +24,11 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   // Read state from URL parameters
   const filter = searchParams.get("search") || "";
   const yearFilter = (searchParams.get("year") as YearFilter) || "all";
-  const amountFilter = (searchParams.get("amountFilter") as AmountFilterType) || "all";
+  const amountFilter =
+    (searchParams.get("amountFilter") as AmountFilterType) || "all";
   const minAmount = parseInt(searchParams.get("min") || "0") || 0;
-  const maxAmount = parseInt(searchParams.get("max") || "") || Number.POSITIVE_INFINITY;
+  const maxAmount =
+    parseInt(searchParams.get("max") || "") || Number.POSITIVE_INFINITY;
   const categoryFilter = searchParams.get("category") || "";
 
   // URL update functions
@@ -57,12 +59,17 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const updateAmountFilter = (
     filterType: AmountFilterType,
     minValue?: number,
-    maxValue?: number
+    maxValue?: number,
   ) => {
     // Auto-swap if min > max for "between" type
     let finalMin = minValue;
     let finalMax = maxValue;
-    if (filterType === "between" && minValue && maxValue && minValue > maxValue) {
+    if (
+      filterType === "between" &&
+      minValue &&
+      maxValue &&
+      minValue > maxValue
+    ) {
       finalMin = maxValue;
       finalMax = minValue;
     }
@@ -157,9 +164,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       ...new Set(
         donationsData.orgs
           .map((org) => org.category)
-          .filter((category): category is string => 
-            category !== undefined && category.trim() !== ""
-          )
+          .filter(
+            (category): category is string =>
+              category !== undefined && category.trim() !== "",
+          ),
       ),
     ];
 
@@ -187,7 +195,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       minOptions.sort((a, b) => a - b); // Keep ascending order
     }
 
-    if (maxAmount !== Number.POSITIVE_INFINITY && !maxAmountPresets.includes(maxAmount)) {
+    if (
+      maxAmount !== Number.POSITIVE_INFINITY &&
+      !maxAmountPresets.includes(maxAmount)
+    ) {
       maxOptions.push(maxAmount);
       maxOptions.sort((a, b) => b - a); // Keep descending order
     }
@@ -225,10 +236,13 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
           matchesAmount = amt >= minAmount;
           break;
         case "lessThan":
-          matchesAmount = maxAmount === Number.POSITIVE_INFINITY || amt <= maxAmount;
+          matchesAmount =
+            maxAmount === Number.POSITIVE_INFINITY || amt <= maxAmount;
           break;
         case "between":
-          matchesAmount = amt >= minAmount && (maxAmount === Number.POSITIVE_INFINITY || amt <= maxAmount);
+          matchesAmount =
+            amt >= minAmount &&
+            (maxAmount === Number.POSITIVE_INFINITY || amt <= maxAmount);
           break;
       }
       const org = donationsData.orgs.find((o) => o.id === d.orgId) || {
@@ -237,7 +251,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         category: undefined,
       };
       // Category filtering logic
-      const matchesCategory = categoryFilter === "" || 
+      const matchesCategory =
+        categoryFilter === "" ||
         (org.category && org.category === categoryFilter);
       const matchesText =
         filter.trim() === "" || donationTextMatch(filter, d, org);
@@ -245,9 +260,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))
     .map((donation) => {
-      const notesWithPayment = donation.paymentMethod 
-        ? `${donation.notes}${donation.notes ? '\n' : ''}${donation.paymentMethod}`
-        : donation.notes;
       return {
         id: donation.id,
         date: donation.date,
@@ -255,7 +267,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         orgId: donation.orgId,
         orgName: getOrgName(donation.orgId),
         kind: donation.kind,
-        notes: notesWithPayment,
+        notes: donation.notes,
         paymentMethod: donation.paymentMethod,
       };
     });
@@ -264,7 +276,11 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     setSearchParams(new URLSearchParams());
   };
 
-  const hasActiveFilters = filter !== "" || yearFilter !== "all" || amountFilter !== "all" || categoryFilter !== "";
+  const hasActiveFilters =
+    filter !== "" ||
+    yearFilter !== "all" ||
+    amountFilter !== "all" ||
+    categoryFilter !== "";
 
   return (
     <DonationsView

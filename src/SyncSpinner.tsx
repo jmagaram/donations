@@ -7,13 +7,13 @@ import { type Result } from "./types";
 interface SyncSpinnerProps {
   status: SyncStatusType;
   sync: (
-    option: "pull" | "push" | "pushForce",
+    option: "pull" | "push" | "pushForce"
   ) => Promise<Result<void, SyncError>>;
 }
 
 const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
   const getStatusInfo = (
-    status: SyncStatusType,
+    status: SyncStatusType
   ): { text: string; iconClass: string } => {
     switch (status.kind) {
       case "syncing":
@@ -41,7 +41,7 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
     }
   };
 
-  const fullCirclePath = "M 12 2 A 10 10 0 1 1 12 22 A 10 10 0 1 1 12 2";
+  const checkmarkPath = "M 6 12 L 10 16 L 18 8";
 
   return (
     <button
@@ -57,7 +57,13 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
         fill="none"
       >
         {statusInfo.iconClass.includes("sync-complete") ? (
-          <path d={fullCirclePath} strokeWidth="2" strokeLinecap="round" />
+          <path 
+            d={checkmarkPath} 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            fill="none"
+          />
         ) : (
           <circle
             cx="12"

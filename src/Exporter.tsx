@@ -9,13 +9,13 @@ interface ExporterProps {
 
 const Exporter = ({ donationsData }: ExporterProps) => {
   const [exportStatus, setExportStatus] = useState<StatusBoxProps | undefined>(
-    undefined,
+    undefined
   );
 
   const downloadFile = (
     content: string,
     filename: string,
-    mimeType: string,
+    mimeType: string
   ) => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -28,8 +28,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     URL.revokeObjectURL(url);
   };
 
-  const handleExportDonations = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleExportDonations = () => {
     setExportStatus(undefined);
 
     const donationsWithOrgData = donationsData.donations.map((donation) => {
@@ -62,8 +61,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     });
   };
 
-  const handleExportOrganizations = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleExportOrganizations = () => {
     setExportStatus(undefined);
 
     const orgsForExport = donationsData.orgs.map((org) => ({
@@ -82,7 +80,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     downloadFile(
       csvContent,
       "organizations-export.csv",
-      "text/csv;charset=utf-8;",
+      "text/csv;charset=utf-8;"
     );
     setExportStatus({
       content: `${orgsForExport.length} organizations exported to organizations-export.csv`,
@@ -90,8 +88,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     });
   };
 
-  const handleExportJson = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleExportJson = () => {
     setExportStatus(undefined);
 
     const jsonContent = JSON.stringify(donationsData, null, 2);
@@ -99,7 +96,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     downloadFile(
       jsonContent,
       "donations-data.json",
-      "application/json;charset=utf-8;",
+      "application/json;charset=utf-8;"
     );
     setExportStatus({
       content: `Complete data exported to donations-data.json (${donationsData.orgs.length} organizations, ${donationsData.donations.length} donations)`,
@@ -111,35 +108,24 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     <div className="exporter">
       <h1>Export</h1>
       {exportStatus && <StatusBox {...exportStatus} />}
-      <div className="export-section">
-        <a href="#" onClick={handleExportDonations}>
-          Donations
-        </a>
-        <p>
-          Exports all donations in CSV format. Includes donationId, orgId,
-          orgName, orgCategory, date, year, amount, kind, donationNotes,
-          paymentMethod, and taxDeductible.
-        </p>
-      </div>
-      <div className="export-section">
-        <a href="#" onClick={handleExportOrganizations}>
-          Organizations
-        </a>
-        <p>
-          Exports all organizations in CSV format. Includes orgId, name,
-          category, taxDeductible, webSite, and notes.
-        </p>
-      </div>
-      <div className="export-section">
-        <a href="#" onClick={handleExportJson}>
-          Everything
-        </a>
-        <p>
-          Saves all organizations and donations in a single JSON file. This is a{" "}
-          <strong>comprehensive backup</strong> that can be restored later if
-          needed.
-        </p>
-      </div>
+      <StatusBox
+        header="Donations"
+        content="All donations are saved to a CSV file with columns for donationId, orgId, orgName, orgCategory, date, year, amount, kind, donationNotes, paymentMethod, and taxDeductible."
+        kind="info"
+        buttons={[{ caption: "Export", onClick: handleExportDonations }]}
+      />
+      <StatusBox
+        header="Organizations"
+        content="All organizations are saved to a CSV file with columns for orgId, name, category, taxDeductible, webSite, and notes."
+        kind="info"
+        buttons={[{ caption: "Export", onClick: handleExportOrganizations }]}
+      />
+      <StatusBox
+        header="Everything"
+        content=" All organizations and donations are saved to a single JSON file. This is a comprehensive backup that can be restored later if needed."
+        kind="info"
+        buttons={[{ caption: "Export", onClick: handleExportJson }]}
+      />
     </div>
   );
 };

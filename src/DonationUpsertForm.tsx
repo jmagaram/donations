@@ -37,6 +37,8 @@ const DonationUpsertForm = ({
     handleSubmit,
     formState: { errors, isDirty },
     reset,
+    setValue,
+    watch,
   } = useForm<DonationUpsertFields>({
     resolver: zodResolver(DonationUpsertFieldsSchema),
     defaultValues: formDefaultValues,
@@ -103,9 +105,10 @@ const DonationUpsertForm = ({
               id="amount"
               type="number"
               step="0.01"
-              onFocus={(e) => {
-                if (e.target.value === "0") {
-                  e.target.value = "";
+              onFocus={() => {
+                const currentAmount = watch("amount");
+                if (currentAmount === 0) {
+                  setValue("amount", "" as any, { shouldDirty: true });
                 }
               }}
               {...register("amount", { valueAsNumber: true })}

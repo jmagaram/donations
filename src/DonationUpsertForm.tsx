@@ -25,6 +25,8 @@ const DonationUpsertForm = ({
 }: DonationUpsertFormProps) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const orgSelectRef = React.useRef<HTMLSelectElement>(null);
+  const dateInputRef = React.useRef<HTMLInputElement>(null);
   const orgId =
     mode === "edit" ? defaultValues.orgId : searchParams.get("org") || "";
   const formDefaultValues = {
@@ -49,6 +51,14 @@ const DonationUpsertForm = ({
       reset(defaultValues);
     }
   }, [defaultValues, reset, mode]);
+
+  React.useEffect(() => {
+    if (orgId) {
+      dateInputRef.current?.focus();
+    } else {
+      orgSelectRef.current?.focus();
+    }
+  }, [orgId]);
 
   const handleFormSubmit = (data: DonationUpsertFields) => {
     if (mode === "edit" && !isDirty) {
@@ -81,7 +91,14 @@ const DonationUpsertForm = ({
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="form-field">
           <label htmlFor="orgId">Organization</label>
-          <select id="orgId" {...register("orgId")}>
+          <select 
+            id="orgId" 
+            {...register("orgId")}
+            ref={(e) => {
+              register("orgId").ref(e);
+              orgSelectRef.current = e;
+            }}
+          >
             <option value="">Select an organization</option>
             {donationsData?.orgs
               .sort((a, b) => a.name.localeCompare(b.name))
@@ -96,7 +113,17 @@ const DonationUpsertForm = ({
         <div className="form-row">
           <div className="form-field">
             <label htmlFor="date">Date</label>
-            <input id="date" type="date" {...register("date")} />
+            <input 
+              id="date" 
+              type="date" 
+              {...register("date", {
+                setValueAs: (value) => value
+              })}
+              ref={(e) => {
+                register("date").ref(e);
+                dateInputRef.current = e;
+              }}
+            />
             {errors.date && <span>{errors.date.message}</span>}
           </div>
           <div className="form-field">
@@ -108,7 +135,7 @@ const DonationUpsertForm = ({
               onFocus={() => {
                 const currentAmount = watch("amount");
                 if (currentAmount === 0) {
-                  setValue("amount", "" as any, { shouldDirty: true });
+                  setValue("amount", undefined as unknown as number, { shouldDirty: true });
                 }
               }}
               {...register("amount", { valueAsNumber: true })}

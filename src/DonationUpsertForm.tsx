@@ -129,6 +129,16 @@ const DonationUpsertForm = ({
             <input
               id="paymentMethod"
               list="paymentMethods"
+              onKeyDown={(e) => {
+                if (e.altKey && e.key === "ArrowDown") {
+                  e.preventDefault();
+                  try {
+                    e.currentTarget.showPicker();
+                  } catch {
+                    // If showPicker is not supported, do nothing
+                  }
+                }
+              }}
               {...register("paymentMethod")}
             />
             {errors.paymentMethod && (

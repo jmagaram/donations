@@ -59,6 +59,16 @@ const OrgUpsertForm = ({
             id="category"
             type="text"
             list="categories"
+            onKeyDown={(e) => {
+              if (e.altKey && e.key === "ArrowDown") {
+                e.preventDefault();
+                try {
+                  e.currentTarget.showPicker();
+                } catch {
+                  // If showPicker is not supported, do nothing
+                }
+              }
+            }}
             {...register("category", {
               setValueAs: (value) =>
                 typeof value === "string" ? value.trim() : value,

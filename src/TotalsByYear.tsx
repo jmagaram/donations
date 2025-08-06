@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
+import { formatUSD as formatAmount } from "./amount";
 
 interface TotalsByYearProps {
   donationsData: DonationsData;
@@ -59,7 +60,8 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           currentYear - 3,
         );
         break;
-      case "future": { // Find max year in donations
+      case "future": {
+        // Find max year in donations
         const maxYearInData = Math.max(
           ...donationsData.donations.map((d) => extractYear(d.date)),
           currentYear,
@@ -223,12 +225,14 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
                 </div>
                 {processedData.years.map((year) => (
                   <div key={`${org.id}-${year}`} className="totals-by-year-row">
-                    $
-                    {Math.round(processedData.orgYearTotals[org.id][year] || 0).toLocaleString()}
+                    {formatAmount(
+                      processedData.orgYearTotals[org.id][year] || 0,
+                      "hidePennies",
+                    )}
                   </div>
                 ))}
                 <div className="totals-by-year-row totals-by-year-total-col">
-                  ${Math.round(orgTotal).toLocaleString()}
+                  {formatAmount(orgTotal, "hidePennies")}
                 </div>
               </>
             );
@@ -238,11 +242,11 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <div className="totals-by-year-total-row">Total</div>
           {processedData.years.map((year) => (
             <div key={`total-${year}`} className="totals-by-year-total-row">
-              ${Math.round(processedData.yearTotals[year] || 0).toLocaleString()}
+              {formatAmount(processedData.yearTotals[year] || 0, "hidePennies")}
             </div>
           ))}
           <div className="totals-by-year-total-row">
-            ${Math.round(processedData.grandTotal).toLocaleString()}
+            {formatAmount(processedData.grandTotal, "hidePennies")}
           </div>
         </div>
       )}

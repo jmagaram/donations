@@ -5,7 +5,7 @@ export type YearFilter =
   | { kind: "last2" }
   | { kind: "other"; value: number };
 
-export function parseYearFilter(value: string): YearFilter {
+export const parseYearFilter = (value: string): YearFilter => {
   switch (value) {
     case "all":
       return { kind: "all" };
@@ -21,9 +21,9 @@ export function parseYearFilter(value: string): YearFilter {
       }
       return { kind: "all" };
   }
-}
+};
 
-export function stringifyYearFilter(filter: YearFilter): string | undefined {
+export const stringifyYearFilter = (filter: YearFilter): string | undefined => {
   switch (filter.kind) {
     case "all":
       return undefined;
@@ -36,9 +36,9 @@ export function stringifyYearFilter(filter: YearFilter): string | undefined {
     case "other":
       return filter.value.toString();
   }
-}
+};
 
-export function getYearRange({
+export const getYearRange = ({
   yearFilter,
   minYear,
   maxYear,
@@ -48,7 +48,7 @@ export function getYearRange({
   minYear: number;
   maxYear: number;
   currentYear: number;
-}): [number, number] {
+}): [number, number] => {
   switch (yearFilter.kind) {
     case "all":
       return [minYear, maxYear];
@@ -61,4 +61,4 @@ export function getYearRange({
     case "other":
       return [yearFilter.value, yearFilter.value];
   }
-}
+};

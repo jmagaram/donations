@@ -5,7 +5,8 @@ import {
   stringifyYearFilter,
   parseYearFilter,
 } from "./yearFilter";
-import { type AmountFilter } from "./donationsData";
+import { type AmountFilter } from "./amountFilter";
+import { formatUSD } from "./amount";
 
 export interface DonationDisplay {
   id: string;
@@ -120,10 +121,6 @@ const DonationsView = ({
     return options;
   };
 
-  function formatAmountOption(val: number) {
-    return `$${val.toLocaleString()}`;
-  }
-
   return (
     <div>
       <div className="page-header">
@@ -182,7 +179,7 @@ const DonationsView = ({
             >
               {getMinOptions().map((amount) => (
                 <option key={amount} value={amount}>
-                  {formatAmountOption(amount)}
+                  {formatUSD(amount, "hidePennies")}
                 </option>
               ))}
             </select>
@@ -198,7 +195,7 @@ const DonationsView = ({
             >
               {getMaxOptions().map((amount) => (
                 <option key={amount} value={amount}>
-                  {formatAmountOption(amount)}
+                  {formatUSD(amount, "hidePennies")}
                 </option>
               ))}
             </select>
@@ -217,7 +214,7 @@ const DonationsView = ({
               >
                 {getMinOptions().map((amount) => (
                   <option key={amount} value={amount}>
-                    {formatAmountOption(amount)}
+                    {formatUSD(amount, "hidePennies")}
                   </option>
                 ))}
               </select>
@@ -233,7 +230,7 @@ const DonationsView = ({
               >
                 {getMaxOptions().map((amount) => (
                   <option key={amount} value={amount}>
-                    {formatAmountOption(amount)}
+                    {formatUSD(amount, "hidePennies")}
                   </option>
                 ))}
               </select>

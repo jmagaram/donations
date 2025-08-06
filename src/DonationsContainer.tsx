@@ -5,7 +5,6 @@ import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useUrlParam } from "./useUrlParam";
 import {
-  type AmountFilter,
   getUniqueDonationYears,
   getUniqueOrgCategories,
   matchesYearFilter,
@@ -13,7 +12,6 @@ import {
   matchesCategoryFilter,
   matchesSearchFilter,
   getOrgName,
-  formatAmount,
 } from "./donationsData";
 import {
   getYearRange,
@@ -21,6 +19,12 @@ import {
   stringifyYearFilter,
   type YearFilter,
 } from "./yearFilter";
+import {
+  parseAmountFilter,
+  stringifyAmountFilter,
+  areAmountFiltersEqual,
+} from "./amountFilter";
+import { formatUSD } from "./amount";
 
 const generateYearFilterOptions = (
   donationsData: DonationsData,
@@ -50,13 +54,11 @@ const generateYearFilterOptions = (
 
 const generateCategoryFilterOptions = (donationsData: DonationsData) => {
   const options = [{ value: "", label: "Any category" }];
-
   const uniqueCategories = Array.from(getUniqueOrgCategories(donationsData));
   uniqueCategories.sort(); // Alphabetical order
   uniqueCategories.forEach((category) => {
     options.push({ value: category, label: category });
   });
-
   return options;
 };
 
@@ -98,62 +100,11 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const [amountFilter, updateAmountFilter, resetAmountFilter] = useUrlParam({
     paramName: "amount",
-    parseFromString: (str): AmountFilter | undefined => {
-      if (str === "all") return { kind: "all" };
-
-      const parts = str.split("_");
-      const type = parts[0];
-
-      switch (type) {
-        case "moreThan": {
-          if (parts.length !== 2) return undefined;
-          const min = parseFloat(parts[1]);
-          return isNaN(min) ? undefined : { kind: "moreThan", min };
-        }
-        case "lessThan": {
-          if (parts.length !== 2) return undefined;
-          const max = parseFloat(parts[1]);
-          return isNaN(max) ? undefined : { kind: "lessThan", max };
-        }
-        case "between": {
-          if (parts.length !== 3) return undefined;
-          const min = parseFloat(parts[1]);
-          const max = parseFloat(parts[2]);
-          return isNaN(min) || isNaN(max)
-            ? undefined
-            : { kind: "between", min, max };
-        }
-        default:
-          return undefined;
-      }
-    },
+    parseFromString: parseAmountFilter,
     defaultValue: { kind: "all" },
     noFilterValue: { kind: "all" },
-    stringifyValue: (filter) => {
-      switch (filter.kind) {
-        case "all":
-          return undefined;
-        case "moreThan":
-          return `moreThan_${filter.min}`;
-        case "lessThan":
-          return `lessThan_${filter.max}`;
-        case "between":
-          return `between_${filter.min}_${filter.max}`;
-      }
-    },
-    areEqual: (a, b) => {
-      if (a.kind !== b.kind) return false;
-      switch (a.kind) {
-        case "all":
-          return true;
-        case "moreThan":
-          return a.min === (b as typeof a).min;
-        case "lessThan":
-          return a.max === (b as typeof a).max;
-        case "between":
-          return a.min === (b as typeof a).min && a.max === (b as typeof a).max;
-      }
-    },
+    stringifyValue: stringifyAmountFilter,
+    areEqual: areAmountFiltersEqual,
   });
 
   const categoryFilterOptions = useMemo(
@@ -187,7 +138,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       return {
         id: donation.id,
         date: donation.date,
-        amount: formatAmount(donation.amount),
+        amount: formatUSD(donation.amount, "hidePennies"),
         orgId: donation.orgId,
         orgName: getOrgName(donationsData, donation.orgId),
         kind: donation.kind,

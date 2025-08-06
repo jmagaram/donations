@@ -1,10 +1,7 @@
 import { type Donation, type DonationsData, type Org } from "./types";
 import { extractYear } from "./date";
+import { type AmountFilter } from "./amountFilter";
 
-/**
- * Returns the minimum and maximum year from a donations array.
- * If no donations, returns currentYear for both.
- */
 export function getDonationYearRange(
   donations: Pick<Donation, "date">[],
 ): { minYear: number; maxYear: number } | undefined {
@@ -14,14 +11,6 @@ export function getDonationYearRange(
   const maxYear = Math.max(...years);
   return { minYear, maxYear };
 }
-
-export type YearFilter = "all" | "current" | "previous" | "last2" | string;
-
-export type AmountFilter =
-  | { kind: "all" }
-  | { kind: "moreThan"; min: number }
-  | { kind: "lessThan"; max: number }
-  | { kind: "between"; min: number; max: number };
 
 export const empty = (): DonationsData => ({
   orgs: [],
@@ -217,15 +206,7 @@ export const getOrgName = (
   orgId: string,
 ): string => {
   const org = data.orgs.find((o) => o.id === orgId);
-  return org?.name || "Unknown Organization";
-};
-
-export const formatAmount = (amount: number): string => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return org?.name || "Unknown organization";
 };
 
 export const donationTextMatch = (

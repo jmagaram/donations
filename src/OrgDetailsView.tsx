@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import type { DonationsData } from "./types";
 import { compareDatesDesc } from "./date";
+import { formatUSD as formatAmount } from "./amount";
 
 interface OrgDetailsViewProps {
   donationsData: DonationsData;
@@ -42,13 +43,6 @@ const OrgDetailsView = ({
 
   const formatDate = (timestamp: string): string => {
     return timestamp;
-  };
-
-  const formatAmount = (amount: number): string => {
-    return amount.toLocaleString("en-US", {
-      style: "currency",
-      currency: "USD",
-    });
   };
 
   if (!organization) {

@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
+import { formatUSD as formatAmount } from "./amount";
 
 interface TotalsByCategoryProps {
   donationsData: DonationsData;
@@ -59,7 +60,8 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
           currentYear - 3,
         );
         break;
-      case "future": { // Find max year in donations
+      case "future": {
+        // Find max year in donations
         const maxYearInData = Math.max(
           ...donationsData.donations.map((d) => extractYear(d.date)),
           currentYear,
@@ -225,7 +227,9 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
                   {category === "(No category)" ? (
                     <Link to={`/donations?category=`}>{category}</Link>
                   ) : (
-                    <Link to={`/donations?category=${encodeURIComponent(category)}`}>
+                    <Link
+                      to={`/donations?category=${encodeURIComponent(category)}`}
+                    >
                       {category}
                     </Link>
                   )}
@@ -235,14 +239,14 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
                     key={`${category}-${year}`}
                     className="totals-by-year-row"
                   >
-                    $
-                    {Math.round(
-                      processedData.categoryYearTotals[category][year] || 0
-                    ).toLocaleString()}
+                    {formatAmount(
+                      processedData.categoryYearTotals[category][year] || 0,
+                      "hidePennies",
+                    )}
                   </div>
                 ))}
                 <div className="totals-by-year-row totals-by-year-total-col">
-                  ${Math.round(categoryTotal).toLocaleString()}
+                  {formatAmount(categoryTotal, "hidePennies")}
                 </div>
               </>
             );
@@ -252,11 +256,11 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
           <div className="totals-by-year-total-row">Total</div>
           {processedData.years.map((year) => (
             <div key={`total-${year}`} className="totals-by-year-total-row">
-              ${Math.round(processedData.yearTotals[year] || 0).toLocaleString()}
+              {formatAmount(processedData.yearTotals[year] || 0, "hidePennies")}
             </div>
           ))}
           <div className="totals-by-year-total-row">
-            ${Math.round(processedData.grandTotal).toLocaleString()}
+            {formatAmount(processedData.grandTotal, "hidePennies")}
           </div>
         </div>
       )}

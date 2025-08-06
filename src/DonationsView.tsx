@@ -2,7 +2,12 @@ import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
 
 type YearFilter = "all" | "current" | "previous" | "last2" | string;
-type AmountFilterType = "all" | "moreThan" | "lessThan" | "between";
+
+type AmountFilter = 
+  | { kind: "all" }
+  | { kind: "moreThan", min: number }
+  | { kind: "lessThan", max: number }
+  | { kind: "between", min: number, max: number };
 
 export interface DonationDisplay {
   id: string;
@@ -25,16 +30,8 @@ interface DonationsViewProps {
   categoryFilter: string;
   categoryFilterOptions: { value: string; label: string }[];
   categoryFilterChanged: (categoryFilter: string) => void;
-  amountFilter: AmountFilterType;
-  minAmount: number;
-  maxAmount: number;
-  minAmountOptions: number[];
-  maxAmountOptions: number[];
-  amountFilterChanged: (
-    filterType: AmountFilterType,
-    minValue?: number,
-    maxValue?: number
-  ) => void;
+  amountFilter: AmountFilter;
+  amountFilterChanged: (newFilter: AmountFilter) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -50,56 +47,77 @@ const DonationsView = ({
   categoryFilterOptions,
   categoryFilterChanged,
   amountFilter,
-  minAmount,
-  maxAmount,
-  minAmountOptions,
-  maxAmountOptions,
   amountFilterChanged,
   onClearFilters,
   hasActiveFilters,
 }: DonationsViewProps) => {
   // Amount filter change handlers
-  const handleAmountFilterTypeChange = (newType: AmountFilterType) => {
+  const handleAmountFilterTypeChange = (newType: string) => {
     switch (newType) {
       case "all":
-        amountFilterChanged("all");
+        amountFilterChanged({ kind: "all" });
         break;
       case "moreThan":
-        amountFilterChanged("moreThan", minAmountOptions[0]); // Default to first option
+        amountFilterChanged({ kind: "moreThan", min: 100 }); // Default to 100
         break;
       case "lessThan":
-        amountFilterChanged("lessThan", undefined, maxAmountOptions[0]); // Default to first option
+        amountFilterChanged({ kind: "lessThan", max: 1000 }); // Default to 1000
         break;
       case "between":
-        amountFilterChanged(
-          "between",
-          minAmountOptions[0],
-          maxAmountOptions[0]
-        );
+        amountFilterChanged({ kind: "between", min: 100, max: 1000 }); // Default range
         break;
     }
   };
 
   const handleMinAmountChange = (value: number) => {
-    if (amountFilter === "moreThan") {
-      amountFilterChanged("moreThan", value);
-    } else if (amountFilter === "between") {
-      amountFilterChanged("between", value, maxAmount);
+    if (amountFilter.kind === "moreThan") {
+      amountFilterChanged({ kind: "moreThan", min: value });
+    } else if (amountFilter.kind === "between") {
+      amountFilterChanged({ kind: "between", min: value, max: amountFilter.max });
     }
   };
 
   const handleMaxAmountChange = (value: number) => {
-    if (amountFilter === "lessThan") {
-      amountFilterChanged("lessThan", undefined, value);
-    } else if (amountFilter === "between") {
-      amountFilterChanged("between", minAmount, value);
+    if (amountFilter.kind === "lessThan") {
+      amountFilterChanged({ kind: "lessThan", max: value });
+    } else if (amountFilter.kind === "between") {
+      amountFilterChanged({ kind: "between", min: amountFilter.min, max: value });
     }
   };
 
+  // Amount preset options
+  const minAmountOptions = [100, 250, 500, 1000, 2500, 5000];
+  const maxAmountOptions = [5000, 2500, 1000, 500, 250, 100];
+
+  // Add current values if not in presets
+  const getMinOptions = () => {
+    const options = [...minAmountOptions];
+    if (amountFilter.kind === "moreThan" || amountFilter.kind === "between") {
+      const currentMin = amountFilter.min;
+      if (!options.includes(currentMin)) {
+        options.push(currentMin);
+        options.sort((a, b) => a - b);
+      }
+    }
+    return options;
+  };
+
+  const getMaxOptions = () => {
+    const options = [...maxAmountOptions];
+    if (amountFilter.kind === "lessThan" || amountFilter.kind === "between") {
+      const currentMax = amountFilter.max;
+      if (!options.includes(currentMax)) {
+        options.push(currentMax);
+        options.sort((a, b) => b - a);
+      }
+    }
+    return options;
+  };
+
   function formatAmountOption(val: number) {
-    if (val === Number.POSITIVE_INFINITY) return "No limit";
     return `$${val.toLocaleString()}`;
   }
+
 
   return (
     <div>
@@ -140,26 +158,24 @@ const DonationsView = ({
           <label htmlFor="amount-filter">Amount</label>
           <select
             id="amount-filter"
-            value={amountFilter}
-            onChange={(e) =>
-              handleAmountFilterTypeChange(e.target.value as AmountFilterType)
-            }
+            value={amountFilter.kind}
+            onChange={(e) => handleAmountFilterTypeChange(e.target.value)}
           >
             <option value="all">All amounts</option>
-            <option value="moreThan">Minimum</option>
-            <option value="lessThan">Maximum</option>
+            <option value="moreThan">More than</option>
+            <option value="lessThan">Less than</option>
             <option value="between">Between</option>
           </select>
         </div>
-        {amountFilter === "moreThan" && (
+        {amountFilter.kind === "moreThan" && (
           <div className="toolbar-item medium-screen large-screen">
             <label htmlFor="min-amount">Min</label>
             <select
               id="min-amount"
-              value={minAmount}
+              value={amountFilter.min}
               onChange={(e) => handleMinAmountChange(parseInt(e.target.value))}
             >
-              {minAmountOptions.map((amount) => (
+              {getMinOptions().map((amount) => (
                 <option key={amount} value={amount}>
                   {formatAmountOption(amount)}
                 </option>
@@ -167,19 +183,15 @@ const DonationsView = ({
             </select>
           </div>
         )}
-        {amountFilter === "lessThan" && (
+        {amountFilter.kind === "lessThan" && (
           <div className="toolbar-item medium-screen large-screen">
             <label htmlFor="max-amount">Max</label>
             <select
               id="max-amount"
-              value={
-                maxAmount === Number.POSITIVE_INFINITY
-                  ? maxAmountOptions[0]
-                  : maxAmount
-              }
+              value={amountFilter.max}
               onChange={(e) => handleMaxAmountChange(parseInt(e.target.value))}
             >
-              {maxAmountOptions.map((amount) => (
+              {getMaxOptions().map((amount) => (
                 <option key={amount} value={amount}>
                   {formatAmountOption(amount)}
                 </option>
@@ -187,18 +199,16 @@ const DonationsView = ({
             </select>
           </div>
         )}
-        {amountFilter === "between" && (
+        {amountFilter.kind === "between" && (
           <>
             <div className="toolbar-item medium-screen large-screen">
               <label htmlFor="min-amount">Min</label>
               <select
                 id="min-amount"
-                value={minAmount}
-                onChange={(e) =>
-                  handleMinAmountChange(parseInt(e.target.value))
-                }
+                value={amountFilter.min}
+                onChange={(e) => handleMinAmountChange(parseInt(e.target.value))}
               >
-                {minAmountOptions.map((amount) => (
+                {getMinOptions().map((amount) => (
                   <option key={amount} value={amount}>
                     {formatAmountOption(amount)}
                   </option>
@@ -209,16 +219,10 @@ const DonationsView = ({
               <label htmlFor="max-amount">Max</label>
               <select
                 id="max-amount"
-                value={
-                  maxAmount === Number.POSITIVE_INFINITY
-                    ? maxAmountOptions[0]
-                    : maxAmount
-                }
-                onChange={(e) =>
-                  handleMaxAmountChange(parseInt(e.target.value))
-                }
+                value={amountFilter.max}
+                onChange={(e) => handleMaxAmountChange(parseInt(e.target.value))}
               >
-                {maxAmountOptions.map((amount) => (
+                {getMaxOptions().map((amount) => (
                   <option key={amount} value={amount}>
                     {formatAmountOption(amount)}
                   </option>

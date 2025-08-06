@@ -1,11 +1,16 @@
-import { useSearchParams } from "react-router-dom";
 import { donationTextMatch } from "./donation";
 import { getCurrentYear, extractYear, compareDatesDesc } from "./date";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
+import { useUrlParam } from "./useUrlParam";
 
 type YearFilter = "all" | "current" | "previous" | "last2" | string;
-type AmountFilterType = "all" | "moreThan" | "lessThan" | "between";
+
+type AmountFilter =
+  | { kind: "all" }
+  | { kind: "moreThan"; min: number }
+  | { kind: "lessThan"; max: number }
+  | { kind: "between"; min: number; max: number };
 
 interface DonationsContainerProps {
   donationsData: DonationsData;
@@ -13,92 +18,108 @@ interface DonationsContainerProps {
 }
 
 const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
-
   const currentYear = getCurrentYear();
 
   const years = donationsData.donations.map((d) => extractYear(d.date));
   const minYear = years.length > 0 ? Math.min(...years) : currentYear;
   const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
 
-  // Read state from URL parameters
-  const filter = searchParams.get("search") || "";
-  const yearFilter = (searchParams.get("year") as YearFilter) || "all";
-  const amountFilter =
-    (searchParams.get("amountFilter") as AmountFilterType) || "all";
-  const minAmount = parseInt(searchParams.get("min") || "0") || 0;
-  const maxAmount =
-    parseInt(searchParams.get("max") || "") || Number.POSITIVE_INFINITY;
-  const categoryFilter = searchParams.get("category") || "";
+  const [search, updateSearch] = useUrlParam({
+    paramName: "search",
+    parseFromString: (value) => value,
+    defaultValue: "",
+    noFilterValue: "",
+    stringifyValue: (value) => (value === "" ? undefined : value),
+  });
 
-  // URL update functions
-  const updateSearchParams = (updates: Record<string, string | undefined>) => {
-    const newParams = new URLSearchParams(searchParams);
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === undefined || value === "") {
-        newParams.delete(key);
-      } else {
-        newParams.set(key, value);
+  const [yearFilter, updateYearFilter] = useUrlParam({
+    paramName: "year",
+    parseFromString: (value): YearFilter | undefined => {
+      if (
+        value === "all" ||
+        value === "current" ||
+        value === "previous" ||
+        value === "last2"
+      ) {
+        return value;
       }
-    });
-    setSearchParams(newParams);
-  };
+      if (value.match(/^\d{4}$/)) {
+        return value;
+      }
+      return undefined; // Invalid -> use defaultValue
+    },
+    defaultValue: "all" as YearFilter,
+    noFilterValue: "all" as YearFilter,
+    stringifyValue: (value) => (value === "all" ? undefined : value),
+  });
 
-  const updateFilter = (newFilter: string) => {
-    updateSearchParams({ search: newFilter || undefined });
-  };
+  const [categoryFilter, updateCategoryFilter] = useUrlParam({
+    paramName: "category",
+    parseFromString: (value) => value,
+    defaultValue: "",
+    noFilterValue: "",
+    stringifyValue: (value) => (value === "" ? undefined : value),
+  });
 
-  const updateYearFilter = (newYearFilter: YearFilter) => {
-    updateSearchParams({ year: newYearFilter });
-  };
+  const [amountFilter, updateAmountFilter] = useUrlParam({
+    paramName: "amount",
+    parseFromString: (str): AmountFilter | undefined => {
+      if (str === "all") return { kind: "all" };
 
-  const updateCategoryFilter = (newCategoryFilter: string) => {
-    updateSearchParams({ category: newCategoryFilter || undefined });
-  };
+      const parts = str.split("_");
+      const type = parts[0];
 
-  const updateAmountFilter = (
-    filterType: AmountFilterType,
-    minValue?: number,
-    maxValue?: number,
-  ) => {
-    // Auto-swap if min > max for "between" type
-    let finalMin = minValue;
-    let finalMax = maxValue;
-    if (
-      filterType === "between" &&
-      minValue &&
-      maxValue &&
-      minValue > maxValue
-    ) {
-      finalMin = maxValue;
-      finalMax = minValue;
-    }
-
-    const updates: Record<string, string | undefined> = {
-      amountFilter: filterType === "all" ? undefined : filterType,
-    };
-
-    switch (filterType) {
-      case "all":
-        updates.min = undefined;
-        updates.max = undefined;
-        break;
-      case "moreThan":
-        updates.min = finalMin?.toString();
-        updates.max = undefined;
-        break;
-      case "lessThan":
-        updates.min = undefined;
-        updates.max = finalMax?.toString();
-        break;
-      case "between":
-        updates.min = finalMin?.toString();
-        updates.max = finalMax?.toString();
-        break;
-    }
-
-    updateSearchParams(updates);
-  };
+      switch (type) {
+        case "moreThan": {
+          if (parts.length !== 2) return undefined;
+          const min = parseFloat(parts[1]);
+          return isNaN(min) ? undefined : { kind: "moreThan", min };
+        }
+        case "lessThan": {
+          if (parts.length !== 2) return undefined;
+          const max = parseFloat(parts[1]);
+          return isNaN(max) ? undefined : { kind: "lessThan", max };
+        }
+        case "between": {
+          if (parts.length !== 3) return undefined;
+          const min = parseFloat(parts[1]);
+          const max = parseFloat(parts[2]);
+          return isNaN(min) || isNaN(max)
+            ? undefined
+            : { kind: "between", min, max };
+        }
+        default:
+          return undefined;
+      }
+    },
+    defaultValue: { kind: "all" },
+    noFilterValue: { kind: "all" },
+    stringifyValue: (filter) => {
+      switch (filter.kind) {
+        case "all":
+          return undefined;
+        case "moreThan":
+          return `moreThan_${filter.min}`;
+        case "lessThan":
+          return `lessThan_${filter.max}`;
+        case "between":
+          return `between_${filter.min}_${filter.max}`;
+      }
+    },
+    areEqual: (a, b) => {
+      if (a.kind !== b.kind) return false;
+      switch (a.kind) {
+        case "all":
+          return true;
+        case "moreThan":
+          return a.min === (b as typeof a).min;
+        case "lessThan":
+          return a.max === (b as typeof a).max;
+        case "between":
+          return a.min === (b as typeof a).min && a.max === (b as typeof a).max;
+      }
+    },
+  });
 
   // Calculate year range based on yearFilter
   const getYearRange = (yearFilter: YearFilter): [number, number] => {
@@ -112,12 +133,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       case "last2":
         return [currentYear - 1, currentYear];
       default:
-        // Handle 4-digit years from URL
         if (yearFilter.match(/^\d{4}$/)) {
           const year = parseInt(yearFilter);
           return [year, year];
         }
-        // Invalid format - fallback to "all"
         return [minYear, maxYear];
     }
   };
@@ -181,33 +200,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const categoryFilterOptions = generateCategoryFilterOptions();
 
-  // Generate dynamic amount filter options
-  const generateAmountOptions = () => {
-    const minAmountPresets = [100, 250, 500, 1000, 2500, 5000];
-    const maxAmountPresets = [5000, 2500, 1000, 500, 250, 100]; // Descending order
-
-    // Add URL values if valid and not already in presets
-    const minOptions = [...minAmountPresets];
-    const maxOptions = [...maxAmountPresets];
-
-    if (minAmount > 0 && !minAmountPresets.includes(minAmount)) {
-      minOptions.push(minAmount);
-      minOptions.sort((a, b) => a - b); // Keep ascending order
-    }
-
-    if (
-      maxAmount !== Number.POSITIVE_INFINITY &&
-      !maxAmountPresets.includes(maxAmount)
-    ) {
-      maxOptions.push(maxAmount);
-      maxOptions.sort((a, b) => b - a); // Keep descending order
-    }
-
-    return { minOptions, maxOptions };
-  };
-
-  const { minOptions, maxOptions } = generateAmountOptions();
-
   const getOrgName = (orgId: string) => {
     const org = donationsData.orgs.find((o) => o.id === orgId);
     return org?.name || "Unknown Organization";
@@ -226,23 +218,19 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       const year = extractYear(d.date);
       const amt = d.amount;
       const matchesYear = year >= yearFrom && year <= yearTo;
-      // Amount filtering logic based on filter type
       let matchesAmount = true;
-      switch (amountFilter) {
+      switch (amountFilter.kind) {
         case "all":
           matchesAmount = true;
           break;
         case "moreThan":
-          matchesAmount = amt >= minAmount;
+          matchesAmount = amt >= amountFilter.min;
           break;
         case "lessThan":
-          matchesAmount =
-            maxAmount === Number.POSITIVE_INFINITY || amt <= maxAmount;
+          matchesAmount = amt <= amountFilter.max;
           break;
         case "between":
-          matchesAmount =
-            amt >= minAmount &&
-            (maxAmount === Number.POSITIVE_INFINITY || amt <= maxAmount);
+          matchesAmount = amt >= amountFilter.min && amt <= amountFilter.max;
           break;
       }
       const org = donationsData.orgs.find((o) => o.id === d.orgId) || {
@@ -250,12 +238,11 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         notes: "",
         category: undefined,
       };
-      // Category filtering logic
       const matchesCategory =
         categoryFilter === "" ||
         (org.category && org.category === categoryFilter);
       const matchesText =
-        filter.trim() === "" || donationTextMatch(filter, d, org);
+        search.trim() === "" || donationTextMatch(search, d, org);
       return matchesYear && matchesAmount && matchesCategory && matchesText;
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))
@@ -273,20 +260,23 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     });
 
   const handleClearFilters = () => {
-    setSearchParams(new URLSearchParams());
+    updateSearch("");
+    updateYearFilter("all");
+    updateCategoryFilter("");
+    updateAmountFilter({ kind: "all" });
   };
 
   const hasActiveFilters =
-    filter !== "" ||
+    search !== "" ||
     yearFilter !== "all" ||
-    amountFilter !== "all" ||
+    amountFilter.kind !== "all" ||
     categoryFilter !== "";
 
   return (
     <DonationsView
       donations={donations}
-      currentFilter={filter}
-      textFilterChanged={updateFilter}
+      currentFilter={search}
+      textFilterChanged={updateSearch}
       yearFilter={yearFilter}
       yearFilterOptions={yearFilterOptions}
       yearFilterChanged={updateYearFilter}
@@ -294,10 +284,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       categoryFilterOptions={categoryFilterOptions}
       categoryFilterChanged={updateCategoryFilter}
       amountFilter={amountFilter}
-      minAmount={minAmount}
-      maxAmount={maxAmount}
-      minAmountOptions={minOptions}
-      maxAmountOptions={maxOptions}
       amountFilterChanged={updateAmountFilter}
       onClearFilters={handleClearFilters}
       hasActiveFilters={hasActiveFilters}

@@ -1,7 +1,7 @@
-import { useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { textMatch } from "./organization";
 import OrgsView from "./OrgsView";
+import { useUrlParam } from "./useUrlParam";
 
 interface OrgsContainerProps {
   donationsData: DonationsData;
@@ -9,34 +9,21 @@ interface OrgsContainerProps {
 }
 
 const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchFilter, updateSearchFilter] = useUrlParam({
+    paramName: "search",
+    parseFromString: (value) => value,
+    defaultValue: "",
+    noFilterValue: "",
+    stringifyValue: (value) => value || undefined,
+  });
 
-  // Read state from URL parameters
-  const textFilter = searchParams.get("search") || "";
-  const categoryFilter = searchParams.get("category") || "all";
-
-  // URL update functions
-  const updateSearchParams = (updates: Record<string, string | undefined>) => {
-    const newParams = new URLSearchParams(searchParams);
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === undefined || value === "" || value === "all") {
-        newParams.delete(key);
-      } else {
-        newParams.set(key, value);
-      }
-    });
-    setSearchParams(newParams);
-  };
-
-  const updateTextFilter = (newFilter: string) => {
-    updateSearchParams({ search: newFilter || undefined });
-  };
-
-  const updateCategoryFilter = (newCategory: string) => {
-    updateSearchParams({
-      category: newCategory === "all" ? undefined : newCategory,
-    });
-  };
+  const [categoryFilter, updateCategoryFilter] = useUrlParam({
+    paramName: "category",
+    parseFromString: (value) => value,
+    defaultValue: "all",
+    noFilterValue: "all",
+    stringifyValue: (value) => (value === "all" ? undefined : value),
+  });
 
   const availableCategories = Array.from(
     new Set(
@@ -44,9 +31,9 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
         .map((org) => org.category)
         .filter(
           (cat): cat is string =>
-            typeof cat === "string" && cat.trim().length > 0
-        )
-    )
+            typeof cat === "string" && cat.trim().length > 0,
+        ),
+    ),
   ).sort();
 
   // Add URL category if it doesn't exist in available categories
@@ -61,7 +48,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
-      const matchesText = textMatch(org, textFilter);
+      const matchesText = textMatch(org, searchFilter);
       const matchesCategory =
         categoryFilter === "all" || org.category === categoryFilter;
       return matchesText && matchesCategory;
@@ -69,16 +56,17 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleClearFilters = () => {
-    setSearchParams(new URLSearchParams());
+    updateSearchFilter("");
+    updateCategoryFilter("all");
   };
 
-  const hasActiveFilters = textFilter !== "" || categoryFilter !== "all";
+  const hasActiveFilters = searchFilter !== "" || categoryFilter !== "all";
 
   return (
     <OrgsView
       orgs={filteredOrgs}
-      currentTextFilter={textFilter}
-      textFilterChanged={updateTextFilter}
+      currentTextFilter={searchFilter}
+      textFilterChanged={updateSearchFilter}
       currentCategoryFilter={categoryFilter}
       categoryFilterChanged={updateCategoryFilter}
       availableCategories={categoriesForDropdown}

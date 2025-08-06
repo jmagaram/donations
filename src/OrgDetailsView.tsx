@@ -115,9 +115,7 @@ const OrgDetailsView = ({
                 <div className="payment-method medium-screen">
                   {donation.paymentMethod || ""}
                 </div>
-                <div className="notes large-screen">
-                  {donation.notes || "-"}
-                </div>
+                <div className="notes large-screen">{donation.notes || ""}</div>
               </div>
             ))}
           </div>

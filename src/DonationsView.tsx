@@ -145,7 +145,7 @@ const DonationsView = ({
               handleAmountFilterTypeChange(e.target.value as AmountFilterType)
             }
           >
-            <option value="all">Any amount</option>
+            <option value="all">All amounts</option>
             <option value="moreThan">Minimum</option>
             <option value="lessThan">Maximum</option>
             <option value="between">Between</option>
@@ -228,7 +228,7 @@ const DonationsView = ({
           </>
         )}
         <div className="toolbar-item">
-          <label htmlFor="filter">Find</label>
+          <label htmlFor="filter">Search</label>
           <input
             type="search"
             id="filter"

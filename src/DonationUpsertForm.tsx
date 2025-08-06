@@ -200,7 +200,7 @@ const DonationUpsertForm = ({
       <div>
         <h1>Edit Donation</h1>
         <StatusBox
-          content={`The organization ${orgId} for this donation was not found. Delete the donation and create it from scratch.`}
+          content={`This organization no longer exists. Please delete this donation and create a new one.`}
           kind="error"
         />
       </div>
@@ -340,7 +340,7 @@ const DonationUpsertForm = ({
           <textarea id="notes" rows={5} {...register("notes")} />
         </div>
         <div className="toolbar">
-          <button type="submit">Save changes</button>
+          <button type="submit">Save</button>
           <button type="button" onClick={() => navigate(-1)}>
             Cancel
           </button>
@@ -348,7 +348,7 @@ const DonationUpsertForm = ({
             <button
               type="button"
               onClick={() => {
-                if (window.confirm("Really want to delete?")) {
+                if (window.confirm("Are you sure you want to delete this donation?")) {
                   onDelete();
                 }
               }}

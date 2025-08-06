@@ -41,7 +41,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
   const confirmPushForceSync = async () => {
     if (
       !confirm(
-        "Replace all data on the server with your local data. Are you sure?",
+        "Replace server data with your local data?",
       )
     ) {
       return;
@@ -55,7 +55,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
       <div className="toolbar">
         <button onClick={confirmUseSampleData}>Use sample data</button>
         <button onClick={confirmDeleteAll}>Delete all data</button>
-        <button onClick={confirmPushForceSync}>Push force</button>
+        <button onClick={confirmPushForceSync}>Force upload</button>
       </div>
     </div>
   );

@@ -505,7 +505,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                 onChange={handleModeChange}
                 disabled={isWorking}
               />
-              CSV (comma separated value) files
+              CSV files
             </label>
             <label>
               <input
@@ -516,7 +516,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
                 onChange={handleModeChange}
                 disabled={isWorking}
               />
-              JSON single file backup
+              Backup file (JSON)
             </label>
           </div>
         </div>
@@ -544,7 +544,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
               />
             </div>
             <button onClick={handleImport} disabled={!orgFile || isWorking}>
-              Start import
+              Import
             </button>
           </>
         )}

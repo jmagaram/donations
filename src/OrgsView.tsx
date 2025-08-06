@@ -32,7 +32,7 @@ const OrgsView = ({
       <div className="toolbar">
         <div className="toolbar-item">
           <label htmlFor="filter" className="toolbar-item">
-            Find
+            Search
           </label>
           <input
             type="search"

@@ -51,6 +51,10 @@ button {
     width: fit-content;
 }
 
+.react-select-kind__control {
+    min-width: 14ch;
+}
+
 .form-row #password {
     min-width: 27ch;
 }
@@ -58,10 +62,6 @@ button {
 .form-row .form-field #amount {
     min-width: 8ch;
     max-width: 12ch;
-}
-
-.form-field #paymentMethod {
-    min-width: 34ch;
 }
 
 .instructions {
@@ -583,4 +583,12 @@ nav a {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+}
+
+.react-select-org__control {
+    min-width: 35ch;
+}
+
+.react-select-payment__control {
+    min-width: 30ch;
 }

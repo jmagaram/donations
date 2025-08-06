@@ -1,12 +1,27 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import Select, { type SingleValue } from "react-select";
+import CreatableSelect from "react-select/creatable";
+import { textMatch } from "./organization";
 import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
 import type { DonationsData } from "./types";
 import { findOrgById } from "./donationsData";
 import { useSearchParams, useNavigate } from "react-router-dom";
+
+type KindOption = {
+  value: string;
+  label: string;
+};
+
+const KIND_OPTIONS: KindOption[] = [
+  { value: "idea", label: "Idea" },
+  { value: "pledge", label: "Pledge" },
+  { value: "paid", label: "Paid" },
+  { value: "unknown", label: "Unknown" },
+];
 
 interface DonationUpsertFormProps {
   onSubmit: (formData: DonationUpsertFields) => void;
@@ -25,7 +40,8 @@ const DonationUpsertForm = ({
 }: DonationUpsertFormProps) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const orgSelectRef = React.useRef<HTMLSelectElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reactSelectRef = React.useRef<any>(null);
   const dateInputRef = React.useRef<HTMLInputElement>(null);
   const orgId =
     mode === "edit" ? defaultValues.orgId : searchParams.get("org") || "";
@@ -41,6 +57,7 @@ const DonationUpsertForm = ({
     reset,
     setValue,
     watch,
+    control,
   } = useForm<DonationUpsertFields>({
     resolver: zodResolver(DonationUpsertFieldsSchema),
     defaultValues: formDefaultValues,
@@ -56,9 +73,114 @@ const DonationUpsertForm = ({
     if (orgId) {
       dateInputRef.current?.focus();
     } else {
-      orgSelectRef.current?.focus();
+      reactSelectRef.current?.focus();
     }
   }, [orgId]);
+
+  type OrgOption = {
+    value: string;
+    label: string;
+    org: {
+      id: string;
+      name: string;
+      category?: string;
+      notes: string;
+      taxDeductible: boolean;
+      webSite?: string;
+    };
+  };
+
+  const orgOptions: OrgOption[] = React.useMemo(() => {
+    if (!donationsData?.orgs) return [];
+
+    return donationsData.orgs
+      .map((org) => ({
+        value: org.id,
+        label: org.name,
+        org: {
+          id: org.id,
+          name: org.name,
+          category: org.category,
+          notes: org.notes,
+          taxDeductible: org.taxDeductible,
+          webSite: org.webSite,
+        },
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label));
+  }, [donationsData?.orgs]);
+
+  const currentOrgId = watch("orgId");
+  const currentPaymentMethod = watch("paymentMethod");
+  const currentKind = watch("kind");
+
+  const selectedOrgOption = React.useMemo(() => {
+    return orgOptions.find((option) => option.value === currentOrgId) || null;
+  }, [orgOptions, currentOrgId]);
+
+  type PaymentMethodOption = {
+    value: string;
+    label: string;
+  };
+
+  const paymentMethodOptions: PaymentMethodOption[] = React.useMemo(() => {
+    if (!donationsData?.donations) return [];
+
+    const uniquePaymentMethods = Array.from(
+      new Set(
+        donationsData.donations
+          .map((donation) => donation.paymentMethod)
+          .filter((pm): pm is string => pm !== undefined && pm.trim() !== ""),
+      ),
+    ).sort((a, b) => a.localeCompare(b)); // Sort alphabetically
+
+    return uniquePaymentMethods.map((pm) => ({
+      value: pm,
+      label: pm,
+    }));
+  }, [donationsData?.donations]);
+
+  // Find the selected payment method option (or create one for arbitrary text)
+  const selectedPaymentMethodOption = React.useMemo(() => {
+    if (!currentPaymentMethod) return null;
+
+    const existingOption = paymentMethodOptions.find(
+      (option) => option.value === currentPaymentMethod,
+    );
+
+    if (existingOption) {
+      return existingOption;
+    }
+
+    return {
+      value: currentPaymentMethod,
+      label: currentPaymentMethod,
+    };
+  }, [paymentMethodOptions, currentPaymentMethod]);
+
+  const selectedKindOption = React.useMemo(() => {
+    return KIND_OPTIONS.find((option) => option.value === currentKind) || null;
+  }, [currentKind]);
+
+  const filterOption = (option: { data: OrgOption }, inputValue: string) => {
+    if (!inputValue.trim()) return true;
+    return textMatch(option.data.org, inputValue);
+  };
+
+  const filterPaymentMethodOption = (
+    option: { data: PaymentMethodOption },
+    inputValue: string,
+  ) => {
+    if (!inputValue.trim()) return true;
+    return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
+  };
+
+  const filterKindOption = (
+    option: { data: KindOption },
+    inputValue: string,
+  ) => {
+    if (!inputValue.trim()) return true;
+    return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
+  };
 
   const handleFormSubmit = (data: DonationUpsertFields) => {
     if (mode === "edit" && !isDirty) {
@@ -91,101 +213,132 @@ const DonationUpsertForm = ({
       <form onSubmit={handleSubmit(handleFormSubmit)}>
         <div className="form-field">
           <label htmlFor="orgId">Organization</label>
-          <select 
-            id="orgId" 
-            {...register("orgId")}
-            ref={(e) => {
-              register("orgId").ref(e);
-              orgSelectRef.current = e;
-            }}
-          >
-            <option value="">Select an organization</option>
-            {donationsData?.orgs
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map((org) => (
-                <option key={org.id} value={org.id}>
-                  {org.name}
-                </option>
-              ))}
-          </select>
+          <Controller
+            name="orgId"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                ref={reactSelectRef}
+                id="orgId"
+                classNamePrefix="react-select-org"
+                options={orgOptions}
+                value={selectedOrgOption}
+                onChange={(selectedOption: SingleValue<OrgOption>) => {
+                  field.onChange(selectedOption?.value || "");
+                }}
+                onBlur={field.onBlur}
+                filterOption={filterOption}
+                placeholder=""
+                isClearable
+                isSearchable
+                noOptionsMessage={({ inputValue }) =>
+                  inputValue
+                    ? `No organizations match "${inputValue}"`
+                    : "No organizations available"
+                }
+              />
+            )}
+          />
           {errors.orgId && <span>{errors.orgId.message}</span>}
         </div>
-        <div className="form-row">
-          <div className="form-field">
-            <label htmlFor="date">Date</label>
-            <input 
-              id="date" 
-              type="date" 
-              {...register("date", {
-                setValueAs: (value) => value
-              })}
-              ref={(e) => {
-                register("date").ref(e);
-                dateInputRef.current = e;
-              }}
-            />
-            {errors.date && <span>{errors.date.message}</span>}
-          </div>
-          <div className="form-field">
-            <label htmlFor="amount">Amount</label>
-            <input
-              id="amount"
-              type="number"
-              step="0.01"
-              onFocus={() => {
-                const currentAmount = watch("amount");
-                if (currentAmount === 0) {
-                  setValue("amount", undefined as unknown as number, { shouldDirty: true });
-                }
-              }}
-              {...register("amount", { valueAsNumber: true })}
-            />
-            {errors.amount && <span>{errors.amount.message}</span>}
-          </div>
+        <div className="form-field">
+          <label htmlFor="date">Date</label>
+          <input
+            id="date"
+            type="date"
+            {...register("date", {
+              setValueAs: (value) => value,
+            })}
+            ref={(e) => {
+              register("date").ref(e);
+              dateInputRef.current = e;
+            }}
+          />
+          {errors.date && <span>{errors.date.message}</span>}
         </div>
-        <div className="form-row">
-          <div className="form-field">
-            <label htmlFor="kind">Type</label>
-            <select id="kind" {...register("kind")}>
-              <option value="idea">Idea</option>
-              <option value="pledge">Pledge</option>
-              <option value="paid">Paid</option>
-              <option value="unknown">Unknown</option>
-            </select>
-            {errors.kind && <span>{errors.kind.message}</span>}
-          </div>
-          <div className="form-field">
-            <label htmlFor="paymentMethod">Payment method</label>
-            <input
-              id="paymentMethod"
-              list="paymentMethods"
-              onKeyDown={(e) => {
-                if (e.altKey && e.key === "ArrowDown") {
-                  e.preventDefault();
-                  try {
-                    e.currentTarget.showPicker();
-                  } catch {
-                    // If showPicker is not supported, do nothing
-                  }
-                }
-              }}
-              {...register("paymentMethod")}
-            />
-            {errors.paymentMethod && (
-              <span>{errors.paymentMethod.message}</span>
+        <div className="form-field">
+          <label htmlFor="amount">Amount</label>
+          <input
+            id="amount"
+            type="number"
+            step="0.01"
+            onFocus={() => {
+              const currentAmount = watch("amount");
+              if (currentAmount === 0) {
+                setValue("amount", undefined as unknown as number, {
+                  shouldDirty: true,
+                });
+              }
+            }}
+            {...register("amount", { valueAsNumber: true })}
+          />
+          {errors.amount && <span>{errors.amount.message}</span>}
+        </div>
+        <div className="form-field">
+          <label htmlFor="kind">Type</label>
+          <Controller
+            name="kind"
+            control={control}
+            render={({ field }) => (
+              <Select
+                {...field}
+                id="kind"
+                classNamePrefix="react-select-kind"
+                options={KIND_OPTIONS}
+                value={selectedKindOption}
+                onChange={(selectedOption: SingleValue<KindOption>) => {
+                  field.onChange(selectedOption?.value || "");
+                }}
+                onBlur={field.onBlur}
+                filterOption={filterKindOption}
+                placeholder=""
+                isClearable={false}
+                isSearchable={false}
+                noOptionsMessage={() => "No types available"}
+              />
             )}
-          </div>
+          />
+          {errors.kind && <span>{errors.kind.message}</span>}
+        </div>
+        <div className="form-field">
+          <label htmlFor="paymentMethod">Payment method</label>
+          <Controller
+            name="paymentMethod"
+            control={control}
+            render={({ field }) => (
+              <CreatableSelect
+                {...field}
+                id="paymentMethod"
+                classNamePrefix="react-select-payment"
+                options={paymentMethodOptions}
+                value={selectedPaymentMethodOption}
+                onChange={(
+                  selectedOption: SingleValue<PaymentMethodOption>,
+                ) => {
+                  field.onChange(selectedOption?.value || "");
+                }}
+                onBlur={field.onBlur}
+                filterOption={filterPaymentMethodOption}
+                placeholder=""
+                isClearable
+                isSearchable
+                createOptionPosition="first"
+                formatCreateLabel={(inputValue) => `Create "${inputValue}"`}
+                noOptionsMessage={({ inputValue }) =>
+                  inputValue
+                    ? `Type "${inputValue}" to create it`
+                    : "Start typing to see options or create new"
+                }
+              />
+            )}
+          />
+          {errors.paymentMethod && <span>{errors.paymentMethod.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="notes">Notes</label>
           <textarea id="notes" rows={5} {...register("notes")} />
         </div>
-        <datalist id="paymentMethods">
-          <option value="Stock" />
-          <option value="Amex" />
-          <option value="Wells Fargo Credit" />
-          <option value="Wells Fargo Check" />
-        </datalist>
         <div className="toolbar">
           <button type="submit">Save changes</button>
           <button type="button" onClick={() => navigate(-1)}>

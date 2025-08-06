@@ -36,3 +36,5 @@ AWS, using the CDK to manage infrastructure and deployment.
 - IAM Policies: For granting Lambda permissions to access S3 and SSM resources.
 
 ## To do
+
+- Consider adding webmanifest

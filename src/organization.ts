@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  type Org,
   OrgNameSchema,
   OrgCategorySchema,
   OrgTaxDeductibleSchema,
@@ -24,21 +23,4 @@ export const defaultFields: OrgUpsertFields = {
   taxDeductible: true,
   webSite: "",
   notes: "",
-};
-
-export const textMatch = (org: Org, filter: string): boolean => {
-  const filterKeywords = filter
-    .split(/[\s,]+/)
-    .map((k) => k.trim().toLowerCase())
-    .filter((k) => k.length > 0);
-  if (filterKeywords.length === 0) return true;
-  const orgKeywords = [org.name, org.category, org.notes]
-    .filter(Boolean)
-    .join(" ")
-    .split(/[\s,]+/)
-    .map((k) => k.trim().toLowerCase())
-    .filter((k) => k.length > 0);
-  return filterKeywords.some((filterKeyword) =>
-    orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword))
-  );
 };

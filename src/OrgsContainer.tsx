@@ -1,5 +1,5 @@
 import { type DonationsData } from "./types";
-import { textMatch } from "./organization";
+import { orgTextMatch } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useUrlParam } from "./useUrlParam";
 
@@ -48,7 +48,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
-      const matchesText = textMatch(org, searchFilter);
+      const matchesText = orgTextMatch(org, searchFilter);
       const matchesCategory =
         categoryFilter === "all" || org.category === categoryFilter;
       return matchesText && matchesCategory;

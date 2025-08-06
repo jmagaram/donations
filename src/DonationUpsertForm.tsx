@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { textMatch } from "./organization";
+import { orgTextMatch } from "./donationsData";
 import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
@@ -163,7 +163,7 @@ const DonationUpsertForm = ({
 
   const filterOption = (option: { data: OrgOption }, inputValue: string) => {
     if (!inputValue.trim()) return true;
-    return textMatch(option.data.org, inputValue);
+    return orgTextMatch(option.data.org, inputValue);
   };
 
   const filterPaymentMethodOption = (

@@ -1,13 +1,6 @@
 import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
-
-type YearFilter = "all" | "current" | "previous" | "last2" | string;
-
-type AmountFilter = 
-  | { kind: "all" }
-  | { kind: "moreThan", min: number }
-  | { kind: "lessThan", max: number }
-  | { kind: "between", min: number, max: number };
+import { type YearFilter, type AmountFilter } from "./donationsData";
 
 export interface DonationDisplay {
   id: string;

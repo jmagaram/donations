@@ -1,79 +1,73 @@
 import { useMemo } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 import { formatUSD as formatAmount } from "./amount";
+import { useUrlParam } from "./useUrlParam";
+import {
+  type YearFilter,
+  parseYearFilter,
+  stringifyYearFilter,
+  getYearRange,
+} from "./yearFilter";
+import { getDonationYearRange } from "./donationsData";
 
 interface TotalsByYearProps {
   donationsData: DonationsData;
 }
 
-type YearRange = "current" | "past2" | "past3" | "past4" | "future";
 type TaxStatus = "all" | "taxDeductible" | "notTaxDeductible";
 type DonationType = "all" | "paid" | "pledges" | "paidAndPledges" | "unknown";
 
 const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const currentYear = getCurrentYear();
+  const yearRange = getDonationYearRange(donationsData.donations);
+  const minYear = yearRange?.minYear ?? currentYear;
+  const maxYear = yearRange?.maxYear ?? currentYear;
 
-  const yearRange = (searchParams.get("years") as YearRange) || "current";
-  const taxStatus = (searchParams.get("tax") as TaxStatus) || "all";
-  const donationType = (searchParams.get("type") as DonationType) || "all";
+  const [yearFilter, updateYearFilter] = useUrlParam({
+    paramName: "year",
+    parseFromString: parseYearFilter,
+    defaultValue: { kind: "last4" },
+    noFilterValue: { kind: "all" },
+    stringifyValue: stringifyYearFilter,
+  });
 
-  const updateYearRange = (value: YearRange) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("years", value);
-    setSearchParams(newParams);
-  };
+  const [taxStatus, updateTaxStatus] = useUrlParam({
+    paramName: "tax",
+    parseFromString: (value) => value as TaxStatus,
+    defaultValue: "all" as TaxStatus,
+    noFilterValue: "all" as TaxStatus,
+    stringifyValue: (value) => value === "all" ? undefined : value,
+  });
 
-  const updateTaxStatus = (value: TaxStatus) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("tax", value);
-    setSearchParams(newParams);
-  };
-
-  const updateDonationType = (value: DonationType) => {
-    const newParams = new URLSearchParams(searchParams);
-    newParams.set("type", value);
-    setSearchParams(newParams);
-  };
+  const [donationType, updateDonationType] = useUrlParam({
+    paramName: "type",
+    parseFromString: (value) => value as DonationType,
+    defaultValue: "all" as DonationType,
+    noFilterValue: "all" as DonationType,
+    stringifyValue: (value) => value === "all" ? undefined : value,
+  });
 
   const processedData = useMemo(() => {
-    const currentYear = getCurrentYear();
-
-    // Calculate year range
-    const years: number[] = [];
-    switch (yearRange) {
-      case "current":
-        years.push(currentYear);
-        break;
-      case "past2":
-        years.push(currentYear, currentYear - 1);
-        break;
-      case "past3":
-        years.push(currentYear, currentYear - 1, currentYear - 2);
-        break;
-      case "past4":
-        years.push(
-          currentYear,
-          currentYear - 1,
-          currentYear - 2,
-          currentYear - 3,
-        );
-        break;
-      case "future": {
-        // Find max year in donations
-        const maxYearInData = Math.max(
-          ...donationsData.donations.map((d) => extractYear(d.date)),
-          currentYear,
-        );
-        const futureEndYear = Math.min(currentYear + 5, maxYearInData);
-        for (let year = currentYear + 1; year <= futureEndYear; year++) {
-          years.push(year);
-        }
-        break;
+    let years: number[] = [];
+    
+    if (yearFilter.kind === "all") {
+      // For "all", use only years that actually have donations
+      years = Array.from(new Set(donationsData.donations.map(d => extractYear(d.date)))).sort((a, b) => a - b);
+    } else {
+      // For specific ranges, generate years from the range
+      const [yearFrom, yearTo] = getYearRange({
+        yearFilter,
+        minYear,
+        maxYear,
+        currentYear,
+      });
+      
+      for (let year = yearFrom; year <= yearTo; year++) {
+        years.push(year);
       }
     }
-    years.sort((a, b) => a - b); // Sort ascending
 
     // Filter donations
     const filteredDonations = donationsData.donations.filter((donation) => {
@@ -141,7 +135,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
       yearTotals,
       grandTotal,
     };
-  }, [donationsData, yearRange, taxStatus, donationType]);
+  }, [donationsData, yearFilter, taxStatus, donationType, minYear, maxYear, currentYear]);
 
   return (
     <div>
@@ -152,14 +146,16 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           <label htmlFor="yearRange">Years</label>
           <select
             id="yearRange"
-            value={yearRange}
-            onChange={(e) => updateYearRange(e.target.value as YearRange)}
+            value={stringifyYearFilter(yearFilter)}
+            onChange={(e) => updateYearFilter(parseYearFilter(e.target.value))}
           >
-            <option value="current">Current</option>
-            <option value="past2">Past 2 years</option>
-            <option value="past3">Past 3 years</option>
-            <option value="past4">Past 4 years</option>
-            <option value="future">Future</option>
+            <option value="all">All years</option>
+            <option value="current">Current year</option>
+            <option value="previous">Previous year</option>
+            <option value="last2">Last 2 years</option>
+            <option value="last3">Last 3 years</option>
+            <option value="last4">Last 4 years</option>
+            <option value="last5">Last 5 years</option>
           </select>
         </div>
 

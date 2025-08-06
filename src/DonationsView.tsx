@@ -7,6 +7,11 @@ import {
 } from "./yearFilter";
 import { type AmountFilter } from "./amountFilter";
 import { formatUSD } from "./amount";
+import {
+  parseCategoryFilter,
+  stringifyCategoryFilter,
+  type CategoryFilter,
+} from "./categoryFilter";
 
 export interface DonationDisplay {
   id: string;
@@ -26,9 +31,9 @@ interface DonationsViewProps {
   yearFilter: YearFilter;
   yearFilterOptions: { value: string; label: string }[];
   yearFilterChanged: (yearFilter: YearFilter) => void;
-  categoryFilter: string;
+  categoryFilter: CategoryFilter;
   categoryFilterOptions: { value: string; label: string }[];
-  categoryFilterChanged: (categoryFilter: string) => void;
+  categoryFilterChanged: (categoryFilter: CategoryFilter) => void;
   amountFilter: AmountFilter;
   amountFilterChanged: (newFilter: AmountFilter) => void;
   onClearFilters: () => void;
@@ -146,8 +151,10 @@ const DonationsView = ({
           <label htmlFor="category-filter">Category</label>
           <select
             id="category-filter"
-            value={categoryFilter}
-            onChange={(e) => categoryFilterChanged(e.target.value)}
+            value={stringifyCategoryFilter(categoryFilter)}
+            onChange={(e) =>
+              categoryFilterChanged(parseCategoryFilter(e.target.value))
+            }
           >
             {categoryFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>

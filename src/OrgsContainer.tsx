@@ -1,7 +1,24 @@
 import { type DonationsData } from "./types";
-import { orgTextMatch } from "./donationsData";
+import { orgTextMatch, getUniqueOrgCategories } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useUrlParam } from "./useUrlParam";
+import {
+  type CategoryFilter,
+  parseCategoryFilter,
+  stringifyCategoryFilter,
+  matchesCategoryFilter,
+} from "./categoryFilter";
+
+const generateCategoryFilterOptions = (donationsData: DonationsData) => {
+  const options = [{ value: "", label: "All categories" }];
+  const uniqueCategories = Array.from(
+    getUniqueOrgCategories(donationsData),
+  ).sort();
+  uniqueCategories.forEach((category) => {
+    options.push({ value: category, label: category });
+  });
+  return options;
+};
 
 interface OrgsContainerProps {
   donationsData: DonationsData;
@@ -17,40 +34,40 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     stringifyValue: (value) => (value === "" ? undefined : value),
   });
 
-  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] = useUrlParam({
-    paramName: "category",
-    parseFromString: (value) => value,
-    defaultValue: "all",
-    noFilterValue: "all",
-    stringifyValue: (value) => (value === "all" ? undefined : value),
-  });
+  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] =
+    useUrlParam<CategoryFilter>({
+      paramName: "category",
+      parseFromString: parseCategoryFilter,
+      defaultValue: { kind: "all" },
+      noFilterValue: { kind: "all" },
+      stringifyValue: stringifyCategoryFilter,
+    });
 
-  const availableCategories = Array.from(
-    new Set(
-      donationsData.orgs
-        .map((org) => org.category)
-        .filter(
-          (cat): cat is string =>
-            typeof cat === "string" && cat.trim().length > 0,
-        ),
-    ),
-  ).sort();
+  const categoryFilterOptions = generateCategoryFilterOptions(donationsData);
 
-  // Add URL category if it doesn't exist in available categories
-  const categoriesForDropdown = [...availableCategories];
+  const availableCategories = Array.from(getUniqueOrgCategories(donationsData));
   if (
-    categoryFilter !== "all" &&
-    !availableCategories.includes(categoryFilter)
+    categoryFilter.kind === "exactMatch" &&
+    !availableCategories.includes(categoryFilter.category)
   ) {
-    categoriesForDropdown.push(categoryFilter);
-    categoriesForDropdown.sort();
+    categoryFilterOptions.push({
+      value: categoryFilter.category,
+      label: categoryFilter.category,
+    });
+    categoryFilterOptions.sort((a, b) => {
+      if (a.value === "") return -1;
+      if (b.value === "") return 1;
+      return a.label.localeCompare(b.label);
+    });
   }
 
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
       const matchesText = orgTextMatch(org, searchFilter);
-      const matchesCategory =
-        categoryFilter === "all" || org.category === categoryFilter;
+      const matchesCategory = matchesCategoryFilter(
+        org.category,
+        categoryFilter,
+      );
       return matchesText && matchesCategory;
     })
     .sort((a, b) => a.name.localeCompare(b.name));
@@ -60,16 +77,16 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     resetCategoryFilter();
   };
 
-  const hasActiveFilters = searchFilter !== "" || categoryFilter !== "all";
+  const hasActiveFilters = searchFilter !== "" || categoryFilter.kind !== "all";
 
   return (
     <OrgsView
       orgs={filteredOrgs}
       currentTextFilter={searchFilter}
       textFilterChanged={updateSearchFilter}
-      currentCategoryFilter={categoryFilter}
+      categoryFilter={categoryFilter}
       categoryFilterChanged={updateCategoryFilter}
-      availableCategories={categoriesForDropdown}
+      categoryFilterOptions={categoryFilterOptions}
       onClearFilters={handleClearFilters}
       hasActiveFilters={hasActiveFilters}
     />

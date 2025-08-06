@@ -191,15 +191,6 @@ export const matchesAmountFilter = (
   }
 };
 
-export const matchesCategoryFilter = (
-  donation: Donation,
-  data: Readonly<DonationsData>,
-  categoryFilter: string,
-): boolean => {
-  if (categoryFilter === "all") return true;
-  const org = data.orgs.find((o) => o.id === donation.orgId);
-  return org?.category === categoryFilter;
-};
 
 export const getOrgName = (
   data: Readonly<DonationsData>,

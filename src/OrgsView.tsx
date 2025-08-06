@@ -1,14 +1,19 @@
 import { Link } from "react-router-dom";
 import { type Org } from "./types";
 import StatusBox from "./StatusBox";
+import {
+  type CategoryFilter,
+  parseCategoryFilter,
+  stringifyCategoryFilter,
+} from "./categoryFilter";
 
 interface OrgsViewProps {
   orgs: Org[];
   currentTextFilter: string;
   textFilterChanged: (filter: string) => void;
-  currentCategoryFilter: string;
-  categoryFilterChanged: (category: string) => void;
-  availableCategories: string[];
+  categoryFilter: CategoryFilter;
+  categoryFilterChanged: (category: CategoryFilter) => void;
+  categoryFilterOptions: { value: string; label: string }[];
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -17,9 +22,9 @@ const OrgsView = ({
   orgs,
   currentTextFilter,
   textFilterChanged,
-  currentCategoryFilter,
+  categoryFilter: currentCategoryFilter,
   categoryFilterChanged,
-  availableCategories,
+  categoryFilterOptions,
   onClearFilters,
   hasActiveFilters,
 }: OrgsViewProps) => {
@@ -43,18 +48,19 @@ const OrgsView = ({
           />
         </div>
         <div className="toolbar-item medium-screen large-screen">
-          {availableCategories.length > 0 && (
+          {categoryFilterOptions.length > 1 && (
             <>
               <label htmlFor="categoryFilter">Category</label>
               <select
                 id="categoryFilter"
-                value={currentCategoryFilter}
-                onChange={(e) => categoryFilterChanged(e.target.value)}
+                value={stringifyCategoryFilter(currentCategoryFilter) || ""}
+                onChange={(e) =>
+                  categoryFilterChanged(parseCategoryFilter(e.target.value))
+                }
               >
-                <option value="all">All categories</option>
-                {availableCategories.map((category) => (
-                  <option key={category} value={category}>
-                    {category}
+                {categoryFilterOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
                   </option>
                 ))}
               </select>

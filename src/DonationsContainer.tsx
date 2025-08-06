@@ -9,7 +9,6 @@ import {
   getUniqueOrgCategories,
   matchesYearFilter,
   matchesAmountFilter,
-  matchesCategoryFilter,
   matchesSearchFilter,
   getOrgName,
 } from "./donationsData";
@@ -24,6 +23,11 @@ import {
   stringifyAmountFilter,
   areAmountFiltersEqual,
 } from "./amountFilter";
+import {
+  parseCategoryFilter,
+  stringifyCategoryFilter,
+  matchesCategoryFilter,
+} from "./categoryFilter";
 import { formatUSD } from "./amount";
 
 const generateYearFilterOptions = (
@@ -92,10 +96,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const [categoryFilter, updateCategoryFilter, resetCategoryFilter] =
     useUrlParam({
       paramName: "category",
-      parseFromString: (value) => value,
-      defaultValue: "all",
-      noFilterValue: "all",
-      stringifyValue: (value) => (value === "all" ? undefined : value),
+      parseFromString: parseCategoryFilter,
+      defaultValue: { kind: "all" },
+      noFilterValue: { kind: "all" },
+      stringifyValue: stringifyCategoryFilter,
     });
 
   const [amountFilter, updateAmountFilter, resetAmountFilter] = useUrlParam({
@@ -129,7 +133,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       return (
         matchesYearFilter(d, yearFrom, yearTo) &&
         matchesAmountFilter(d, amountFilter) &&
-        matchesCategoryFilter(d, donationsData, categoryFilter) &&
+        matchesCategoryFilter(
+          donationsData.orgs.find((o) => o.id === d.orgId)?.category,
+          categoryFilter,
+        ) &&
         matchesSearchFilter(d, donationsData, searchFilter)
       );
     })
@@ -158,7 +165,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     searchFilter !== "" ||
     yearFilter.kind !== "all" ||
     amountFilter.kind !== "all" ||
-    categoryFilter !== "all";
+    categoryFilter.kind !== "all";
 
   return (
     <DonationsView

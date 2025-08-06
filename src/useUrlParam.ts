@@ -46,5 +46,7 @@ export const useUrlParam = <T>({
     setSearchParams(newParams);
   };
 
-  return [currentValue, updateValue] as const;
+  const resetToDefault = () => updateValue(defaultValue);
+
+  return [currentValue, updateValue, resetToDefault] as const;
 };

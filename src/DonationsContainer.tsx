@@ -24,7 +24,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const minYear = years.length > 0 ? Math.min(...years) : currentYear;
   const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
 
-  const [search, updateSearch] = useUrlParam({
+  const [search, updateSearch, resetSearch] = useUrlParam({
     paramName: "search",
     parseFromString: (value) => value,
     defaultValue: "",
@@ -32,7 +32,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     stringifyValue: (value) => (value === "" ? undefined : value),
   });
 
-  const [yearFilter, updateYearFilter] = useUrlParam({
+  const [yearFilter, updateYearFilter, resetYearFilter] = useUrlParam({
     paramName: "year",
     parseFromString: (value): YearFilter | undefined => {
       if (
@@ -53,7 +53,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     stringifyValue: (value) => (value === "all" ? undefined : value),
   });
 
-  const [categoryFilter, updateCategoryFilter] = useUrlParam({
+  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] = useUrlParam({
     paramName: "category",
     parseFromString: (value) => value,
     defaultValue: "",
@@ -61,7 +61,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     stringifyValue: (value) => (value === "" ? undefined : value),
   });
 
-  const [amountFilter, updateAmountFilter] = useUrlParam({
+  const [amountFilter, updateAmountFilter, resetAmountFilter] = useUrlParam({
     paramName: "amount",
     parseFromString: (str): AmountFilter | undefined => {
       if (str === "all") return { kind: "all" };
@@ -260,10 +260,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     });
 
   const handleClearFilters = () => {
-    updateSearch("");
-    updateYearFilter("all");
-    updateCategoryFilter("");
-    updateAmountFilter({ kind: "all" });
+    resetSearch();
+    resetYearFilter();
+    resetCategoryFilter();
+    resetAmountFilter();
   };
 
   const hasActiveFilters =

@@ -9,15 +9,15 @@ interface OrgsContainerProps {
 }
 
 const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
-  const [searchFilter, updateSearchFilter] = useUrlParam({
+  const [searchFilter, updateSearchFilter, resetSearchFilter] = useUrlParam({
     paramName: "search",
     parseFromString: (value) => value,
     defaultValue: "",
     noFilterValue: "",
-    stringifyValue: (value) => value || undefined,
+    stringifyValue: (value) => (value === "" ? undefined : value),
   });
 
-  const [categoryFilter, updateCategoryFilter] = useUrlParam({
+  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] = useUrlParam({
     paramName: "category",
     parseFromString: (value) => value,
     defaultValue: "all",
@@ -56,8 +56,8 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   const handleClearFilters = () => {
-    updateSearchFilter("");
-    updateCategoryFilter("all");
+    resetSearchFilter();
+    resetCategoryFilter();
   };
 
   const hasActiveFilters = searchFilter !== "" || categoryFilter !== "all";

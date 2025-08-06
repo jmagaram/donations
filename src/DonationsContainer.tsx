@@ -1,13 +1,13 @@
-import { getCurrentYear, extractYear, compareDatesDesc } from "./date";
+import { getCurrentYear, compareDatesDesc } from "./date";
+import { useMemo } from "react";
+import { getDonationYearRange } from "./donationsData";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useUrlParam } from "./useUrlParam";
 import {
-  type YearFilter,
   type AmountFilter,
-  getYearRange,
-  generateYearFilterOptions,
-  generateCategoryFilterOptions,
+  getUniqueDonationYears,
+  getUniqueOrgCategories,
   matchesYearFilter,
   matchesAmountFilter,
   matchesCategoryFilter,
@@ -15,7 +15,50 @@ import {
   getOrgName,
   formatAmount,
 } from "./donationsData";
+import {
+  getYearRange,
+  parseYearFilter,
+  stringifyYearFilter,
+  type YearFilter,
+} from "./yearFilter";
 
+const generateYearFilterOptions = (
+  donationsData: DonationsData,
+  yearFilter: YearFilter,
+) => {
+  const options = [
+    { value: "all", label: "All years" },
+    { value: "current", label: "Current year" },
+    { value: "previous", label: "Previous year" },
+    { value: "last2", label: "Last 2 years" },
+  ];
+
+  const uniqueYears = new Set(getUniqueDonationYears(donationsData));
+
+  if (yearFilter.kind === "other") {
+    uniqueYears.add(yearFilter.value);
+  }
+
+  Array.from(uniqueYears)
+    .sort((a, b) => b - a) // Newest first
+    .forEach((year) => {
+      options.push({ value: year.toString(), label: year.toString() });
+    });
+
+  return options;
+};
+
+const generateCategoryFilterOptions = (donationsData: DonationsData) => {
+  const options = [{ value: "", label: "Any category" }];
+
+  const uniqueCategories = Array.from(getUniqueOrgCategories(donationsData));
+  uniqueCategories.sort(); // Alphabetical order
+  uniqueCategories.forEach((category) => {
+    options.push({ value: category, label: category });
+  });
+
+  return options;
+};
 
 interface DonationsContainerProps {
   donationsData: DonationsData;
@@ -24,10 +67,17 @@ interface DonationsContainerProps {
 
 const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const currentYear = getCurrentYear();
+  const yearRange = getDonationYearRange(donationsData.donations);
+  const minYear = yearRange?.minYear ?? currentYear;
+  const maxYear = yearRange?.maxYear ?? currentYear;
 
-  const years = donationsData.donations.map((d) => extractYear(d.date));
-  const minYear = years.length > 0 ? Math.min(...years) : currentYear;
-  const maxYear = years.length > 0 ? Math.max(...years) : currentYear;
+  const [yearFilter, updateYearFilter, resetYearFilter] = useUrlParam({
+    paramName: "year",
+    parseFromString: parseYearFilter,
+    defaultValue: { kind: "all" },
+    noFilterValue: { kind: "all" },
+    stringifyValue: stringifyYearFilter,
+  });
 
   const [searchFilter, updateSearchFilter, resetSearchFilter] = useUrlParam({
     paramName: "search",
@@ -37,34 +87,14 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     stringifyValue: (value) => (value === "" ? undefined : value),
   });
 
-  const [yearFilter, updateYearFilter, resetYearFilter] = useUrlParam({
-    paramName: "year",
-    parseFromString: (value): YearFilter | undefined => {
-      if (
-        value === "all" ||
-        value === "current" ||
-        value === "previous" ||
-        value === "last2"
-      ) {
-        return value;
-      }
-      if (value.match(/^\d{4}$/)) {
-        return value;
-      }
-      return undefined; // Invalid -> use defaultValue
-    },
-    defaultValue: "all" as YearFilter,
-    noFilterValue: "all" as YearFilter,
-    stringifyValue: (value) => (value === "all" ? undefined : value),
-  });
-
-  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] = useUrlParam({
-    paramName: "category",
-    parseFromString: (value) => value,
-    defaultValue: "all",
-    noFilterValue: "all",
-    stringifyValue: (value) => (value === "all" ? undefined : value),
-  });
+  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] =
+    useUrlParam({
+      paramName: "category",
+      parseFromString: (value) => value,
+      defaultValue: "all",
+      noFilterValue: "all",
+      stringifyValue: (value) => (value === "all" ? undefined : value),
+    });
 
   const [amountFilter, updateAmountFilter, resetAmountFilter] = useUrlParam({
     paramName: "amount",
@@ -126,19 +156,31 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     },
   });
 
-  const [yearFrom, yearTo] = getYearRange(yearFilter, minYear, maxYear);
+  const categoryFilterOptions = useMemo(
+    () => generateCategoryFilterOptions(donationsData),
+    [donationsData],
+  );
 
-  const yearFilterOptions = generateYearFilterOptions(donationsData, yearFilter);
+  const yearFilterOptions = useMemo(
+    () => generateYearFilterOptions(donationsData, yearFilter),
+    [donationsData, yearFilter],
+  );
 
-  const categoryFilterOptions = generateCategoryFilterOptions(donationsData);
-
+  const [yearFrom, yearTo] = getYearRange({
+    yearFilter,
+    minYear,
+    maxYear,
+    currentYear,
+  });
 
   const donations: DonationDisplay[] = [...donationsData.donations]
     .filter((d) => {
-      return matchesYearFilter(d, yearFrom, yearTo) && 
-             matchesAmountFilter(d, amountFilter) && 
-             matchesCategoryFilter(d, donationsData, categoryFilter) && 
-             matchesSearchFilter(d, donationsData, searchFilter);
+      return (
+        matchesYearFilter(d, yearFrom, yearTo) &&
+        matchesAmountFilter(d, amountFilter) &&
+        matchesCategoryFilter(d, donationsData, categoryFilter) &&
+        matchesSearchFilter(d, donationsData, searchFilter)
+      );
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))
     .map((donation) => {
@@ -163,7 +205,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const hasActiveFilters =
     searchFilter !== "" ||
-    yearFilter !== "all" ||
+    yearFilter.kind !== "all" ||
     amountFilter.kind !== "all" ||
     categoryFilter !== "all";
 

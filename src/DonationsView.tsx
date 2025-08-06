@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
-import { type YearFilter, type AmountFilter } from "./donationsData";
+import {
+  type YearFilter,
+  stringifyYearFilter,
+  parseYearFilter,
+} from "./yearFilter";
+import { type AmountFilter } from "./donationsData";
 
 export interface DonationDisplay {
   id: string;
@@ -66,7 +71,11 @@ const DonationsView = ({
     if (amountFilter.kind === "moreThan") {
       amountFilterChanged({ kind: "moreThan", min: value });
     } else if (amountFilter.kind === "between") {
-      amountFilterChanged({ kind: "between", min: value, max: amountFilter.max });
+      amountFilterChanged({
+        kind: "between",
+        min: value,
+        max: amountFilter.max,
+      });
     }
   };
 
@@ -74,7 +83,11 @@ const DonationsView = ({
     if (amountFilter.kind === "lessThan") {
       amountFilterChanged({ kind: "lessThan", max: value });
     } else if (amountFilter.kind === "between") {
-      amountFilterChanged({ kind: "between", min: amountFilter.min, max: value });
+      amountFilterChanged({
+        kind: "between",
+        min: amountFilter.min,
+        max: value,
+      });
     }
   };
 
@@ -111,7 +124,6 @@ const DonationsView = ({
     return `$${val.toLocaleString()}`;
   }
 
-
   return (
     <div>
       <div className="page-header">
@@ -123,8 +135,8 @@ const DonationsView = ({
           <label htmlFor="year-filter">Year</label>
           <select
             id="year-filter"
-            value={yearFilter}
-            onChange={(e) => yearFilterChanged(e.target.value as YearFilter)}
+            value={stringifyYearFilter(yearFilter)}
+            onChange={(e) => yearFilterChanged(parseYearFilter(e.target.value))}
           >
             {yearFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -199,7 +211,9 @@ const DonationsView = ({
               <select
                 id="min-amount"
                 value={amountFilter.min}
-                onChange={(e) => handleMinAmountChange(parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleMinAmountChange(parseInt(e.target.value))
+                }
               >
                 {getMinOptions().map((amount) => (
                   <option key={amount} value={amount}>
@@ -213,7 +227,9 @@ const DonationsView = ({
               <select
                 id="max-amount"
                 value={amountFilter.max}
-                onChange={(e) => handleMaxAmountChange(parseInt(e.target.value))}
+                onChange={(e) =>
+                  handleMaxAmountChange(parseInt(e.target.value))
+                }
               >
                 {getMaxOptions().map((amount) => (
                   <option key={amount} value={amount}>

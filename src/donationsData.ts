@@ -1,5 +1,19 @@
 import { type Donation, type DonationsData, type Org } from "./types";
-import { getCurrentYear, extractYear } from "./date";
+import { extractYear } from "./date";
+
+/**
+ * Returns the minimum and maximum year from a donations array.
+ * If no donations, returns currentYear for both.
+ */
+export function getDonationYearRange(
+  donations: Pick<Donation, "date">[],
+): { minYear: number; maxYear: number } | undefined {
+  if (donations.length === 0) return undefined;
+  const years = donations.map((d) => extractYear(d.date));
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  return { minYear, maxYear };
+}
 
 export type YearFilter = "all" | "current" | "previous" | "last2" | string;
 
@@ -146,83 +160,35 @@ export const donationDelete = (
   };
 };
 
-export const getYearRange = (yearFilter: YearFilter, minYear: number, maxYear: number): [number, number] => {
-  const currentYear = getCurrentYear();
-  switch (yearFilter) {
-    case "all":
-      return [minYear, maxYear];
-    case "current":
-      return [currentYear, currentYear];
-    case "previous":
-      return [currentYear - 1, currentYear - 1];
-    case "last2":
-      return [currentYear - 1, currentYear];
-    default:
-      if (yearFilter.match(/^\d{4}$/)) {
-        const year = parseInt(yearFilter);
-        return [year, year];
-      }
-      return [minYear, maxYear];
-  }
-};
+export const getUniqueDonationYears = (
+  data: Readonly<DonationsData>,
+): Set<number> => new Set(data.donations.map((d) => extractYear(d.date)));
 
-export const generateYearFilterOptions = (data: Readonly<DonationsData>, yearFilter: YearFilter) => {
-  const options = [
-    { value: "all", label: "All years" },
-    { value: "current", label: "Current year" },
-    { value: "previous", label: "Previous year" },
-    { value: "last2", label: "Last 2 years" },
-  ];
+export const getUniqueOrgCategories = (
+  data: Readonly<DonationsData>,
+): Set<string> =>
+  new Set(
+    data.orgs
+      .map((org) => org.category)
+      .filter(
+        (category): category is string =>
+          category !== undefined && category.trim() !== "",
+      ),
+  );
 
-  // Add only years that exist in donation data
-  const uniqueYears = [
-    ...new Set(data.donations.map((d) => extractYear(d.date))),
-  ];
-  uniqueYears.sort((a, b) => b - a); // Newest first
-  uniqueYears.forEach((year) => {
-    options.push({ value: year.toString(), label: year.toString() });
-  });
-
-  // Add URL year if valid and not already in list
-  if (
-    yearFilter.match(/^\d{4}$/) &&
-    !uniqueYears.includes(parseInt(yearFilter))
-  ) {
-    options.push({ value: yearFilter, label: yearFilter });
-  }
-
-  return options;
-};
-
-export const generateCategoryFilterOptions = (data: Readonly<DonationsData>) => {
-  const options = [{ value: "", label: "Any category" }];
-
-  // Extract unique categories from organizations, filtering out empty/undefined
-  const uniqueCategories = [
-    ...new Set(
-      data.orgs
-        .map((org) => org.category)
-        .filter(
-          (category): category is string =>
-            category !== undefined && category.trim() !== "",
-        ),
-    ),
-  ];
-
-  uniqueCategories.sort(); // Alphabetical order
-  uniqueCategories.forEach((category) => {
-    options.push({ value: category, label: category });
-  });
-
-  return options;
-};
-
-export const matchesYearFilter = (donation: Donation, yearFrom: number, yearTo: number): boolean => {
+export const matchesYearFilter = (
+  donation: Donation,
+  yearFrom: number,
+  yearTo: number,
+): boolean => {
   const year = extractYear(donation.date);
   return year >= yearFrom && year <= yearTo;
 };
 
-export const matchesAmountFilter = (donation: Donation, amountFilter: AmountFilter): boolean => {
+export const matchesAmountFilter = (
+  donation: Donation,
+  amountFilter: AmountFilter,
+): boolean => {
   const amt = donation.amount;
   switch (amountFilter.kind) {
     case "all":
@@ -236,13 +202,20 @@ export const matchesAmountFilter = (donation: Donation, amountFilter: AmountFilt
   }
 };
 
-export const matchesCategoryFilter = (donation: Donation, data: Readonly<DonationsData>, categoryFilter: string): boolean => {
+export const matchesCategoryFilter = (
+  donation: Donation,
+  data: Readonly<DonationsData>,
+  categoryFilter: string,
+): boolean => {
   if (categoryFilter === "all") return true;
   const org = data.orgs.find((o) => o.id === donation.orgId);
   return org?.category === categoryFilter;
 };
 
-export const getOrgName = (data: Readonly<DonationsData>, orgId: string): string => {
+export const getOrgName = (
+  data: Readonly<DonationsData>,
+  orgId: string,
+): string => {
   const org = data.orgs.find((o) => o.id === orgId);
   return org?.name || "Unknown Organization";
 };
@@ -258,7 +231,7 @@ export const formatAmount = (amount: number): string => {
 export const donationTextMatch = (
   filter: string,
   donation: Donation,
-  org: { name: string; notes: string }
+  org: { name: string; notes: string },
 ): boolean => {
   const getWords = (text: string): string[] =>
     text.toLowerCase().split(/[ ,]+/);
@@ -274,7 +247,11 @@ export const donationTextMatch = (
   return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
 };
 
-export const matchesSearchFilter = (donation: Donation, data: Readonly<DonationsData>, searchFilter: string): boolean => {
+export const matchesSearchFilter = (
+  donation: Donation,
+  data: Readonly<DonationsData>,
+  searchFilter: string,
+): boolean => {
   if (searchFilter === "") return true;
   const org = data.orgs.find((o) => o.id === donation.orgId) || {
     name: "",
@@ -297,6 +274,6 @@ export const orgTextMatch = (org: Org, filter: string): boolean => {
     .map((k) => k.trim().toLowerCase())
     .filter((k) => k.length > 0);
   return filterKeywords.some((filterKeyword) =>
-    orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword))
+    orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword)),
   );
 };

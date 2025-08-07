@@ -8,6 +8,7 @@ import {
   taxStatusFilterParam,
   matchesTaxStatusFilter,
 } from "./taxStatusFilter";
+import { useMemo } from "react";
 
 const NO_FILTER = "__no_filter__";
 const NO_CATEGORY = "__no_category__";
@@ -60,13 +61,15 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const taxStatusFilter = useUrlParamValue("tax", taxStatusFilterParam);
 
-  const categoryFilterOptions = makeCategoryFilterOptions(
-    donationsData,
-    categoryFilter === NO_CATEGORY
-      ? undefined
-      : categoryFilter === NO_FILTER
-        ? undefined
-        : categoryFilter,
+  const categoryFilterOptions = useMemo(
+    () =>
+      makeCategoryFilterOptions(
+        donationsData,
+        categoryFilter === NO_CATEGORY || categoryFilter === NO_FILTER
+          ? undefined
+          : categoryFilter,
+      ),
+    [donationsData, categoryFilter],
   );
 
   const currentCategoryValue = categoryFilter

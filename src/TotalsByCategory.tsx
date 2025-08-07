@@ -256,7 +256,9 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
               <>
                 <div key={category} className="totals-by-year-row">
                   {category === "(No category)" ? (
-                    <Link to={`/donations?category=`}>{category}</Link>
+                    <Link to={`/donations?category=__no_category__`}>
+                      {category}
+                    </Link>
                   ) : (
                     <Link
                       to={`/donations?category=${encodeURIComponent(category)}`}

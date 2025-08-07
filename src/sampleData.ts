@@ -40,6 +40,13 @@ const orgsArray = [
     notes: "Nation's largest hunger-relief organization",
   },
   {
+    name: "SUGI",
+    category: "",
+    taxDeductible: true,
+    webSite: "",
+    notes: "A charity without a category",
+  },
+  {
     name: "Good360",
     category: "Product Philanthropy",
     taxDeductible: true,

@@ -27,7 +27,7 @@ import {
 import { formatUSD } from "./amount";
 
 const NO_FILTER = "__no_filter__";
-const NO_CATEGORY = "__no_category__";
+const NO_CATEGORY = "";
 
 const generateYearFilterOptions = (
   donationsData: DonationsData,
@@ -192,9 +192,9 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     const categoryFilter =
       value === NO_FILTER ? undefined : categoryFilterParam.parse(value);
     const modifiedParams = new URLSearchParams(searchParams);
-    if (categoryFilter) {
+    if (categoryFilter !== undefined) {
       const encoded = categoryFilterParam.encode(categoryFilter);
-      if (encoded) {
+      if (encoded !== undefined) {
         modifiedParams.set("category", encoded);
       } else {
         modifiedParams.delete("category");

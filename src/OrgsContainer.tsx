@@ -11,7 +11,7 @@ import {
 import { useMemo } from "react";
 
 const NO_FILTER = "__no_filter__";
-const NO_CATEGORY = "__no_category__";
+const NO_CATEGORY = "";
 
 const makeCategoryFilterOptions = (
   donationsData: DonationsData,
@@ -117,9 +117,9 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     const categoryFilter =
       value === NO_FILTER ? undefined : categoryFilterParam.parse(value);
     const modifiedParams = new URLSearchParams(searchParams);
-    if (categoryFilter) {
+    if (categoryFilter !== undefined) {
       const encoded = categoryFilterParam.encode(categoryFilter);
-      if (encoded) {
+      if (encoded !== undefined) {
         modifiedParams.set("category", encoded);
       } else {
         modifiedParams.delete("category");

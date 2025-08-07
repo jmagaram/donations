@@ -1,27 +1,7 @@
 import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
-import {
-  type YearFilter,
-  stringifyYearFilterForUI,
-  parseYearFilter,
-} from "./yearFilter";
-import { type AmountFilter } from "./amountFilter";
+import { type AmountFilter } from "./amountFilterParam";
 import { formatUSD } from "./amount";
-import {
-  parseCategoryFilter,
-  stringifyCategoryFilterForUI,
-  type CategoryFilter,
-} from "./categoryFilter";
-import {
-  type TaxStatusFilter,
-  parseTaxStatusFilter,
-  stringifyTaxStatusFilter,
-} from "./taxStatusFilter";
-import {
-  type DonationTypeFilter,
-  parseDonationTypeFilter,
-  stringifyDonationTypeFilter,
-} from "./donationTypeFilter";
 
 export interface DonationDisplay {
   id: string;
@@ -34,22 +14,24 @@ export interface DonationDisplay {
   paymentMethod?: string;
 }
 
+const NO_FILTER = "__no_filter__";
+
 interface DonationsViewProps {
   donations: DonationDisplay[];
   currentFilter: string;
   textFilterChanged: (filter: string) => void;
-  yearFilter: YearFilter;
+  yearFilter: string;
   yearFilterOptions: { value: string; label: string }[];
-  yearFilterChanged: (yearFilter: YearFilter) => void;
-  categoryFilter: CategoryFilter;
+  yearFilterChanged: (value: string) => void;
+  categoryFilter: string;
   categoryFilterOptions: { value: string; label: string }[];
-  categoryFilterChanged: (categoryFilter: CategoryFilter) => void;
+  categoryFilterChanged: (value: string) => void;
   amountFilter: AmountFilter;
   amountFilterChanged: (newFilter: AmountFilter) => void;
-  taxStatusFilter: TaxStatusFilter;
-  taxStatusFilterChanged: (taxStatusFilter: TaxStatusFilter) => void;
-  donationTypeFilter: DonationTypeFilter;
-  donationTypeFilterChanged: (donationTypeFilter: DonationTypeFilter) => void;
+  taxStatusFilter: string;
+  taxStatusFilterChanged: (value: string) => void;
+  paymentKindFilter: string;
+  paymentKindFilterChanged: (value: string) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -68,8 +50,8 @@ const DonationsView = ({
   amountFilterChanged,
   taxStatusFilter,
   taxStatusFilterChanged,
-  donationTypeFilter,
-  donationTypeFilterChanged,
+  paymentKindFilter,
+  paymentKindFilterChanged,
   onClearFilters,
   hasActiveFilters,
 }: DonationsViewProps) => {
@@ -155,8 +137,8 @@ const DonationsView = ({
           <label htmlFor="year-filter">Year</label>
           <select
             id="year-filter"
-            value={stringifyYearFilterForUI(yearFilter)}
-            onChange={(e) => yearFilterChanged(parseYearFilter(e.target.value))}
+            value={yearFilter}
+            onChange={(e) => yearFilterChanged(e.target.value)}
           >
             {yearFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -169,10 +151,8 @@ const DonationsView = ({
           <label htmlFor="category-filter">Category</label>
           <select
             id="category-filter"
-            value={stringifyCategoryFilterForUI(categoryFilter)}
-            onChange={(e) =>
-              categoryFilterChanged(parseCategoryFilter(e.target.value))
-            }
+            value={categoryFilter}
+            onChange={(e) => categoryFilterChanged(e.target.value)}
           >
             {categoryFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -185,13 +165,11 @@ const DonationsView = ({
           <label htmlFor="tax-status-filter">Tax status</label>
           <select
             id="tax-status-filter"
-            value={stringifyTaxStatusFilter(taxStatusFilter) || "all"}
-            onChange={(e) =>
-              taxStatusFilterChanged(parseTaxStatusFilter(e.target.value))
-            }
+            value={taxStatusFilter}
+            onChange={(e) => taxStatusFilterChanged(e.target.value)}
           >
-            <option value="all">Any tax status</option>
-            <option value="taxDeductible">Charity</option>
+            <option value={NO_FILTER}>Any tax status</option>
+            <option value="charity">Charity</option>
             <option value="notTaxDeductible">Not deductible</option>
           </select>
         </div>
@@ -199,12 +177,10 @@ const DonationsView = ({
           <label htmlFor="donation-type-filter">Kind</label>
           <select
             id="donation-type-filter"
-            value={stringifyDonationTypeFilter(donationTypeFilter) || "all"}
-            onChange={(e) =>
-              donationTypeFilterChanged(parseDonationTypeFilter(e.target.value))
-            }
+            value={paymentKindFilter}
+            onChange={(e) => paymentKindFilterChanged(e.target.value)}
           >
-            <option value="all">Any kind</option>
+            <option value={NO_FILTER}>Any kind</option>
             <option value="paid">Paid</option>
             <option value="pledge">Pledge</option>
             <option value="paidAndPledge">Paid and pledge</option>

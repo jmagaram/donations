@@ -1,6 +1,6 @@
 import { type Donation, type DonationsData, type Org } from "./types";
 import { extractYear } from "./date";
-import { type AmountFilter } from "./amountFilter";
+import { type AmountFilter } from "./amountFilterParam";
 
 export function getDonationYearRange(
   donations: Pick<Donation, "date">[],

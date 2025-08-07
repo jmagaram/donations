@@ -10,20 +10,25 @@ import {
 } from "./taxStatusFilter";
 
 const NO_FILTER = "__no_filter__";
+const NO_CATEGORY = "__no_category__";
 
 const makeCategoryFilterOptions = (
   donationsData: DonationsData,
   currentUrlCategory?: string,
 ) => {
-  const options = [{ value: NO_FILTER, label: "All categories" }];
+  const options = [
+    { value: NO_FILTER, label: "All categories" },
+    { value: NO_CATEGORY, label: "No category" },
+  ];
   const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
   if (currentUrlCategory) {
     uniqueCategories.add(currentUrlCategory);
   }
-  const sortedCategories = Array.from(uniqueCategories).sort();
+  const sortedCategories = Array.from(uniqueCategories)
+    .filter((i) => i.trim().length > 0)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   sortedCategories.forEach((category) => {
-    const categoryFilter = { kind: "exactMatch" as const, category };
-    const encodedValue = categoryFilterParam.encode(categoryFilter);
+    const encodedValue = categoryFilterParam.encode(category);
     if (encodedValue) {
       options.push({
         value: encodedValue,
@@ -55,12 +60,13 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const taxStatusFilter = useUrlParamValue("tax", taxStatusFilterParam);
 
-  const currentUrlCategory =
-    categoryFilter?.kind === "exactMatch" ? categoryFilter.category : undefined;
-
   const categoryFilterOptions = makeCategoryFilterOptions(
     donationsData,
-    currentUrlCategory,
+    categoryFilter === NO_CATEGORY
+      ? undefined
+      : categoryFilter === NO_FILTER
+        ? undefined
+        : categoryFilter,
   );
 
   const currentCategoryValue = categoryFilter
@@ -74,10 +80,13 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
       const matchesSearchText = orgTextMatch(org, searchFilter ?? "");
-      const matchesCategory = matchesCategoryFilter(
-        categoryFilter,
-        org.category,
-      );
+      const matchesCategory =
+        categoryFilter === undefined
+          ? true
+          : matchesCategoryFilter(
+              categoryFilter === NO_CATEGORY ? "" : categoryFilter,
+              org.category,
+            );
       const matchesTaxStatus = matchesTaxStatusFilter(
         taxStatusFilter,
         org.taxDeductible ?? false,
@@ -104,16 +113,18 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const updateCategoryFilter = (value: string) => {
     const categoryFilter =
       value === NO_FILTER ? undefined : categoryFilterParam.parse(value);
-    const newParams = new URLSearchParams(searchParams);
-    const encoded = categoryFilterParam.encode(
-      categoryFilter ?? { kind: "all" },
-    );
-    if (encoded) {
-      newParams.set("category", encoded);
+    const modifiedParams = new URLSearchParams(searchParams);
+    if (categoryFilter) {
+      const encoded = categoryFilterParam.encode(categoryFilter);
+      if (encoded) {
+        modifiedParams.set("category", encoded);
+      } else {
+        modifiedParams.delete("category");
+      }
     } else {
-      newParams.delete("category");
+      modifiedParams.delete("category");
     }
-    setSearchParams(newParams);
+    setSearchParams(modifiedParams);
   };
 
   const updateTaxStatusFilter = (value: string) => {
@@ -133,7 +144,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const hasActiveFilters =
     searchFilter !== undefined ||
-    (categoryFilter !== undefined && categoryFilter.kind !== "all") ||
+    categoryFilter !== undefined ||
     (taxStatusFilter !== undefined && taxStatusFilter.kind !== "all");
 
   return (

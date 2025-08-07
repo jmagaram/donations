@@ -1,45 +1,21 @@
 import type { UrlParam } from "./urlParam";
 
-export type CategoryFilter =
-  | { kind: "all" }
-  | { kind: "exactMatch"; category: string };
+// Defines a category filter, such as "Healthcare" or "Politics". It is possible
+// to find organizations and donations that do not have an assigned category by
+// setting the filter value to the empty string or whitespace; this is
+// distinct from the absence of a filter.
+export type CategoryFilter = string;
 
 export const categoryFilterParam: UrlParam<CategoryFilter> = {
-  parse: (value: string | undefined): CategoryFilter => {
-    if (value === undefined || value === "" || value === "all")
-      return { kind: "all" };
-
-    if (value.startsWith("exactMatch_")) {
-      const category = value.substring("exactMatch_".length);
-      return { kind: "exactMatch", category };
-    }
-
-    return { kind: "all" };
-  },
-
-  encode: (value: CategoryFilter): string | undefined => {
-    switch (value.kind) {
-      case "all":
-        return undefined;
-      case "exactMatch":
-        return `exactMatch_${value.category}`;
-    }
-  },
+  parse: (value: string | undefined) => value?.trim(),
+  encode: (value: CategoryFilter) => value.trim(),
 };
 
 export const matchesCategoryFilter = (
-  filter: CategoryFilter | undefined,
-  category: string | undefined,
+  filter: CategoryFilter,
+  category: string | null | undefined,
 ): boolean => {
-  if (filter === undefined) return true;
-  switch (filter.kind) {
-    case "all":
-      return true;
-    case "exactMatch":
-      return category === filter.category;
-  }
-};
-
-export const isCategoryFiltered = (filter: CategoryFilter) => {
-  return filter.kind !== "all";
+  const categoryNormalized = category?.trim().toLocaleLowerCase() ?? "";
+  const filterNormalized = filter.trim().toLocaleLowerCase();
+  return filterNormalized === categoryNormalized;
 };

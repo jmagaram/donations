@@ -153,6 +153,7 @@ export const getUniqueDonationYears = (
   data: Readonly<DonationsData>,
 ): Set<number> => new Set(data.donations.map((d) => extractYear(d.date)));
 
+/** Return the set of non-empty categories assigned to all organizations. */
 export const getUniqueOrgCategories = (
   data: Readonly<DonationsData>,
 ): Set<string> =>

@@ -58,15 +58,29 @@ const generateYearFilterOptions = (
   return options;
 };
 
-const generateCategoryFilterOptions = (donationsData: DonationsData) => {
-  const options = [{ value: NO_FILTER, label: "Any category" }];
-  const uniqueCategories = Array.from(getUniqueOrgCategories(donationsData));
-  uniqueCategories.sort(); // Alphabetical order
-  uniqueCategories.forEach((category) => {
-    const categoryFilter = { kind: "exactMatch" as const, category };
-    const encodedValue = categoryFilterParam.encode(categoryFilter);
+// duplicated with OrgsContainer.tsx
+const makeCategoryFilterOptions = (
+  donationsData: DonationsData,
+  currentUrlCategory?: string,
+) => {
+  const options = [
+    { value: NO_FILTER, label: "All categories" },
+    { value: "", label: "No category" },
+  ];
+  const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
+  if (currentUrlCategory) {
+    uniqueCategories.add(currentUrlCategory);
+  }
+  const sortedCategories = Array.from(uniqueCategories)
+    .filter((i) => i.trim().length > 0)
+    .sort();
+  sortedCategories.forEach((category) => {
+    const encodedValue = categoryFilterParam.encode(category);
     if (encodedValue) {
-      options.push({ value: encodedValue, label: category });
+      options.push({
+        value: encodedValue,
+        label: category,
+      });
     }
   });
   return options;
@@ -99,8 +113,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const paymentKindFilter = useUrlParamValue("type", paymentKindUrlParam);
 
   const categoryFilterOptions = useMemo(
-    () => generateCategoryFilterOptions(donationsData),
-    [donationsData],
+    () => makeCategoryFilterOptions(donationsData, categoryFilter),
+    [donationsData, categoryFilter],
   );
 
   const yearFilterOptions = useMemo(
@@ -123,7 +137,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       return (
         matchesYearFilter(d, yearFrom, yearTo) &&
         matchesAmountFilter(d, amountFilter ?? { kind: "all" }) &&
-        matchesCategoryFilter(categoryFilter, org?.category) &&
+        (categoryFilter === undefined ||
+          matchesCategoryFilter(categoryFilter, org?.category)) &&
         matchesSearchFilter(d, donationsData, searchFilter ?? "") &&
         matchesTaxStatusFilter(taxStatusFilter, org?.taxDeductible ?? false) &&
         matchesPaymentKindFilter(d.kind, paymentKindFilter)
@@ -168,13 +183,15 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     setSearchParams(newParams);
   };
 
+  // duplicated code in OrgsContainer.tsx
   const updateCategoryFilter = (value: string) => {
     const categoryFilter =
       value === NO_FILTER ? undefined : categoryFilterParam.parse(value);
     const newParams = new URLSearchParams(searchParams);
-    const encoded = categoryFilterParam.encode(
-      categoryFilter ?? { kind: "all" },
-    );
+    const encoded =
+      categoryFilter === undefined
+        ? undefined
+        : categoryFilterParam.encode(categoryFilter);
     if (encoded) {
       newParams.set("category", encoded);
     } else {
@@ -230,7 +247,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     searchFilter !== undefined ||
     (yearFilter !== undefined && yearFilter.kind !== "all") ||
     (amountFilter !== undefined && amountFilter.kind !== "all") ||
-    (categoryFilter !== undefined && categoryFilter.kind !== "all") ||
+    categoryFilter !== undefined ||
     (taxStatusFilter !== undefined && taxStatusFilter.kind !== "all") ||
     paymentKindFilter !== undefined;
 

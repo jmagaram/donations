@@ -303,7 +303,7 @@ const DonationsView = ({
             <div key={donation.id} className="row">
               <div>{donation.date}</div>
               <div className="amount">
-                <Link to={`/donations/${donation.id}/edit`}>
+                <Link to={`/donations/${donation.id}`}>
                   {donation.amount}
                 </Link>
               </div>

@@ -49,27 +49,25 @@ const OrgDetailsView = ({
     return <div>Organization not found.</div>;
   }
 
+  const showCategory =
+    organization.category && organization.category.trim() !== "";
+
+  const showNotes = organization.notes.trim() !== "";
+
   return (
     <div className="org-details">
       <h1>{organization.name}</h1>
       {donations.length > 8 && <Toolbar />}
-      <div className="section">
-        {organization.category && organization.category.trim() !== "" && (
+      <dl>
+        {showCategory && (
           <>
-            <div className="header">Category</div>
-            <div className="content">{organization.category}</div>
+            <dd>{organization.category}</dd>
           </>
         )}
-        <div className="header">Tax status</div>
-        <div className="content">
-          {organization.taxDeductible
-            ? "Charity (tax-deductible)"
-            : "Not tax-deductible"}
-        </div>
+        <dd>{organization.taxDeductible ? "Charity" : "Not tax-deductible"}</dd>
         {organization.webSite && (
           <>
-            <div className="header">Website</div>
-            <div className="content">
+            <dd>
               <a
                 href={organization.webSite}
                 target="_blank"
@@ -77,16 +75,15 @@ const OrgDetailsView = ({
               >
                 {organization.webSite}
               </a>
-            </div>
+            </dd>
           </>
         )}
-        {organization.notes.trim() !== "" && (
+        {showNotes && (
           <>
-            <div className="header">Notes</div>
-            <div className="content">{organization.notes}</div>
+            <dd>{organization.notes}</dd>
           </>
         )}
-      </div>
+      </dl>
       <div className="section">
         {donations.length > 0 ? (
           <div className="donation-grid">
@@ -101,7 +98,7 @@ const OrgDetailsView = ({
               <div key={donation.id} className="row">
                 <div className="date">{formatDate(donation.date)}</div>
                 <div className="amount">
-                  <Link to={`/donations/${donation.id}/edit`}>
+                  <Link to={`/donations/${donation.id}`}>
                     {formatAmount(donation.amount)}
                   </Link>
                 </div>

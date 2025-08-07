@@ -592,3 +592,35 @@ nav a {
 .react-select-payment__control {
     min-width: 30ch;
 }
+
+dl {
+    display: flex;
+    flex-direction: column;
+}
+
+.donation-details dl dt,
+.org-details dl dt {
+    font-size: smaller;
+    opacity: 75%;
+    margin-bottom: 0.25rem;
+}
+
+.donation-details dl dd,
+.org-details dl dd {
+    white-space: pre-wrap;
+    margin-left: 0;
+}
+
+.org-details dt:not(:first-of-type),
+.donation-details dt:not(:first-of-type) {
+    margin-top: 1em;
+}
+
+.donation-details dd.kind {
+    text-transform: capitalize;
+}
+
+.org-details dd + dd,
+.donation-details dd + dd {
+    margin-top: 0.5rem;
+}

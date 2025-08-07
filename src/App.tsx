@@ -7,6 +7,7 @@ import DonationsContainer from "./DonationsContainer";
 import OrgDetailsContainer from "./OrgDetailsContainer";
 import OrgUpsertContainer from "./OrgUpsertContainer";
 import DonationUpsertContainer from "./DonationUpsertContainer";
+import DonationDetailsContainer from "./DonationDetailsContainer";
 import Importer from "./Importer";
 import Exporter from "./Exporter";
 import Reports from "./Reports";
@@ -35,7 +36,7 @@ const createStore = (
           DonationsDataSchema.safeParse(data).success,
         timeoutMs: 2000,
         errorSimulation: {
-          networkError: 0.3,
+          networkError: 0.0,
           unauthorized: 0.0,
           serverError: 0.0,
           dataCorruption: 0.0,
@@ -50,7 +51,7 @@ const createStore = (
 const AppContent = () => {
   const [offlineStore] = useState(() => {
     const emptyData: DonationsData = empty();
-    const remote = createStore("webApi");
+    const remote = createStore("browser");
     return new OfflineStoreImpl({
       remote,
       emptyData,
@@ -129,6 +130,10 @@ const AppContent = () => {
               setDonationsData={setDonationsData}
             />
           }
+        />
+        <Route
+          path="/donations/:donationId"
+          element={<DonationDetailsContainer donationsData={donationsData} />}
         />
         <Route
           path="/donations/:donationId/edit"

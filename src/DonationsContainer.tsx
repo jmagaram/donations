@@ -18,19 +18,16 @@ import {
   yearFilterParam,
   getYearRange,
 } from "./yearFilterParam";
-import { type AmountFilter, amountFilterParam } from "./amountFilterParam";
-import {
-  categoryFilterParam,
-  matchesCategoryFilter,
-} from "./categoryFilterParam";
+import { type AmountFilter, amountFilterParam } from "./amountFilter";
+import { categoryFilterParam, matchesCategoryFilter } from "./categoryFilter";
 import {
   taxStatusFilterParam,
   matchesTaxStatusFilter,
-} from "./taxStatusFilterParam";
+} from "./taxStatusFilter";
 import {
   paymentKindUrlParam,
   matchesPaymentKindFilter,
-} from "./donationTypeFilterParam";
+} from "./donationKindFilter";
 import { formatUSD } from "./amount";
 
 const NO_FILTER = "__no_filter__";

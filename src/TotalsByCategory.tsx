@@ -9,11 +9,11 @@ import { yearFilterParam, getYearRange } from "./yearFilterParam";
 import {
   taxStatusFilterParam,
   matchesTaxStatusFilter,
-} from "./taxStatusFilterParam";
+} from "./taxStatusFilter";
 import {
   paymentKindUrlParam,
   matchesPaymentKindFilter,
-} from "./donationTypeFilterParam";
+} from "./donationKindFilter";
 import { getDonationYearRange } from "./donationsData";
 
 interface TotalsByCategoryProps {

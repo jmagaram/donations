@@ -3,14 +3,11 @@ import { getUniqueOrgCategories, orgTextMatch } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
 import { useUrlParamValue } from "./urlParam";
-import {
-  categoryFilterParam,
-  matchesCategoryFilter,
-} from "./categoryFilterParam";
+import { categoryFilterParam, matchesCategoryFilter } from "./categoryFilter";
 import {
   taxStatusFilterParam,
   matchesTaxStatusFilter,
-} from "./taxStatusFilterParam";
+} from "./taxStatusFilter";
 
 const NO_FILTER = "__no_filter__";
 

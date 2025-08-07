@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
-import { type AmountFilter } from "./amountFilterParam";
+import { type AmountFilter } from "./amountFilter";
 import { formatUSD } from "./amount";
 
 export interface DonationDisplay {

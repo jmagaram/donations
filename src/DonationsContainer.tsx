@@ -13,11 +13,7 @@ import {
   matchesSearchFilter,
   getOrgName,
 } from "./donationsData";
-import {
-  type YearFilter,
-  yearFilterParam,
-  getYearRange,
-} from "./yearFilterParam";
+import { type YearFilter, yearFilterParam, getYearRange } from "./yearFilter";
 import { type AmountFilter, amountFilterParam } from "./amountFilter";
 import { categoryFilterParam, matchesCategoryFilter } from "./categoryFilter";
 import {
@@ -224,9 +220,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     const taxStatusFilter =
       value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
     const newParams = new URLSearchParams(searchParams);
-    const encoded = taxStatusFilterParam.encode(
-      taxStatusFilter ?? "all",
-    );
+    const encoded = taxStatusFilterParam.encode(taxStatusFilter ?? "all");
     if (encoded) {
       newParams.set("tax", encoded);
     } else {

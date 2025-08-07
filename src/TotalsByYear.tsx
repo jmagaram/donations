@@ -5,7 +5,7 @@ import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 import { formatUSD as formatAmount } from "./amount";
 import { useUrlParamValue } from "./urlParam";
-import { yearFilterParam, getYearRange } from "./yearFilterParam";
+import { yearFilterParam, getYearRange } from "./yearFilter";
 import {
   taxStatusFilterParam,
   matchesTaxStatusFilter,
@@ -136,9 +136,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
     const newParams = new URLSearchParams(searchParams);
     const taxStatusFilter =
       value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
-    const encoded = taxStatusFilterParam.encode(
-      taxStatusFilter ?? "all",
-    );
+    const encoded = taxStatusFilterParam.encode(taxStatusFilter ?? "all");
     if (encoded) {
       newParams.set("tax", encoded);
     } else {

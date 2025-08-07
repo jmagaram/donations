@@ -137,7 +137,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
     const taxStatusFilter =
       value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
     const encoded = taxStatusFilterParam.encode(
-      taxStatusFilter ?? { kind: "all" },
+      taxStatusFilter ?? "all",
     );
     if (encoded) {
       newParams.set("tax", encoded);

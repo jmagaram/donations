@@ -135,7 +135,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
       value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
     const newParams = new URLSearchParams(searchParams);
     const encoded = taxStatusFilterParam.encode(
-      taxStatusFilter ?? { kind: "all" },
+      taxStatusFilter ?? "all",
     );
     if (encoded) {
       newParams.set("tax", encoded);
@@ -148,7 +148,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   const hasActiveFilters =
     searchFilter !== undefined ||
     categoryFilter !== undefined ||
-    (taxStatusFilter !== undefined && taxStatusFilter.kind !== "all");
+    (taxStatusFilter !== undefined && taxStatusFilter !== "all");
 
   return (
     <OrgsView

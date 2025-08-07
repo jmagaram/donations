@@ -225,7 +225,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
     const newParams = new URLSearchParams(searchParams);
     const encoded = taxStatusFilterParam.encode(
-      taxStatusFilter ?? { kind: "all" },
+      taxStatusFilter ?? "all",
     );
     if (encoded) {
       newParams.set("tax", encoded);
@@ -257,7 +257,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     (yearFilter !== undefined && yearFilter.kind !== "all") ||
     (amountFilter !== undefined && amountFilter.kind !== "all") ||
     categoryFilter !== undefined ||
-    (taxStatusFilter !== undefined && taxStatusFilter.kind !== "all") ||
+    (taxStatusFilter !== undefined && taxStatusFilter !== "all") ||
     paymentKindFilter !== undefined;
 
   // Current values for UI

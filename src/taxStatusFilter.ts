@@ -1,28 +1,25 @@
 import type { UrlParam } from "./urlParam";
 
-export type TaxStatusFilter =
-  | { kind: "all" }
-  | { kind: "charity" }
-  | { kind: "notTaxDeductible" };
+export type TaxStatusFilter = "all" | "charity" | "notTaxDeductible";
 
 export const taxStatusFilterParam: UrlParam<TaxStatusFilter> = {
   parse: (value: string | undefined): TaxStatusFilter => {
-    if (value === undefined || value === "") return { kind: "all" };
+    if (value === undefined || value === "") return "all";
 
     switch (value) {
       case "all":
-        return { kind: "all" };
+        return "all";
       case "charity":
-        return { kind: "charity" };
+        return "charity";
       case "notTaxDeductible":
-        return { kind: "notTaxDeductible" };
+        return "notTaxDeductible";
       default:
-        return { kind: "all" };
+        return "all";
     }
   },
 
   encode: (value: TaxStatusFilter): string | undefined => {
-    switch (value.kind) {
+    switch (value) {
       case "all":
         return undefined;
       case "charity":
@@ -38,7 +35,7 @@ export const matchesTaxStatusFilter = (
   taxDeductible: boolean,
 ): boolean => {
   if (filter === undefined) return true;
-  switch (filter.kind) {
+  switch (filter) {
     case "all":
       return true;
     case "charity":
@@ -49,5 +46,5 @@ export const matchesTaxStatusFilter = (
 };
 
 export const isTaxStatusFiltered = (filter: TaxStatusFilter): boolean => {
-  return filter.kind !== "all";
+  return filter !== "all";
 };

@@ -1,11 +1,21 @@
 import { useSearchParams } from "react-router-dom";
 
 interface UseUrlParamOptions<T> {
+  /** The URL parameter name */
   paramName: string;
+  /** Parse URL parameter string into typed value. Return undefined if invalid. */
   parseFromString: (value: string) => T | undefined;
+  /** 
+   * Value to use when URL parameter is missing/empty/invalid (initial state)
+   * AND value representing "no filter applied" - when set, URL parameter is removed
+   */
   defaultValue: T;
-  noFilterValue: T;
+  /** 
+   * Convert typed value to URL parameter string. 
+   * Return undefined to remove parameter from URL (equivalent to defaultValue behavior)
+   */
   stringifyValue: (value: T) => string | undefined;
+  /** Optional equality function for comparing values (needed for object types) */
   areEqual?: (a: T, b: T) => boolean;
 }
 
@@ -13,7 +23,6 @@ export const useUrlParam = <T>({
   paramName,
   parseFromString,
   defaultValue,
-  noFilterValue,
   stringifyValue,
   areEqual,
 }: UseUrlParamOptions<T>) => {
@@ -31,8 +40,8 @@ export const useUrlParam = <T>({
   const updateValue = (newValue: T) => {
     const newParams = new URLSearchParams(searchParams);
     const isNoFilter = areEqual
-      ? areEqual(newValue, noFilterValue)
-      : newValue === noFilterValue;
+      ? areEqual(newValue, defaultValue)
+      : newValue === defaultValue;
     if (isNoFilter) {
       newParams.delete(paramName);
     } else {
@@ -46,7 +55,9 @@ export const useUrlParam = <T>({
     setSearchParams(newParams);
   };
 
-  const resetToDefault = () => updateValue(defaultValue);
+  const resetToDefault = () => {
+    updateValue(defaultValue);
+  };
 
   return [currentValue, updateValue, resetToDefault] as const;
 };

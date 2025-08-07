@@ -1,19 +1,16 @@
 import { Link } from "react-router-dom";
 import { type Org } from "./types";
 import StatusBox from "./StatusBox";
-import {
-  type CategoryFilter,
-  parseCategoryFilter,
-  stringifyCategoryFilter,
-} from "./categoryFilter";
 
 interface OrgsViewProps {
   orgs: Org[];
   currentTextFilter: string;
   textFilterChanged: (filter: string) => void;
-  categoryFilter: CategoryFilter;
-  categoryFilterChanged: (category: CategoryFilter) => void;
+  currentCategoryValue: string;
+  categoryFilterChanged: (value: string) => void;
   categoryFilterOptions: { value: string; label: string }[];
+  currentTaxStatusValue: string;
+  taxStatusFilterChanged: (value: string) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -22,9 +19,11 @@ const OrgsView = ({
   orgs,
   currentTextFilter,
   textFilterChanged,
-  categoryFilter: currentCategoryFilter,
+  currentCategoryValue,
   categoryFilterChanged,
   categoryFilterOptions,
+  currentTaxStatusValue,
+  taxStatusFilterChanged,
   onClearFilters,
   hasActiveFilters,
 }: OrgsViewProps) => {
@@ -53,10 +52,8 @@ const OrgsView = ({
               <label htmlFor="categoryFilter">Category</label>
               <select
                 id="categoryFilter"
-                value={stringifyCategoryFilter(currentCategoryFilter) || ""}
-                onChange={(e) =>
-                  categoryFilterChanged(parseCategoryFilter(e.target.value))
-                }
+                value={currentCategoryValue}
+                onChange={(e) => categoryFilterChanged(e.target.value)}
               >
                 {categoryFilterOptions.map((option) => (
                   <option key={option.value} value={option.value}>
@@ -66,6 +63,18 @@ const OrgsView = ({
               </select>
             </>
           )}
+        </div>
+        <div className="toolbar-item large-screen">
+          <label htmlFor="taxStatusFilter">Tax status</label>
+          <select
+            id="taxStatusFilter"
+            value={currentTaxStatusValue}
+            onChange={(e) => taxStatusFilterChanged(e.target.value)}
+          >
+            <option value="all">All</option>
+            <option value="charity">Charity (tax-deductible)</option>
+            <option value="notTaxDeductible">Not tax-deductible</option>
+          </select>
         </div>
         {hasActiveFilters && (
           <button type="button" onClick={onClearFilters}>

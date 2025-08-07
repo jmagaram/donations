@@ -1,100 +1,74 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 import { formatUSD as formatAmount } from "./amount";
-import { useUrlParam } from "./useUrlParam";
+import { useUrlParamValue } from "./urlParam";
+import { yearFilterParam, getYearRange } from "./yearFilterParam";
 import {
-  type YearFilter,
-  parseYearFilter,
-  stringifyYearFilter,
-  getYearRange,
-} from "./yearFilter";
+  taxStatusFilterParam,
+  matchesTaxStatusFilter,
+} from "./taxStatusFilterParam";
+import {
+  paymentKindUrlParam,
+  matchesPaymentKindFilter,
+} from "./donationTypeFilterParam";
 import { getDonationYearRange } from "./donationsData";
 
 interface TotalsByCategoryProps {
   donationsData: DonationsData;
 }
 
-type TaxStatus = "all" | "taxDeductible" | "notTaxDeductible";
-type DonationType = "all" | "paid" | "pledges" | "paidAndPledges" | "unknown";
+const NO_FILTER = "__no_filter__";
 
 const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const currentYear = getCurrentYear();
   const yearRange = getDonationYearRange(donationsData.donations);
   const minYear = yearRange?.minYear ?? currentYear;
   const maxYear = yearRange?.maxYear ?? currentYear;
 
-  const [yearFilter, updateYearFilter] = useUrlParam({
-    paramName: "year",
-    parseFromString: parseYearFilter,
-    defaultValue: { kind: "last4" },
-    noFilterValue: { kind: "all" },
-    stringifyValue: stringifyYearFilter,
-  });
-
-  const [taxStatus, updateTaxStatus] = useUrlParam({
-    paramName: "tax",
-    parseFromString: (value) => value as TaxStatus,
-    defaultValue: "all" as TaxStatus,
-    noFilterValue: "all" as TaxStatus,
-    stringifyValue: (value) => value === "all" ? undefined : value,
-  });
-
-  const [donationType, updateDonationType] = useUrlParam({
-    paramName: "type",
-    parseFromString: (value) => value as DonationType,
-    defaultValue: "all" as DonationType,
-    noFilterValue: "all" as DonationType,
-    stringifyValue: (value) => value === "all" ? undefined : value,
-  });
+  const yearFilter = useUrlParamValue("year", yearFilterParam);
+  const taxStatusFilter = useUrlParamValue("tax", taxStatusFilterParam);
+  const paymentKindFilter = useUrlParamValue("type", paymentKindUrlParam);
 
   const processedData = useMemo(() => {
     let years: number[] = [];
-    
-    if (yearFilter.kind === "all") {
-      // For "all", use only years that actually have donations
-      years = Array.from(new Set(donationsData.donations.map(d => extractYear(d.date)))).sort((a, b) => a - b);
+
+    if (yearFilter === undefined || yearFilter.kind === "all") {
+      years = Array.from(
+        new Set(donationsData.donations.map((d) => extractYear(d.date))),
+      ).sort((a, b) => a - b);
     } else {
-      // For specific ranges, generate years from the range
       const [yearFrom, yearTo] = getYearRange({
         yearFilter,
         minYear,
         maxYear,
         currentYear,
       });
-      
+
       for (let year = yearFrom; year <= yearTo; year++) {
         years.push(year);
       }
     }
 
-    // Filter donations
     const filteredDonations = donationsData.donations.filter((donation) => {
       const year = extractYear(donation.date);
       if (!years.includes(year)) return false;
 
-      // Filter by type
-      if (donationType === "paid" && donation.kind !== "paid") return false;
-      if (donationType === "pledges" && donation.kind !== "pledge")
-        return false;
-      if (
-        donationType === "paidAndPledges" &&
-        !["paid", "pledge"].includes(donation.kind)
-      )
-        return false;
-      if (donationType === "unknown" && donation.kind !== "unknown")
+      if (!matchesPaymentKindFilter(donation.kind, paymentKindFilter))
         return false;
 
       return true;
     });
 
-    // Filter organizations by tax status and create org lookup
     const orgsById = new Map(donationsData.orgs.map((org) => [org.id, org]));
     const filteredOrgs = donationsData.orgs.filter((org) => {
-      if (taxStatus === "taxDeductible" && !org.taxDeductible) return false;
-      if (taxStatus === "notTaxDeductible" && org.taxDeductible) return false;
-      return true;
+      return matchesTaxStatusFilter(
+        taxStatusFilter,
+        org.taxDeductible ?? false,
+      );
     });
 
     // Build data structure: category -> year -> amount
@@ -138,7 +112,67 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
       yearTotals,
       grandTotal,
     };
-  }, [donationsData, yearFilter, taxStatus, donationType, minYear, maxYear, currentYear]);
+  }, [
+    donationsData,
+    yearFilter,
+    taxStatusFilter,
+    paymentKindFilter,
+    minYear,
+    maxYear,
+    currentYear,
+  ]);
+
+  const updateYearFilter = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    const yearFilter =
+      value === NO_FILTER ? undefined : yearFilterParam.parse(value);
+    const encoded = yearFilterParam.encode(yearFilter ?? { kind: "all" });
+    if (encoded) {
+      newParams.set("year", encoded);
+    } else {
+      newParams.delete("year");
+    }
+    setSearchParams(newParams);
+  };
+
+  const updateTaxStatusFilter = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    const taxStatusFilter =
+      value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
+    const encoded = taxStatusFilterParam.encode(
+      taxStatusFilter ?? { kind: "all" },
+    );
+    if (encoded) {
+      newParams.set("tax", encoded);
+    } else {
+      newParams.delete("tax");
+    }
+    setSearchParams(newParams);
+  };
+
+  const updatePaymentKindFilter = (value: string) => {
+    const newParams = new URLSearchParams(searchParams);
+    const paymentKindFilter =
+      value === NO_FILTER ? undefined : paymentKindUrlParam.parse(value);
+    const encoded = paymentKindUrlParam.encode(paymentKindFilter ?? "all");
+    if (encoded) {
+      newParams.set("type", encoded);
+    } else {
+      newParams.delete("type");
+    }
+    setSearchParams(newParams);
+  };
+
+  const currentYearValue =
+    yearFilter === undefined
+      ? NO_FILTER
+      : (yearFilterParam.encode(yearFilter) ?? NO_FILTER);
+  const currentTaxStatusValue = taxStatusFilter
+    ? (taxStatusFilterParam.encode(taxStatusFilter) ?? NO_FILTER)
+    : NO_FILTER;
+  const currentPaymentKindValue = paymentKindFilter
+    ? (paymentKindUrlParam.encode(paymentKindFilter) ?? NO_FILTER)
+    : NO_FILTER;
 
   return (
     <div>
@@ -149,10 +183,10 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
           <label htmlFor="yearRange">Years</label>
           <select
             id="yearRange"
-            value={stringifyYearFilter(yearFilter)}
-            onChange={(e) => updateYearFilter(parseYearFilter(e.target.value))}
+            value={currentYearValue}
+            onChange={(e) => updateYearFilter(e.target.value)}
           >
-            <option value="all">All years</option>
+            <option value={NO_FILTER}>All years</option>
             <option value="current">Current year</option>
             <option value="previous">Previous year</option>
             <option value="last2">Last 2 years</option>
@@ -166,27 +200,28 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
           <label htmlFor="taxStatus">Tax status</label>
           <select
             id="taxStatus"
-            value={taxStatus}
-            onChange={(e) => updateTaxStatus(e.target.value as TaxStatus)}
+            value={currentTaxStatusValue}
+            onChange={(e) => updateTaxStatusFilter(e.target.value)}
           >
-            <option value="all">All</option>
-            <option value="taxDeductible">Charity (tax-deductible)</option>
+            <option value={NO_FILTER}>Any tax status</option>
+            <option value="charity">Charity</option>
             <option value="notTaxDeductible">Not tax-deductible</option>
           </select>
         </div>
 
         <div>
-          <label htmlFor="donationType">Type</label>
+          <label htmlFor="donationType">Kind</label>
           <select
             id="donationType"
-            value={donationType}
-            onChange={(e) => updateDonationType(e.target.value as DonationType)}
+            value={currentPaymentKindValue}
+            onChange={(e) => updatePaymentKindFilter(e.target.value)}
           >
-            <option value="all">All</option>
+            <option value={NO_FILTER}>Any kind</option>
             <option value="paid">Paid</option>
-            <option value="pledges">Pledge</option>
-            <option value="paidAndPledges">Paid and pledge</option>
+            <option value="pledge">Pledge</option>
+            <option value="paidAndPledge">Paid and pledge</option>
             <option value="unknown">Unknown</option>
+            <option value="idea">Idea</option>
           </select>
         </div>
       </div>

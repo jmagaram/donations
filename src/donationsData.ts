@@ -191,7 +191,6 @@ export const matchesAmountFilter = (
   }
 };
 
-
 export const getOrgName = (
   data: Readonly<DonationsData>,
   orgId: string,

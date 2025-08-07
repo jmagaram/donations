@@ -1,3 +1,5 @@
+import type { UrlParam } from "./urlParam";
+
 export type YearFilter =
   | { kind: "all" }
   | { kind: "current" }
@@ -8,8 +10,10 @@ export type YearFilter =
   | { kind: "last5" }
   | { kind: "other"; value: number };
 
-export const parseYearFilter = (value: string): YearFilter => {
-  switch (value) {
+const parseYearFilter = (value: string | undefined): YearFilter | undefined => {
+  if (value === undefined) return undefined;
+  const normalized = value.trim().toLocaleLowerCase();
+  switch (normalized) {
     case "all":
       return { kind: "all" };
     case "current":
@@ -25,38 +29,17 @@ export const parseYearFilter = (value: string): YearFilter => {
     case "last5":
       return { kind: "last5" };
     default:
-      if (value.match(/^[0-9]{4}$/)) {
+      if (normalized.match(/^[0-9]{4}$/)) {
         return { kind: "other", value: parseInt(value) };
       }
-      return { kind: "all" };
+      return undefined;
   }
 };
 
-export const stringifyYearFilter = (filter: YearFilter): string | undefined => {
+const encode = (filter: YearFilter): string | undefined => {
   switch (filter.kind) {
     case "all":
       return undefined;
-    case "current":
-      return "current";
-    case "previous":
-      return "previous";
-    case "last2":
-      return "last2";
-    case "last3":
-      return "last3";
-    case "last4":
-      return "last4";
-    case "last5":
-      return "last5";
-    case "other":
-      return filter.value.toString();
-  }
-};
-
-export const stringifyYearFilterForUI = (filter: YearFilter): string => {
-  switch (filter.kind) {
-    case "all":
-      return "all";
     case "current":
       return "current";
     case "previous":
@@ -103,4 +86,9 @@ export const getYearRange = ({
     case "other":
       return [yearFilter.value, yearFilter.value];
   }
+};
+
+export const yearFilterParam: UrlParam<YearFilter> = {
+  parse: parseYearFilter,
+  encode: encode,
 };

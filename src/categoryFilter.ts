@@ -4,7 +4,11 @@ export type CategoryFilter =
 
 export const parseCategoryFilter = (value: string): CategoryFilter => {
   if (value === "all" || value === "") return { kind: "all" };
-  return { kind: "exactMatch", category: value };
+  if (value.startsWith("exactMatch_")) {
+    const category = value.substring("exactMatch_".length);
+    return { kind: "exactMatch", category };
+  }
+  return { kind: "all" };
 };
 
 export const stringifyCategoryFilter = (
@@ -14,7 +18,18 @@ export const stringifyCategoryFilter = (
     case "all":
       return undefined;
     case "exactMatch":
-      return filter.category;
+      return `exactMatch_${filter.category}`;
+  }
+};
+
+export const stringifyCategoryFilterForUI = (
+  filter: CategoryFilter,
+): string => {
+  switch (filter.kind) {
+    case "all":
+      return "all";
+    case "exactMatch":
+      return `exactMatch_${filter.category}`;
   }
 };
 
@@ -27,5 +42,15 @@ export const matchesCategoryFilter = (
       return true;
     case "exactMatch":
       return category === filter.category;
+  }
+};
+
+export const areCategoryFiltersEqual = (a: CategoryFilter, b: CategoryFilter): boolean => {
+  if (a.kind !== b.kind) return false;
+  switch (a.kind) {
+    case "all":
+      return true;
+    case "exactMatch":
+      return a.category === (b as typeof a).category;
   }
 };

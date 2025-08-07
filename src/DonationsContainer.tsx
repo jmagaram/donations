@@ -4,6 +4,7 @@ import { getDonationYearRange } from "./donationsData";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useUrlParam } from "./useUrlParam";
+import { useSearchParams } from "react-router-dom";
 import {
   getUniqueDonationYears,
   getUniqueOrgCategories,
@@ -27,7 +28,20 @@ import {
   parseCategoryFilter,
   stringifyCategoryFilter,
   matchesCategoryFilter,
+  areCategoryFiltersEqual,
 } from "./categoryFilter";
+import {
+  parseTaxStatusFilter,
+  stringifyTaxStatusFilter,
+  matchesTaxStatusFilter,
+  areTaxStatusFiltersEqual,
+} from "./taxStatusFilter";
+import {
+  parseDonationTypeFilter,
+  stringifyDonationTypeFilter,
+  matchesDonationTypeFilter,
+  areDonationTypeFiltersEqual,
+} from "./donationTypeFilter";
 import { formatUSD } from "./amount";
 
 const generateYearFilterOptions = (
@@ -57,11 +71,11 @@ const generateYearFilterOptions = (
 };
 
 const generateCategoryFilterOptions = (donationsData: DonationsData) => {
-  const options = [{ value: "", label: "Any category" }];
+  const options = [{ value: "all", label: "Any category" }];
   const uniqueCategories = Array.from(getUniqueOrgCategories(donationsData));
   uniqueCategories.sort(); // Alphabetical order
   uniqueCategories.forEach((category) => {
-    options.push({ value: category, label: category });
+    options.push({ value: `exactMatch_${category}`, label: category });
   });
   return options;
 };
@@ -76,39 +90,52 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   const yearRange = getDonationYearRange(donationsData.donations);
   const minYear = yearRange?.minYear ?? currentYear;
   const maxYear = yearRange?.maxYear ?? currentYear;
+  const [, setSearchParams] = useSearchParams();
 
-  const [yearFilter, updateYearFilter, resetYearFilter] = useUrlParam({
+  const [yearFilter, updateYearFilter] = useUrlParam({
     paramName: "year",
     parseFromString: parseYearFilter,
     defaultValue: { kind: "all" },
-    noFilterValue: { kind: "all" },
     stringifyValue: stringifyYearFilter,
   });
 
-  const [searchFilter, updateSearchFilter, resetSearchFilter] = useUrlParam({
+  const [searchFilter, updateSearchFilter] = useUrlParam({
     paramName: "search",
     parseFromString: (value) => value,
     defaultValue: "",
-    noFilterValue: "",
     stringifyValue: (value) => (value === "" ? undefined : value),
   });
 
-  const [categoryFilter, updateCategoryFilter, resetCategoryFilter] =
-    useUrlParam({
-      paramName: "category",
-      parseFromString: parseCategoryFilter,
-      defaultValue: { kind: "all" },
-      noFilterValue: { kind: "all" },
-      stringifyValue: stringifyCategoryFilter,
-    });
+  const [categoryFilter, updateCategoryFilter] = useUrlParam({
+    paramName: "category",
+    parseFromString: parseCategoryFilter,
+    defaultValue: { kind: "all" },
+    stringifyValue: stringifyCategoryFilter,
+    areEqual: areCategoryFiltersEqual,
+  });
 
-  const [amountFilter, updateAmountFilter, resetAmountFilter] = useUrlParam({
+  const [amountFilter, updateAmountFilter] = useUrlParam({
     paramName: "amount",
     parseFromString: parseAmountFilter,
     defaultValue: { kind: "all" },
-    noFilterValue: { kind: "all" },
     stringifyValue: stringifyAmountFilter,
     areEqual: areAmountFiltersEqual,
+  });
+
+  const [taxStatusFilter, updateTaxStatusFilter] = useUrlParam({
+    paramName: "tax",
+    parseFromString: parseTaxStatusFilter,
+    defaultValue: { kind: "all" },
+    stringifyValue: stringifyTaxStatusFilter,
+    areEqual: areTaxStatusFiltersEqual,
+  });
+
+  const [donationTypeFilter, updateDonationTypeFilter] = useUrlParam({
+    paramName: "type",
+    parseFromString: parseDonationTypeFilter,
+    defaultValue: { kind: "all" },
+    stringifyValue: stringifyDonationTypeFilter,
+    areEqual: areDonationTypeFiltersEqual,
   });
 
   const categoryFilterOptions = useMemo(
@@ -130,14 +157,14 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const donations: DonationDisplay[] = [...donationsData.donations]
     .filter((d) => {
+      const org = donationsData.orgs.find((o) => o.id === d.orgId);
       return (
         matchesYearFilter(d, yearFrom, yearTo) &&
         matchesAmountFilter(d, amountFilter) &&
-        matchesCategoryFilter(
-          donationsData.orgs.find((o) => o.id === d.orgId)?.category,
-          categoryFilter,
-        ) &&
-        matchesSearchFilter(d, donationsData, searchFilter)
+        matchesCategoryFilter(org?.category, categoryFilter) &&
+        matchesSearchFilter(d, donationsData, searchFilter) &&
+        matchesTaxStatusFilter(org?.taxDeductible ?? false, taxStatusFilter) &&
+        matchesDonationTypeFilter(d.kind, donationTypeFilter)
       );
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))
@@ -155,17 +182,17 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     });
 
   const handleClearFilters = () => {
-    resetSearchFilter();
-    resetYearFilter();
-    resetCategoryFilter();
-    resetAmountFilter();
+    // Clear all filter parameters in one atomic operation
+    setSearchParams(new URLSearchParams());
   };
 
   const hasActiveFilters =
     searchFilter !== "" ||
     yearFilter.kind !== "all" ||
     amountFilter.kind !== "all" ||
-    categoryFilter.kind !== "all";
+    categoryFilter.kind !== "all" ||
+    taxStatusFilter.kind !== "all" ||
+    donationTypeFilter.kind !== "all";
 
   return (
     <DonationsView
@@ -180,6 +207,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       categoryFilterChanged={updateCategoryFilter}
       amountFilter={amountFilter}
       amountFilterChanged={updateAmountFilter}
+      taxStatusFilter={taxStatusFilter}
+      taxStatusFilterChanged={updateTaxStatusFilter}
+      donationTypeFilter={donationTypeFilter}
+      donationTypeFilterChanged={updateDonationTypeFilter}
       onClearFilters={handleClearFilters}
       hasActiveFilters={hasActiveFilters}
     />

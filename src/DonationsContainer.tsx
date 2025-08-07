@@ -4,7 +4,7 @@ import { getDonationYearRange } from "./donationsData";
 import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useSearchParams } from "react-router-dom";
-import { useUrlParamValue } from "./urlParam";
+import { useUrlParamValue } from "./useUrlParam";
 import {
   getUniqueDonationYears,
   getUniqueOrgCategories,

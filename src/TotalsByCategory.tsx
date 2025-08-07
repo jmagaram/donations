@@ -4,7 +4,7 @@ import { useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 import { formatUSD as formatAmount } from "./amount";
-import { useUrlParamValue } from "./urlParam";
+import { useUrlParamValue } from "./useUrlParam";
 import { yearFilterParam, getYearRange } from "./yearFilter";
 import {
   taxStatusFilterParam,

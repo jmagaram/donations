@@ -2,7 +2,7 @@ import { type DonationsData } from "./types";
 import { getUniqueOrgCategories, orgTextMatch } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
-import { useUrlParamValue } from "./urlParam";
+import { useUrlParamValue } from "./useUrlParam";
 import { categoryFilterParam, matchesCategoryFilter } from "./categoryFilter";
 import {
   taxStatusFilterParam,
@@ -134,9 +134,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     const taxStatusFilter =
       value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
     const newParams = new URLSearchParams(searchParams);
-    const encoded = taxStatusFilterParam.encode(
-      taxStatusFilter ?? "all",
-    );
+    const encoded = taxStatusFilterParam.encode(taxStatusFilter ?? "all");
     if (encoded) {
       newParams.set("tax", encoded);
     } else {

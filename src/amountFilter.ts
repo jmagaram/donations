@@ -1,4 +1,4 @@
-import type { UrlParam } from "./urlParam";
+import type { UrlParam } from "./useUrlParam";
 
 export type AmountFilter =
   | { kind: "all" }

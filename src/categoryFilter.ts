@@ -1,4 +1,4 @@
-import type { UrlParam } from "./urlParam";
+import type { UrlParam } from "./useUrlParam";
 
 // Defines a category filter, such as "Healthcare" or "Politics". It is possible
 // to find organizations and donations that do not have an assigned category by

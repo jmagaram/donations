@@ -1,4 +1,6 @@
 import type { SearchParam } from "./useSearchParam";
+import type { DonationsData } from "./types";
+import { getUniqueOrgCategories } from "./donationsData";
 
 // Defines a category filter, such as "Healthcare" or "Politics". It is possible
 // to find organizations and donations that do not have an assigned category by
@@ -18,4 +20,18 @@ export const matchesCategoryFilter = (
   const categoryNormalized = category?.trim().toLocaleLowerCase() ?? "";
   const filterNormalized = filter.trim().toLocaleLowerCase();
   return filterNormalized === categoryNormalized;
+};
+
+export const getAvailableCategories = (
+  donationsData: DonationsData,
+): CategoryFilter[] => {
+  const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
+  const missingCategory = categoryFilterSearchParam.encode("");
+  const categories: CategoryFilter[] =
+    missingCategory !== undefined ? [missingCategory] : [];
+  const sortedCategories = Array.from(uniqueCategories)
+    .filter((i) => i.trim().length > 0)
+    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+  categories.push(...sortedCategories);
+  return categories;
 };

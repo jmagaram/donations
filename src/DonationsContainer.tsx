@@ -5,7 +5,6 @@ import { type DonationsData } from "./types";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useSearchParams } from "react-router-dom";
 import {
-  getUniqueOrgCategories,
   matchesYearFilter,
   matchesAmountFilter,
   matchesSearchFilter,
@@ -18,6 +17,7 @@ import {
   categoryFilterSearchParam,
   matchesCategoryFilter,
   type CategoryFilter,
+  getAvailableCategories,
 } from "./categoryFilter";
 import {
   taxStatusParam,
@@ -32,19 +32,6 @@ import {
 import { formatUSD } from "./amount";
 import { searchFilterParam, type SearchFilter } from "./searchFilter";
 
-const getAvailableCategories = (
-  donationsData: DonationsData,
-): CategoryFilter[] => {
-  const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
-  const missingCategory = categoryFilterSearchParam.encode("");
-  const categories: CategoryFilter[] =
-    missingCategory !== undefined ? [missingCategory] : [];
-  const sortedCategories = Array.from(uniqueCategories)
-    .filter((i) => i.trim().length > 0)
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  categories.push(...sortedCategories);
-  return categories;
-};
 
 interface DonationsContainerProps {
   donationsData: DonationsData;

@@ -1,5 +1,5 @@
 import { type DonationsData } from "./types";
-import { getUniqueOrgCategories, orgTextMatch } from "./donationsData";
+import { orgTextMatch } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
 import { useSearchParam } from "./useSearchParam";
@@ -7,6 +7,7 @@ import {
   categoryFilterSearchParam,
   matchesCategoryFilter,
   type CategoryFilter,
+  getAvailableCategories,
 } from "./categoryFilter";
 import {
   taxStatusParam,
@@ -16,19 +17,6 @@ import {
 import { useMemo } from "react";
 import { type SearchFilter, searchFilterParam } from "./searchFilter";
 
-const getAvailableCategories = (
-  donationsData: DonationsData,
-): CategoryFilter[] => {
-  const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
-  const missingCategory = categoryFilterSearchParam.encode("");
-  const categories: CategoryFilter[] =
-    missingCategory !== undefined ? [missingCategory] : [];
-  const sortedCategories = Array.from(uniqueCategories)
-    .filter((i) => i.trim().length > 0)
-    .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  categories.push(...sortedCategories);
-  return categories;
-};
 
 interface OrgsContainerProps {
   donationsData: DonationsData;

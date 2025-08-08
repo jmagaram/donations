@@ -11,7 +11,7 @@ interface YearFilterPickerProps {
   onChange: (value: YearFilter | undefined) => void;
   minYear: number;
   maxYear: number;
-  lastYearOptions?: number[];
+  maxLastYears?: number;
   className?: string;
   id?: string;
 }
@@ -21,7 +21,7 @@ const YearFilterPicker = ({
   onChange,
   minYear,
   maxYear,
-  lastYearOptions = [2, 3, 4, 5],
+  maxLastYears = 5,
   className,
   id = "year-filter",
 }: YearFilterPickerProps) => {
@@ -43,8 +43,24 @@ const YearFilterPicker = ({
   const getYearOptions = (): YearFilter[] => {
     const options: YearFilter[] = [{ kind: "current" }, { kind: "previous" }];
 
-    // Add "last N years" options based on prop
-    for (const count of lastYearOptions) {
+    // Collect all "last N" counts to include
+    const lastCounts = new Set<number>();
+    
+    // Add standard options (2, 3, 4, ..., maxLastYears)
+    if (maxLastYears > 1) {
+      for (let count = 2; count <= maxLastYears; count++) {
+        lastCounts.add(count);
+      }
+    }
+    
+    // Add current value if it's a "last N" and not already included
+    if (value?.kind === "last" && !lastCounts.has(value.count)) {
+      lastCounts.add(value.count);
+    }
+    
+    // Add all "last N" options in ascending order
+    const sortedCounts = Array.from(lastCounts).sort((a, b) => a - b);
+    for (const count of sortedCounts) {
       options.push({ kind: "last", count });
     }
     const individualYears: number[] = [];

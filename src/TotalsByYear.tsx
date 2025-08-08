@@ -164,7 +164,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           onChange={updateYearFilter}
           minYear={minYear}
           maxYear={maxYear}
-          lastYearOptions={[2, 3, 4, 5]}
+          maxLastYears={5}
           className="toolbar-item"
           id="yearRange"
         />

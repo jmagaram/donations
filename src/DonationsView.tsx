@@ -147,7 +147,7 @@ const DonationsView = ({
           onChange={yearFilterChanged}
           minYear={minYear}
           maxYear={maxYear}
-          lastYearOptions={[2, 3]}
+          maxLastYears={3}
           className="toolbar-item large-screen"
           id="year-filter"
         />

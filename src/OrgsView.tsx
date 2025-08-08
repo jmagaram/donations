@@ -4,6 +4,7 @@ import StatusBox from "./StatusBox";
 import SearchFilterBox from "./SearchFilterBox";
 import CategoryPicker from "./CategoryPicker";
 import TaxStatusPicker from "./TaxStatusPicker";
+import OrgGrid from "./OrgGrid";
 import { type SearchFilter } from "./searchFilter";
 import { type CategoryFilter } from "./categoryFilter";
 import { type TaxStatusFilter } from "./taxStatusFilter";
@@ -71,29 +72,7 @@ const OrgsView = ({
       {orgs.length === 0 ? (
         <StatusBox content="No organizations found" kind="info" />
       ) : (
-        <div className="orgs-grid">
-          <div className="header">
-            <div className="name">Name</div>
-            <div className="category medium-screen">Category</div>
-            <div className="notes large-screen">Notes</div>
-          </div>
-          {orgs
-            .sort((a, b) => a.name.localeCompare(b.name))
-            .map((org) => (
-              <div key={org.id} className="row">
-                <div className="name">
-                  <Link to={`/orgs/${org.id}`}>{org.name}</Link>
-                  {!org.taxDeductible && (
-                    <span title="Not tax-deductible"> *</span>
-                  )}
-                </div>
-                <div className="category medium-screen">
-                  {org.category || ""}
-                </div>
-                <div className="notes large-screen">{org.notes}</div>
-              </div>
-            ))}
-        </div>
+        <OrgGrid orgs={orgs} />
       )}
     </div>
   );

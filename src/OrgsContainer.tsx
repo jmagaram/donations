@@ -17,7 +17,6 @@ import {
 import { useMemo } from "react";
 import { type SearchFilter, searchFilterParam } from "./searchFilter";
 
-
 interface OrgsContainerProps {
   donationsData: DonationsData;
   setDonationsData: (data: DonationsData) => void;
@@ -30,17 +29,14 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     "search",
     searchFilterParam,
   );
-
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
     categoryFilterSearchParam,
   );
-
   const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
     "tax",
     taxStatusParam,
   );
-
   const availableCategories = useMemo(
     () => getAvailableCategories(donationsData),
     [donationsData],
@@ -48,15 +44,14 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
-      const matchesSearchText = orgTextMatch(org, searchFilter ?? "");
+      const matchesSearchText =
+        searchFilter === undefined || orgTextMatch(org, searchFilter);
       const matchesCategory =
-        categoryFilter === undefined
-          ? true
-          : matchesCategoryFilter(categoryFilter, org.category);
-      const matchesTaxStatus = matchesTaxStatusFilter(
-        taxStatusFilter,
-        org.taxDeductible ?? false,
-      );
+        categoryFilter === undefined ||
+        matchesCategoryFilter(categoryFilter, org.category);
+      const matchesTaxStatus =
+        taxStatusFilter === undefined ||
+        matchesTaxStatusFilter(taxStatusFilter, org.taxDeductible ?? false);
       return matchesSearchText && matchesCategory && matchesTaxStatus;
     })
     .sort((a, b) => a.name.localeCompare(b.name));

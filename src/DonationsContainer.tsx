@@ -16,7 +16,6 @@ import { useSearchParam } from "./useSearchParam";
 import {
   categoryFilterSearchParam,
   matchesCategoryFilter,
-  type CategoryFilter,
   getAvailableCategories,
 } from "./categoryFilter";
 import {
@@ -31,7 +30,6 @@ import {
 } from "./donationKindFilter";
 import { formatUSD } from "./amount";
 import { searchFilterParam, type SearchFilter } from "./searchFilter";
-
 
 interface DonationsContainerProps {
   donationsData: DonationsData;
@@ -49,24 +47,19 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     "year",
     yearFilterSearchParam,
   );
-
   const [searchFilter, setSearchFilter] = useSearchParam(
     "search",
     searchFilterParam,
   );
-
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
     categoryFilterSearchParam,
   );
-
   const [amountFilter, setAmountFilter] = useSearchParam(
     "amount",
     amountFilterSearchParam,
   );
-
   const [taxFilter, setTaxFilter] = useSearchParam("tax", taxStatusParam);
-
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
     paymentKindParam,
@@ -91,12 +84,15 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       const org = donationsData.orgs.find((o) => o.id === d.orgId);
       return (
         matchesYearFilter(d, yearFrom, yearTo) &&
-        matchesAmountFilter(d, amountFilter ?? { kind: "all" }) &&
+        (amountFilter === undefined || matchesAmountFilter(d, amountFilter)) &&
         (categoryFilter === undefined ||
           matchesCategoryFilter(categoryFilter, org?.category)) &&
-        matchesSearchFilter(d, donationsData, searchFilter ?? "") &&
-        matchesTaxStatusFilter(taxFilter, org?.taxDeductible ?? false) &&
-        matchesPaymentKindFilter(d.kind, paymentKindFilter ?? "all")
+        (searchFilter === undefined ||
+          matchesSearchFilter(d, donationsData, searchFilter)) &&
+        (taxFilter === undefined ||
+          matchesTaxStatusFilter(taxFilter, org?.taxDeductible ?? false)) &&
+        (paymentKindFilter === undefined ||
+          matchesPaymentKindFilter(d.kind, paymentKindFilter))
       );
     })
     .sort((a, b) => compareDatesDesc(a.date, b.date))

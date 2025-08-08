@@ -249,3 +249,85 @@ export const orgTextMatch = (org: Org, filter: string): boolean => {
     orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword)),
   );
 };
+
+export const scoreSearchOrganization = (
+  data: Readonly<DonationsData>,
+  orgId: string,
+  search: string,
+): number | undefined => {
+  const org = findOrgById(data, orgId);
+  if (!org) {
+    return undefined;
+  }
+
+  const lowerCaseSearch = search.toLowerCase();
+  if (org.name.toLowerCase().includes(lowerCaseSearch)) {
+    return 1;
+  }
+  if (org.notes.toLowerCase().includes(lowerCaseSearch)) {
+    return 2;
+  }
+
+  return undefined;
+};
+
+export const scoreSearchDonation = (
+  data: Readonly<DonationsData>,
+  donationId: string,
+  search: string,
+): number | undefined => {
+  const donation = findDonationById(data, donationId);
+  if (!donation) {
+    return undefined;
+  }
+
+  const lowerCaseSearch = search.toLowerCase();
+  if (donation.notes.toLowerCase().includes(lowerCaseSearch)) {
+    return 1;
+  }
+
+  const org = findOrgById(data, donation.orgId);
+  if (org && org.name.toLowerCase().includes(lowerCaseSearch)) {
+    return 2;
+  }
+  if (org && org.notes.toLowerCase().includes(lowerCaseSearch)) {
+    return 3;
+  }
+
+  return undefined;
+};
+
+export const search = (
+  data: Readonly<DonationsData>,
+  search: string,
+): { orgs: Org[]; donations: Donation[] } => {
+  if (search.trim() === "") {
+    return { orgs: [], donations: [] };
+  }
+
+  const scoredOrgs = data.orgs
+    .map((org) => ({
+      org,
+      score: scoreSearchOrganization(data, org.id, search),
+    }))
+    .filter((item): item is { org: Org; score: number } => item.score !== undefined);
+
+  scoredOrgs.sort((a, b) => a.score - b.score);
+
+  const scoredDonations = data.donations
+    .map((donation) => ({
+      donation,
+      score: scoreSearchDonation(data, donation.id, search),
+    }))
+    .filter(
+      (item): item is { donation: Donation; score: number } =>
+        item.score !== undefined,
+    );
+
+  scoredDonations.sort((a, b) => a.score - b.score);
+
+  return {
+    orgs: scoredOrgs.map((item) => item.org),
+    donations: scoredDonations.map((item) => item.donation),
+  };
+};

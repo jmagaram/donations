@@ -1,4 +1,5 @@
 import { type SearchFilter } from "./searchFilter";
+import { useRef, useEffect, useState } from "react";
 
 interface SearchFilterBoxProps {
   value: SearchFilter;
@@ -15,8 +16,33 @@ const SearchFilterBox = ({
   id = "filter",
   placeholder = "Search",
 }: SearchFilterBoxProps) => {
-  const handleChange = (inputValue: string) => {
-    onChange(inputValue);
+  const [inputValue, setInputValue] = useState(value);
+  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
+  const REQUIRED_IDLE_MS = 750;
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  useEffect(() => {
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(() => {
+      if (inputValue !== value) {
+        onChange(inputValue);
+      }
+    }, REQUIRED_IDLE_MS);
+    return () => {
+      if (debounceTimeout.current) {
+        clearTimeout(debounceTimeout.current);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inputValue]);
+
+  const handleChange = (newValue: string) => {
+    setInputValue(newValue);
   };
 
   return (
@@ -25,7 +51,7 @@ const SearchFilterBox = ({
       <input
         type="search"
         id={id}
-        value={value}
+        value={inputValue}
         onChange={(e) => handleChange(e.target.value)}
         placeholder={placeholder}
       />

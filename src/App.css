@@ -190,6 +190,10 @@ nav a {
         gap: 0.25rem 0.25rem;
     }
 
+    .donations-grid.hide-org-name {
+    grid-template-columns: max-content max-content;
+    }
+
     .orgs-grid {
         grid-template-columns: 1fr;
     }
@@ -229,6 +233,10 @@ nav a {
         gap: 0.25rem 0.25rem;
     }
 
+    .donations-grid.hide-org-name {
+        grid-template-columns: max-content max-content max-content;
+    }
+
     .orgs-grid {
         grid-template-columns: max-content max-content;
     }
@@ -256,6 +264,10 @@ nav a {
         display: grid;
         grid-template-columns: max-content max-content max-content max-content auto 1fr;
         gap: 0.25rem 0.25rem;
+    }
+
+    .donations-grid.hide-org-name {
+        grid-template-columns: max-content max-content max-content auto 1fr;
     }
 
     .orgs-grid {

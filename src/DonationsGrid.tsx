@@ -8,7 +8,7 @@ interface DonationsGridProps {
 
 const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
   return (
-    <div className="donations-grid">
+    <div className={`donations-grid${showOrgName ? "" : " hide-org-name"}`}>
       <div className="header">
         <div>Date</div>
         <div>Amount</div>

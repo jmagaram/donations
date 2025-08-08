@@ -24,6 +24,11 @@ import {
 import DonationKindFilterSelect from "./DonationKindFilterSelect";
 import { getDonationYearRange } from "./donationsData";
 
+const getAmountClasses = (amount: number, ...extraClasses: string[]) => {
+  const valueClass = amount > 0 ? "positive" : amount < 0 ? "negative" : "zero";
+  return [valueClass, ...extraClasses].filter(Boolean).join(" ");
+};
+
 interface TotalsByYearProps {
   donationsData: DonationsData;
 }
@@ -210,15 +215,30 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
                 <div key={org.id} className="totals-by-year-row">
                   <Link to={`/orgs/${org.id}`}>{org.name}</Link>
                 </div>
-                {processedData.years.map((year) => (
-                  <div key={`${org.id}-${year}`} className="totals-by-year-row">
-                    {formatAmount(
-                      processedData.orgYearTotals[org.id][year] || 0,
-                      "hidePennies",
-                    )}
-                  </div>
-                ))}
-                <div className="totals-by-year-row totals-by-year-total-col">
+                {processedData.years.map((year) => {
+                  const amount =
+                    processedData.orgYearTotals[org.id][year] || 0;
+                  return (
+                    <div
+                      key={`${org.id}-${year}`}
+                      className={getAmountClasses(
+                        amount,
+                        "totals-by-year-row",
+                        "interior-value",
+                      )}
+                    >
+                      {formatAmount(amount, "hidePennies")}
+                    </div>
+                  );
+                })}
+                <div
+                  className={getAmountClasses(
+                    orgTotal,
+                    "totals-by-year-row",
+                    "totals-by-year-total-col",
+                    "row-total",
+                  )}
+                >
                   {formatAmount(orgTotal, "hidePennies")}
                 </div>
               </>
@@ -227,12 +247,28 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
 
           {/* Totals row */}
           <div className="totals-by-year-total-row">Total</div>
-          {processedData.years.map((year) => (
-            <div key={`total-${year}`} className="totals-by-year-total-row">
-              {formatAmount(processedData.yearTotals[year] || 0, "hidePennies")}
-            </div>
-          ))}
-          <div className="totals-by-year-total-row">
+          {processedData.years.map((year) => {
+            const amount = processedData.yearTotals[year] || 0;
+            return (
+              <div
+                key={`total-${year}`}
+                className={getAmountClasses(
+                  amount,
+                  "totals-by-year-total-row",
+                  "column-total",
+                )}
+              >
+                {formatAmount(amount, "hidePennies")}
+              </div>
+            );
+          })}
+          <div
+            className={getAmountClasses(
+              processedData.grandTotal,
+              "totals-by-year-total-row",
+              "grand-total",
+            )}
+          >
             {formatAmount(processedData.grandTotal, "hidePennies")}
           </div>
         </div>

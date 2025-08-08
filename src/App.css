@@ -461,6 +461,10 @@ nav a {
     text-decoration: none;
 }
 
+.zero.interior-value {
+    opacity: 0.25;
+}
+
 .sign-out-button {
     gap: 0.375rem;
     padding: 0.25rem 0.5rem;

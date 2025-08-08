@@ -22,19 +22,22 @@ import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
 import { BrowserStore } from "./store/browserStore";
 import { WebApiStore } from "./store/webApi";
 import { empty, isEmpty } from "./donationsData";
-import type { RemoteStore } from "./store";
+import type { RemoteStore } from "./store/remoteStore";
 import StatusBox from "./StatusBox";
+import { sampleData } from "./sampleData";
 
 const createStore = (
-  kind: "browser" | "webApi",
+  kind: "browser" | "webApi"
 ): RemoteStore<DonationsData> => {
   switch (kind) {
-    case "browser":
+    case "browser": {
+      const initialData: DonationsData = sampleData() ?? empty();
       return new BrowserStore({
         storageKey: "donations-data",
         isValidData: (data): data is DonationsData =>
           DonationsDataSchema.safeParse(data).success,
         timeoutMs: 2000,
+        initialData: { data: initialData, overwrite: false },
         errorSimulation: {
           networkError: 0.0,
           unauthorized: 0.0,
@@ -43,6 +46,7 @@ const createStore = (
           etagMismatch: 0.0,
         },
       });
+    }
     case "webApi":
       return new WebApiStore();
   }
@@ -86,7 +90,7 @@ const AppContent = () => {
     (option: "pull" | "push" | "pushForce") => {
       return offlineStore.sync(option);
     },
-    [offlineStore],
+    [offlineStore]
   );
 
   const donationsData = storageState.data.data;

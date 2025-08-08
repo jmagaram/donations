@@ -27,12 +27,23 @@ export class BrowserStore<T> implements RemoteStore<T> {
     isValidData: (data: unknown) => data is T;
     timeoutMs: number;
     errorSimulation?: ErrorSimulation;
+    initialData?: { data: T; overwrite: boolean };
   }) {
     this.storageKey = params.storageKey;
     this.etagKey = `${params.storageKey}_etag`;
     this.timeoutMs = params.timeoutMs;
     this.errorSimulation = params.errorSimulation;
     this.isValidData = params.isValidData;
+
+    if (params.initialData) {
+      const { data, overwrite } = params.initialData;
+      const existing = sessionStorage.getItem(this.storageKey);
+      if (overwrite || !existing) {
+        const newEtag = this.generateEtag(data);
+        sessionStorage.setItem(this.storageKey, JSON.stringify(data));
+        sessionStorage.setItem(this.etagKey, newEtag);
+      }
+    }
   }
 
   async load(): Promise<Result<Versioned<T> | undefined, LoadError>> {

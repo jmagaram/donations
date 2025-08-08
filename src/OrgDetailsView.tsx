@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
 import type { DonationsData } from "./types";
 import { compareDatesDesc } from "./date";
 import { formatUSD as formatAmount } from "./amount";
+import { type DonationDisplay } from "./DonationsView";
+import DonationsGrid from "./DonationsGrid";
 
 interface OrgDetailsViewProps {
   donationsData: DonationsData;
@@ -41,13 +42,20 @@ const OrgDetailsView = ({
     </div>
   );
 
-  const formatDate = (timestamp: string): string => {
-    return timestamp;
-  };
-
   if (!organization) {
     return <div>Organization not found.</div>;
   }
+
+  const donationsForDisplay: DonationDisplay[] = donations.map((d) => ({
+    id: d.id,
+    date: d.date,
+    amount: formatAmount(d.amount),
+    orgId: d.orgId,
+    orgName: organization.name,
+    kind: d.kind,
+    notes: d.notes,
+    paymentMethod: d.paymentMethod,
+  }));
 
   const showCategory =
     organization.category && organization.category.trim() !== "";
@@ -86,30 +94,7 @@ const OrgDetailsView = ({
       </dl>
       <div className="section">
         {donations.length > 0 ? (
-          <div className="donation-grid">
-            <div className="row header">
-              <div>Date</div>
-              <div>Amount</div>
-              <div>Kind</div>
-              <div className="medium-screen">Paid by</div>
-              <div className="large-screen">Notes</div>
-            </div>
-            {donations.map((donation) => (
-              <div key={donation.id} className="row">
-                <div className="date">{formatDate(donation.date)}</div>
-                <div className="amount">
-                  <Link to={`/donations/${donation.id}`}>
-                    {formatAmount(donation.amount)}
-                  </Link>
-                </div>
-                <div className="kind">{donation.kind}</div>
-                <div className="payment-method medium-screen">
-                  {donation.paymentMethod || ""}
-                </div>
-                <div className="notes large-screen">{donation.notes || ""}</div>
-              </div>
-            ))}
-          </div>
+          <DonationsGrid donations={donationsForDisplay} showOrgName={false} />
         ) : (
           <div className="section">
             <div className="header">Donations</div>

@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import StatusBox from "./StatusBox";
 import { type AmountFilter } from "./amountFilter";
 import { type CategoryFilter } from "./categoryFilter";
 import CategoryPicker from "./CategoryPicker";
@@ -12,6 +11,8 @@ import KindPicker from "./KindPicker";
 import AmountPicker from "./AmountPicker";
 import { type SearchFilter } from "./searchFilter";
 import SearchFilterBox from "./SearchFilterBox";
+import DonationsGrid from "./DonationsGrid";
+import StatusBox from "./StatusBox";
 
 export interface DonationDisplay {
   id: string;
@@ -245,32 +246,7 @@ const DonationsView = ({
       {donations.length === 0 ? (
         <StatusBox content="No donations found" kind="info" />
       ) : (
-        <div className="donations-grid">
-          <div className="header">
-            <div>Date</div>
-            <div>Amount</div>
-            <div>Organization</div>
-            <div className="medium-screen">Kind</div>
-            <div className="large-screen">Paid by</div>
-            <div className="large-screen">Notes</div>
-          </div>
-          {donations.map((donation) => (
-            <div key={donation.id} className="row">
-              <div>{donation.date}</div>
-              <div className="amount">
-                <Link to={`/donations/${donation.id}`}>{donation.amount}</Link>
-              </div>
-              <div>
-                <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
-              </div>
-              <div className="kind medium-screen">{donation.kind}</div>
-              <div className="payment-method large-screen">
-                {donation.paymentMethod || ""}
-              </div>
-              <div className="notes large-screen">{donation.notes}</div>
-            </div>
-          ))}
-        </div>
+        <DonationsGrid donations={donations} showOrgName={true} />
       )}
     </div>
   );

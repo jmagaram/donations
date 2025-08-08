@@ -2,13 +2,13 @@ import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
 import { type AmountFilter } from "./amountFilter";
 import { type CategoryFilter } from "./categoryFilter";
-import CategoryFilterSelect from "./CategoryFilterSelect";
+import CategoryPicker from "./CategoryPicker";
 import { type YearFilter } from "./yearFilter";
-import YearFilterComponent from "./YearFilterComponent";
+import YearFilterPicker from "./YearFilterPicker";
 import { type TaxStatusFilter } from "./taxStatusFilter";
-import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
-import { type PaymentKindFilterParam } from "./donationKindFilter";
-import DonationKindFilterSelect from "./DonationKindFilterSelect";
+import TaxStatusPicker from "./TaxStatusPicker";
+import { type KindFilterParam } from "./kindFilter";
+import KindPicker from "./KindPicker";
 import AmountPicker from "./AmountPicker";
 import { type SearchFilter } from "./searchFilter";
 import SearchFilterBox from "./SearchFilterBox";
@@ -39,8 +39,8 @@ interface DonationsViewProps {
   amountFilterChanged: (newFilter: AmountFilter) => void;
   taxStatusFilter: TaxStatusFilter | undefined;
   taxStatusFilterChanged: (value: TaxStatusFilter | undefined) => void;
-  paymentKindFilter: PaymentKindFilterParam | undefined;
-  paymentKindFilterChanged: (value: PaymentKindFilterParam | undefined) => void;
+  paymentKindFilter: KindFilterParam | undefined;
+  paymentKindFilterChanged: (value: KindFilterParam | undefined) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -142,7 +142,7 @@ const DonationsView = ({
         <Link to="/donations/add">Add donation</Link>
       </div>
       <div className="toolbar">
-        <YearFilterComponent
+        <YearFilterPicker
           value={yearFilter}
           onChange={yearFilterChanged}
           minYear={minYear}
@@ -151,20 +151,20 @@ const DonationsView = ({
           className="toolbar-item large-screen"
           id="year-filter"
         />
-        <CategoryFilterSelect
+        <CategoryPicker
           value={categoryFilter}
           availableCategories={availableCategories}
           onChange={categoryFilterChanged}
           className="toolbar-item large-screen"
           id="category-filter"
         />
-        <TaxStatusFilterSelect
+        <TaxStatusPicker
           value={taxStatusFilter}
           onChange={taxStatusFilterChanged}
           className="toolbar-item large-screen"
           id="tax-status-filter"
         />
-        <DonationKindFilterSelect
+        <KindPicker
           value={paymentKindFilter}
           onChange={paymentKindFilterChanged}
           className="toolbar-item large-screen"

@@ -5,7 +5,7 @@ import {
 
 const NO_FILTER = "__no_filter__";
 
-interface CategoryFilterSelectProps {
+interface CategoryPickerProps {
   value: CategoryFilter | undefined;
   availableCategories: CategoryFilter[];
   onChange: (value: CategoryFilter | undefined) => void;
@@ -13,13 +13,13 @@ interface CategoryFilterSelectProps {
   id?: string;
 }
 
-const CategoryFilterSelect = ({
+const CategoryPicker = ({
   value,
   availableCategories,
   onChange,
   className,
   id = "category-filter",
-}: CategoryFilterSelectProps) => {
+}: CategoryPickerProps) => {
   const getCategoryDisplayLabel = (category: CategoryFilter): string => {
     return category === "" ? "No category" : category;
   };
@@ -77,4 +77,4 @@ const CategoryFilterSelect = ({
   );
 };
 
-export default CategoryFilterSelect;
+export default CategoryPicker;

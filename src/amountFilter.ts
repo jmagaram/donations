@@ -6,9 +6,7 @@ export type AmountFilter =
   | { kind: "lessThan"; max: number }
   | { kind: "between"; min: number; max: number };
 
-const parseAmountFilter = (
-  str: string | undefined,
-): AmountFilter | undefined => {
+const parse = (str: string | undefined): AmountFilter | undefined => {
   if (str === undefined) return undefined;
   if (str.trim() === "") return undefined;
   if (str.trim().toLocaleLowerCase() === "all") return undefined;
@@ -54,6 +52,6 @@ const encode = (filter: AmountFilter): string | undefined => {
 };
 
 export const amountFilterSearchParam: SearchParam<AmountFilter> = {
-  parse: parseAmountFilter,
-  encode: encode,
+  parse,
+  encode,
 };

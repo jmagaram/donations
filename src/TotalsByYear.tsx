@@ -9,19 +9,19 @@ import {
   getYearRange,
   type YearFilter,
 } from "./yearFilter";
-import YearFilterComponent from "./YearFilterComponent";
+import YearFilterPicker from "./YearFilterPicker";
 import {
   taxStatusParam,
   matchesTaxStatusFilter,
   type TaxStatusFilter,
 } from "./taxStatusFilter";
-import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
+import TaxStatusPicker from "./TaxStatusPicker";
 import {
   paymentKindParam,
   matchesPaymentKindFilter,
-  type PaymentKindFilterParam,
-} from "./donationKindFilter";
-import DonationKindFilterSelect from "./DonationKindFilterSelect";
+  type KindFilterParam,
+} from "./kindFilter";
+import KindPicker from "./KindPicker";
 import { getDonationYearRange } from "./donationsData";
 
 const getAmountClasses = (amount: number, ...extraClasses: string[]) => {
@@ -149,7 +149,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
   };
 
   const updatePaymentKindFilter = (
-    paymentKindFilter: PaymentKindFilterParam | undefined,
+    paymentKindFilter: KindFilterParam | undefined,
   ) => {
     setPaymentKindFilter(paymentKindFilter);
   };
@@ -159,7 +159,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
       <h1>Organization totals</h1>
 
       <div className="filters">
-        <YearFilterComponent
+        <YearFilterPicker
           value={yearFilter}
           onChange={updateYearFilter}
           minYear={minYear}
@@ -169,14 +169,14 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
           id="yearRange"
         />
 
-        <TaxStatusFilterSelect
+        <TaxStatusPicker
           value={taxStatusFilter}
           onChange={updateTaxStatusFilter}
           className="toolbar-item"
           id="taxStatus"
         />
 
-        <DonationKindFilterSelect
+        <KindPicker
           value={paymentKindFilter}
           onChange={updatePaymentKindFilter}
           className="toolbar-item"
@@ -216,8 +216,7 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
                   <Link to={`/orgs/${org.id}`}>{org.name}</Link>
                 </div>
                 {processedData.years.map((year) => {
-                  const amount =
-                    processedData.orgYearTotals[org.id][year] || 0;
+                  const amount = processedData.orgYearTotals[org.id][year] || 0;
                   return (
                     <div
                       key={`${org.id}-${year}`}

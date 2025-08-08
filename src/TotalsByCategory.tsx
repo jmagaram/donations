@@ -9,19 +9,19 @@ import {
   getYearRange,
   type YearFilter,
 } from "./yearFilter";
-import YearFilterComponent from "./YearFilterComponent";
+import YearFilterPicker from "./YearFilterPicker";
 import {
   taxStatusParam,
   matchesTaxStatusFilter,
   type TaxStatusFilter,
 } from "./taxStatusFilter";
-import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
+import TaxStatusPicker from "./TaxStatusPicker";
 import {
   paymentKindParam,
   matchesPaymentKindFilter,
-  type PaymentKindFilterParam,
-} from "./donationKindFilter";
-import DonationKindFilterSelect from "./DonationKindFilterSelect";
+  type KindFilterParam,
+} from "./kindFilter";
+import KindPicker from "./KindPicker";
 import { getDonationYearRange } from "./donationsData";
 
 const getAmountClasses = (amount: number, ...extraClasses: string[]) => {
@@ -152,7 +152,7 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
   };
 
   const updatePaymentKindFilter = (
-    paymentKindFilter: PaymentKindFilterParam | undefined,
+    paymentKindFilter: KindFilterParam | undefined,
   ) => {
     setPaymentKindFilter(paymentKindFilter);
   };
@@ -162,7 +162,7 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
       <h1>Category totals</h1>
 
       <div className="filters">
-        <YearFilterComponent
+        <YearFilterPicker
           value={yearFilter}
           onChange={updateYearFilter}
           minYear={minYear}
@@ -172,14 +172,14 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
           id="yearRange"
         />
 
-        <TaxStatusFilterSelect
+        <TaxStatusPicker
           value={taxStatusFilter}
           onChange={updateTaxStatusFilter}
           className="toolbar-item"
           id="taxStatus"
         />
 
-        <DonationKindFilterSelect
+        <KindPicker
           value={paymentKindFilter}
           onChange={updatePaymentKindFilter}
           className="toolbar-item"

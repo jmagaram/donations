@@ -1,22 +1,22 @@
 import {
   paymentKindChoices,
   paymentKindParam,
-  type PaymentKindFilterParam,
-} from "./donationKindFilter";
+  type KindFilterParam,
+} from "./kindFilter";
 
-interface DonationKindFilterSelectProps {
-  value: PaymentKindFilterParam | undefined;
-  onChange: (value: PaymentKindFilterParam | undefined) => void;
+interface KindPickerProps {
+  value: KindFilterParam | undefined;
+  onChange: (value: KindFilterParam | undefined) => void;
   className?: string;
   id?: string;
 }
 
-const DonationKindFilterSelect = ({
+const KindPicker = ({
   value,
   onChange,
   className,
   id = "donation-type-filter",
-}: DonationKindFilterSelectProps) => {
+}: KindPickerProps) => {
   const handleChange = (selectedValue: string) => {
     const decoded = paymentKindParam.parse(selectedValue);
     onChange(decoded);
@@ -40,4 +40,4 @@ const DonationKindFilterSelect = ({
   );
 };
 
-export default DonationKindFilterSelect;
+export default KindPicker;

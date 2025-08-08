@@ -26,8 +26,8 @@ import {
 import {
   paymentKindParam,
   matchesPaymentKindFilter,
-  type PaymentKindFilterParam,
-} from "./donationKindFilter";
+  type KindFilterParam,
+} from "./kindFilter";
 import { formatUSD } from "./amount";
 import { searchFilterParam, type SearchFilter } from "./searchFilter";
 
@@ -118,9 +118,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     setTaxFilter(value);
   };
 
-  const updatePaymentKindFilter = (
-    value: PaymentKindFilterParam | undefined,
-  ) => {
+  const updatePaymentKindFilter = (value: KindFilterParam | undefined) => {
     setPaymentKindFilter(value);
   };
 

@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 import { type Org } from "./types";
 import StatusBox from "./StatusBox";
 import SearchFilterBox from "./SearchFilterBox";
-import CategoryFilterSelect from "./CategoryFilterSelect";
-import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
+import CategoryPicker from "./CategoryPicker";
+import TaxStatusPicker from "./TaxStatusPicker";
 import { type SearchFilter } from "./searchFilter";
 import { type CategoryFilter } from "./categoryFilter";
 import { type TaxStatusFilter } from "./taxStatusFilter";
@@ -47,14 +47,14 @@ const OrgsView = ({
           id="filter"
           placeholder="Search"
         />
-        <CategoryFilterSelect
+        <CategoryPicker
           value={categoryFilter}
           availableCategories={availableCategories}
           onChange={categoryFilterChanged}
           className="toolbar-item medium-screen large-screen"
           id="categoryFilter"
         />
-        <TaxStatusFilterSelect
+        <TaxStatusPicker
           value={taxStatusFilter}
           onChange={taxStatusFilterChanged}
           className="toolbar-item large-screen"

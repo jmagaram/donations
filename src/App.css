@@ -199,7 +199,7 @@ nav a {
     }
 
     .toolbar-item label {
-        display:none;
+        display: none;
     }
 }
 
@@ -409,7 +409,7 @@ nav a {
 /* Totals by Year Report Styles */
 .filters {
     display: flex;
-    gap: 1rem;
+    gap: 1.25rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
 }
@@ -562,20 +562,20 @@ nav a {
 }
 
 .exporter section {
-    margin-bottom:1rem;
+    margin-bottom: 1rem;
 }
 
 .exporter section > div {
-    display:flex;
+    display: flex;
     flex-direction: row;
     align-items: center;
-    gap:1rem;
+    gap: 1rem;
 }
 
 .exporter section p {
-    max-width:50ch;
-    margin-bottom:0px;
-    margin-top:0px;
+    max-width: 50ch;
+    margin-bottom: 0px;
+    margin-top: 0px;
 }
 
 .import-type-options {

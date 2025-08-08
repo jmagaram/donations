@@ -6,7 +6,7 @@ import {
 
 const NO_FILTER = "__no_filter__";
 
-interface YearFilterProps {
+interface YearFilterPickerProps {
   value: YearFilter | undefined;
   onChange: (value: YearFilter | undefined) => void;
   minYear: number;
@@ -16,7 +16,7 @@ interface YearFilterProps {
   id?: string;
 }
 
-const YearFilterComponent = ({
+const YearFilterPicker = ({
   value,
   onChange,
   minYear,
@@ -24,7 +24,7 @@ const YearFilterComponent = ({
   lastYearOptions = [2, 3, 4, 5],
   className,
   id = "year-filter",
-}: YearFilterProps) => {
+}: YearFilterPickerProps) => {
   const getSelectValue = (): string => {
     if (value === undefined) return NO_FILTER;
     const encoded = yearFilterSearchParam.encode(value);
@@ -41,10 +41,7 @@ const YearFilterComponent = ({
   };
 
   const getYearOptions = (): YearFilter[] => {
-    const options: YearFilter[] = [
-      { kind: "current" },
-      { kind: "previous" },
-    ];
+    const options: YearFilter[] = [{ kind: "current" }, { kind: "previous" }];
 
     // Add "last N years" options based on prop
     for (const count of lastYearOptions) {
@@ -92,4 +89,4 @@ const YearFilterComponent = ({
   );
 };
 
-export default YearFilterComponent;
+export default YearFilterPicker;

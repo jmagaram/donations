@@ -19,8 +19,8 @@ const AmountPicker = ({
   className,
   id,
 }: AmountPickerProps) => {
-  const sortedOptions = [...options].sort((a, b) => 
-    sort === "smallestFirst" ? a - b : b - a
+  const sortedOptions = [...options].sort((a, b) =>
+    sort === "smallestFirst" ? a - b : b - a,
   );
 
   const handleChange = (selectedValue: string) => {

@@ -4,19 +4,19 @@ import {
   type TaxStatusFilter,
 } from "./taxStatusFilter";
 
-interface TaxStatusFilterSelectProps {
+interface TaxStatusPickerProps {
   value: TaxStatusFilter | undefined;
   onChange: (value: TaxStatusFilter | undefined) => void;
   className?: string;
   id?: string;
 }
 
-const TaxStatusFilterSelect = ({
+const TaxStatusPicker = ({
   value,
   onChange,
   className,
   id = "tax-status-filter",
-}: TaxStatusFilterSelectProps) => {
+}: TaxStatusPickerProps) => {
   const handleChange = (selectedValue: string) => {
     const decoded = taxStatusParam.parse(selectedValue);
     onChange(decoded);
@@ -40,4 +40,4 @@ const TaxStatusFilterSelect = ({
   );
 };
 
-export default TaxStatusFilterSelect;
+export default TaxStatusPicker;

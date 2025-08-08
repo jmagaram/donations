@@ -1,4 +1,4 @@
-import type { UrlParam } from "./useUrlParam";
+import type { SearchParam } from "./useSearchParam";
 
 export type AmountFilter =
   | { kind: "all" }
@@ -53,7 +53,7 @@ const encode = (filter: AmountFilter): string | undefined => {
   }
 };
 
-export const amountFilterParam: UrlParam<AmountFilter> = {
+export const amountFilterSearchParam: SearchParam<AmountFilter> = {
   parse: parseAmountFilter,
   encode: encode,
 };

@@ -2,42 +2,32 @@ import { type DonationsData } from "./types";
 import { getUniqueOrgCategories, orgTextMatch } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
-import { useUrlParamValue } from "./useUrlParam";
-import { categoryFilterParam, matchesCategoryFilter } from "./categoryFilter";
+import { useSearchParam } from "./useSearchParam";
 import {
-  taxStatusFilterParam,
+  categoryFilterSearchParam,
+  matchesCategoryFilter,
+  type CategoryFilter,
+} from "./categoryFilter";
+import {
+  taxStatusParam,
   matchesTaxStatusFilter,
+  type TaxStatusFilter,
 } from "./taxStatusFilter";
 import { useMemo } from "react";
+import { type SearchFilter, searchFilterParam } from "./searchFilter";
 
-const NO_FILTER = "__no_filter__";
-const NO_CATEGORY = "";
-
-const makeCategoryFilterOptions = (
+const getAvailableCategories = (
   donationsData: DonationsData,
-  currentUrlCategory?: string,
-) => {
-  const options = [
-    { value: NO_FILTER, label: "All categories" },
-    { value: NO_CATEGORY, label: "No category" },
-  ];
+): CategoryFilter[] => {
   const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
-  if (currentUrlCategory) {
-    uniqueCategories.add(currentUrlCategory);
-  }
+  const missingCategory = categoryFilterSearchParam.encode("");
+  const categories: CategoryFilter[] =
+    missingCategory !== undefined ? [missingCategory] : [];
   const sortedCategories = Array.from(uniqueCategories)
     .filter((i) => i.trim().length > 0)
     .sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  sortedCategories.forEach((category) => {
-    const encodedValue = categoryFilterParam.encode(category);
-    if (encodedValue) {
-      options.push({
-        value: encodedValue,
-        label: category,
-      });
-    }
-  });
-  return options;
+  categories.push(...sortedCategories);
+  return categories;
 };
 
 interface OrgsContainerProps {
@@ -46,39 +36,27 @@ interface OrgsContainerProps {
 }
 
 const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [, setSearchParams] = useSearchParams();
 
-  const searchFilter = useUrlParamValue("search", {
-    parse: (value: string | undefined) => {
-      if (value === undefined || value.trim() === "") {
-        return undefined;
-      }
-      return value;
-    },
-  });
-
-  const categoryFilter = useUrlParamValue("category", categoryFilterParam);
-
-  const taxStatusFilter = useUrlParamValue("tax", taxStatusFilterParam);
-
-  const categoryFilterOptions = useMemo(
-    () =>
-      makeCategoryFilterOptions(
-        donationsData,
-        categoryFilter === NO_CATEGORY || categoryFilter === NO_FILTER
-          ? undefined
-          : categoryFilter,
-      ),
-    [donationsData, categoryFilter],
+  const [searchFilter, setSearchFilter] = useSearchParam(
+    "search",
+    searchFilterParam,
   );
 
-  const currentCategoryValue = categoryFilter
-    ? (categoryFilterParam.encode(categoryFilter) ?? NO_FILTER)
-    : NO_FILTER;
+  const [categoryFilter, setCategoryFilter] = useSearchParam(
+    "category",
+    categoryFilterSearchParam,
+  );
 
-  const currentTaxStatusValue = taxStatusFilter
-    ? (taxStatusFilterParam.encode(taxStatusFilter) ?? NO_FILTER)
-    : NO_FILTER;
+  const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
+    "tax",
+    taxStatusParam,
+  );
+
+  const availableCategories = useMemo(
+    () => getAvailableCategories(donationsData),
+    [donationsData],
+  );
 
   const filteredOrgs = donationsData.orgs
     .filter((org) => {
@@ -86,10 +64,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
       const matchesCategory =
         categoryFilter === undefined
           ? true
-          : matchesCategoryFilter(
-              categoryFilter === NO_CATEGORY ? "" : categoryFilter,
-              org.category,
-            );
+          : matchesCategoryFilter(categoryFilter, org.category);
       const matchesTaxStatus = matchesTaxStatusFilter(
         taxStatusFilter,
         org.taxDeductible ?? false,
@@ -102,45 +77,17 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     setSearchParams(new URLSearchParams());
   };
 
-  const updateSearchFilter = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
+  const updateSearchFilter = (value: SearchFilter) => {
     const trimmed = value.trim();
-    if (trimmed === "") {
-      newParams.delete("search");
-    } else {
-      newParams.set("search", trimmed);
-    }
-    setSearchParams(newParams);
+    setSearchFilter(trimmed === "" ? undefined : trimmed);
   };
 
-  const updateCategoryFilter = (value: string) => {
-    const categoryFilter =
-      value === NO_FILTER ? undefined : categoryFilterParam.parse(value);
-    const modifiedParams = new URLSearchParams(searchParams);
-    if (categoryFilter !== undefined) {
-      const encoded = categoryFilterParam.encode(categoryFilter);
-      if (encoded !== undefined) {
-        modifiedParams.set("category", encoded);
-      } else {
-        modifiedParams.delete("category");
-      }
-    } else {
-      modifiedParams.delete("category");
-    }
-    setSearchParams(modifiedParams);
+  const updateCategoryFilter = (value: CategoryFilter | undefined) => {
+    setCategoryFilter(value);
   };
 
-  const updateTaxStatusFilter = (value: string) => {
-    const taxStatusFilter =
-      value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
-    const newParams = new URLSearchParams(searchParams);
-    const encoded = taxStatusFilterParam.encode(taxStatusFilter ?? "all");
-    if (encoded) {
-      newParams.set("tax", encoded);
-    } else {
-      newParams.delete("tax");
-    }
-    setSearchParams(newParams);
+  const updateTaxStatusFilter = (value: TaxStatusFilter | undefined) => {
+    setTaxStatusFilter(value);
   };
 
   const hasActiveFilters =
@@ -153,10 +100,10 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
       orgs={filteredOrgs}
       currentTextFilter={searchFilter ?? ""}
       textFilterChanged={updateSearchFilter}
-      currentCategoryValue={currentCategoryValue}
+      categoryFilter={categoryFilter}
+      availableCategories={availableCategories}
       categoryFilterChanged={updateCategoryFilter}
-      categoryFilterOptions={categoryFilterOptions}
-      currentTaxStatusValue={currentTaxStatusValue}
+      taxStatusFilter={taxStatusFilter}
       taxStatusFilterChanged={updateTaxStatusFilter}
       onClearFilters={handleClearFilters}
       hasActiveFilters={hasActiveFilters}

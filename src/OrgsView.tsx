@@ -1,16 +1,22 @@
 import { Link } from "react-router-dom";
 import { type Org } from "./types";
 import StatusBox from "./StatusBox";
+import SearchFilterBox from "./SearchFilterBox";
+import CategoryFilterSelect from "./CategoryFilterSelect";
+import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
+import { type SearchFilter } from "./searchFilter";
+import { type CategoryFilter } from "./categoryFilter";
+import { type TaxStatusFilter } from "./taxStatusFilter";
 
 interface OrgsViewProps {
   orgs: Org[];
-  currentTextFilter: string;
-  textFilterChanged: (filter: string) => void;
-  currentCategoryValue: string;
-  categoryFilterChanged: (value: string) => void;
-  categoryFilterOptions: { value: string; label: string }[];
-  currentTaxStatusValue: string;
-  taxStatusFilterChanged: (value: string) => void;
+  currentTextFilter: SearchFilter;
+  textFilterChanged: (filter: SearchFilter) => void;
+  categoryFilter: CategoryFilter | undefined;
+  availableCategories: CategoryFilter[];
+  categoryFilterChanged: (value: CategoryFilter | undefined) => void;
+  taxStatusFilter: TaxStatusFilter | undefined;
+  taxStatusFilterChanged: (value: TaxStatusFilter | undefined) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -19,10 +25,10 @@ const OrgsView = ({
   orgs,
   currentTextFilter,
   textFilterChanged,
-  currentCategoryValue,
+  categoryFilter,
+  availableCategories,
   categoryFilterChanged,
-  categoryFilterOptions,
-  currentTaxStatusValue,
+  taxStatusFilter,
   taxStatusFilterChanged,
   onClearFilters,
   hasActiveFilters,
@@ -34,52 +40,32 @@ const OrgsView = ({
         <Link to="/orgs/add">Add organization</Link>
       </div>
       <div className="toolbar">
-        <div className="toolbar-item">
-          <label htmlFor="filter" className="toolbar-item">
-            Search
-          </label>
-          <input
-            type="search"
-            id="filter"
-            value={currentTextFilter}
-            onChange={(e) => textFilterChanged(e.target.value)}
-            placeholder="Search"
-          />
-        </div>
-        <div className="toolbar-item medium-screen large-screen">
-          {categoryFilterOptions.length > 1 && (
-            <>
-              <label htmlFor="categoryFilter">Category</label>
-              <select
-                id="categoryFilter"
-                value={currentCategoryValue}
-                onChange={(e) => categoryFilterChanged(e.target.value)}
-              >
-                {categoryFilterOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </>
-          )}
-        </div>
-        <div className="toolbar-item large-screen">
-          <label htmlFor="taxStatusFilter">Tax status</label>
-          <select
-            id="taxStatusFilter"
-            value={currentTaxStatusValue}
-            onChange={(e) => taxStatusFilterChanged(e.target.value)}
-          >
-            <option value="all">All</option>
-            <option value="charity">Charity (tax-deductible)</option>
-            <option value="notTaxDeductible">Not tax-deductible</option>
-          </select>
-        </div>
+        <SearchFilterBox
+          value={currentTextFilter}
+          onChange={textFilterChanged}
+          className="toolbar-item"
+          id="filter"
+          placeholder="Search"
+        />
+        <CategoryFilterSelect
+          value={categoryFilter}
+          availableCategories={availableCategories}
+          onChange={categoryFilterChanged}
+          className="toolbar-item medium-screen large-screen"
+          id="categoryFilter"
+        />
+        <TaxStatusFilterSelect
+          value={taxStatusFilter}
+          onChange={taxStatusFilterChanged}
+          className="toolbar-item large-screen"
+          id="taxStatusFilter"
+        />
         {hasActiveFilters && (
-          <button type="button" onClick={onClearFilters}>
-            Clear filters
-          </button>
+          <div className="toolbar-item">
+            <button type="button" onClick={onClearFilters}>
+              Clear filters
+            </button>
+          </div>
         )}
       </div>
       {orgs.length === 0 ? (

@@ -1,7 +1,17 @@
 import { Link } from "react-router-dom";
 import StatusBox from "./StatusBox";
 import { type AmountFilter } from "./amountFilter";
-import { formatUSD } from "./amount";
+import { type CategoryFilter } from "./categoryFilter";
+import CategoryFilterSelect from "./CategoryFilterSelect";
+import { type YearFilter } from "./yearFilter";
+import YearFilterComponent from "./YearFilterComponent";
+import { type TaxStatusFilter } from "./taxStatusFilter";
+import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
+import { type PaymentKindFilterParam } from "./donationKindFilter";
+import DonationKindFilterSelect from "./DonationKindFilterSelect";
+import AmountPicker from "./AmountPicker";
+import { type SearchFilter } from "./searchFilter";
+import SearchFilterBox from "./SearchFilterBox";
 
 export interface DonationDisplay {
   id: string;
@@ -14,24 +24,23 @@ export interface DonationDisplay {
   paymentMethod?: string;
 }
 
-const NO_FILTER = "__no_filter__";
-
 interface DonationsViewProps {
   donations: DonationDisplay[];
-  currentFilter: string;
-  textFilterChanged: (filter: string) => void;
-  yearFilter: string;
-  yearFilterOptions: { value: string; label: string }[];
-  yearFilterChanged: (value: string) => void;
-  categoryFilter: string;
-  categoryFilterOptions: { value: string; label: string }[];
-  categoryFilterChanged: (value: string) => void;
+  currentFilter: SearchFilter;
+  textFilterChanged: (filter: SearchFilter) => void;
+  yearFilter: YearFilter | undefined;
+  minYear: number;
+  maxYear: number;
+  yearFilterChanged: (value: YearFilter | undefined) => void;
+  categoryFilter: CategoryFilter | undefined;
+  availableCategories: CategoryFilter[];
+  categoryFilterChanged: (value: CategoryFilter | undefined) => void;
   amountFilter: AmountFilter;
   amountFilterChanged: (newFilter: AmountFilter) => void;
-  taxStatusFilter: string;
-  taxStatusFilterChanged: (value: string) => void;
-  paymentKindFilter: string;
-  paymentKindFilterChanged: (value: string) => void;
+  taxStatusFilter: TaxStatusFilter | undefined;
+  taxStatusFilterChanged: (value: TaxStatusFilter | undefined) => void;
+  paymentKindFilter: PaymentKindFilterParam | undefined;
+  paymentKindFilterChanged: (value: PaymentKindFilterParam | undefined) => void;
   onClearFilters: () => void;
   hasActiveFilters: boolean;
 }
@@ -41,10 +50,11 @@ const DonationsView = ({
   currentFilter,
   textFilterChanged,
   yearFilter,
-  yearFilterOptions,
+  minYear,
+  maxYear,
   yearFilterChanged,
   categoryFilter,
-  categoryFilterOptions,
+  availableCategories,
   categoryFilterChanged,
   amountFilter,
   amountFilterChanged,
@@ -55,7 +65,6 @@ const DonationsView = ({
   onClearFilters,
   hasActiveFilters,
 }: DonationsViewProps) => {
-  // Amount filter change handlers
   const handleAmountFilterTypeChange = (newType: string) => {
     switch (newType) {
       case "all":
@@ -133,61 +142,34 @@ const DonationsView = ({
         <Link to="/donations/add">Add donation</Link>
       </div>
       <div className="toolbar">
-        <div className="toolbar-item large-screen">
-          <label htmlFor="year-filter">Year</label>
-          <select
-            id="year-filter"
-            value={yearFilter}
-            onChange={(e) => yearFilterChanged(e.target.value)}
-          >
-            {yearFilterOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="toolbar-item large-screen">
-          <label htmlFor="category-filter">Category</label>
-          <select
-            id="category-filter"
-            value={categoryFilter}
-            onChange={(e) => categoryFilterChanged(e.target.value)}
-          >
-            {categoryFilterOptions.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="toolbar-item large-screen">
-          <label htmlFor="tax-status-filter">Tax status</label>
-          <select
-            id="tax-status-filter"
-            value={taxStatusFilter}
-            onChange={(e) => taxStatusFilterChanged(e.target.value)}
-          >
-            <option value={NO_FILTER}>Any tax status</option>
-            <option value="charity">Charity</option>
-            <option value="notTaxDeductible">Not deductible</option>
-          </select>
-        </div>
-        <div className="toolbar-item large-screen">
-          <label htmlFor="donation-type-filter">Kind</label>
-          <select
-            id="donation-type-filter"
-            value={paymentKindFilter}
-            onChange={(e) => paymentKindFilterChanged(e.target.value)}
-          >
-            <option value={NO_FILTER}>Any kind</option>
-            <option value="paid">Paid</option>
-            <option value="pledge">Pledge</option>
-            <option value="paidAndPledge">Paid and pledge</option>
-            <option value="unknown">Unknown</option>
-            <option value="idea">Idea</option>
-          </select>
-        </div>
+        <YearFilterComponent
+          value={yearFilter}
+          onChange={yearFilterChanged}
+          minYear={minYear}
+          maxYear={maxYear}
+          lastYearOptions={[2, 3]}
+          className="toolbar-item large-screen"
+          id="year-filter"
+        />
+        <CategoryFilterSelect
+          value={categoryFilter}
+          availableCategories={availableCategories}
+          onChange={categoryFilterChanged}
+          className="toolbar-item large-screen"
+          id="category-filter"
+        />
+        <TaxStatusFilterSelect
+          value={taxStatusFilter}
+          onChange={taxStatusFilterChanged}
+          className="toolbar-item large-screen"
+          id="tax-status-filter"
+        />
+        <DonationKindFilterSelect
+          value={paymentKindFilter}
+          onChange={paymentKindFilterChanged}
+          className="toolbar-item large-screen"
+          id="donation-type-filter"
+        />
         <div className="toolbar-item medium-screen large-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select
@@ -202,83 +184,56 @@ const DonationsView = ({
           </select>
         </div>
         {amountFilter.kind === "moreThan" && (
-          <div className="toolbar-item medium-screen large-screen">
-            <label htmlFor="min-amount">Min</label>
-            <select
-              id="min-amount"
-              value={amountFilter.min}
-              onChange={(e) => handleMinAmountChange(parseInt(e.target.value))}
-            >
-              {getMinOptions().map((amount) => (
-                <option key={amount} value={amount}>
-                  {formatUSD(amount, "hidePennies")}
-                </option>
-              ))}
-            </select>
-          </div>
+          <AmountPicker
+            label="Min"
+            value={amountFilter.min}
+            options={getMinOptions()}
+            sort="smallestFirst"
+            onChange={handleMinAmountChange}
+            className="toolbar-item medium-screen large-screen"
+            id="min-amount"
+          />
         )}
         {amountFilter.kind === "lessThan" && (
-          <div className="toolbar-item medium-screen large-screen">
-            <label htmlFor="max-amount">Max</label>
-            <select
-              id="max-amount"
-              value={amountFilter.max}
-              onChange={(e) => handleMaxAmountChange(parseInt(e.target.value))}
-            >
-              {getMaxOptions().map((amount) => (
-                <option key={amount} value={amount}>
-                  {formatUSD(amount, "hidePennies")}
-                </option>
-              ))}
-            </select>
-          </div>
+          <AmountPicker
+            label="Max"
+            value={amountFilter.max}
+            options={getMaxOptions()}
+            sort="biggestFirst"
+            onChange={handleMaxAmountChange}
+            className="toolbar-item medium-screen large-screen"
+            id="max-amount"
+          />
         )}
         {amountFilter.kind === "between" && (
           <>
-            <div className="toolbar-item medium-screen large-screen">
-              <label htmlFor="min-amount">Min</label>
-              <select
-                id="min-amount"
-                value={amountFilter.min}
-                onChange={(e) =>
-                  handleMinAmountChange(parseInt(e.target.value))
-                }
-              >
-                {getMinOptions().map((amount) => (
-                  <option key={amount} value={amount}>
-                    {formatUSD(amount, "hidePennies")}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="toolbar-item medium-screen large-screen">
-              <label htmlFor="max-amount">Max</label>
-              <select
-                id="max-amount"
-                value={amountFilter.max}
-                onChange={(e) =>
-                  handleMaxAmountChange(parseInt(e.target.value))
-                }
-              >
-                {getMaxOptions().map((amount) => (
-                  <option key={amount} value={amount}>
-                    {formatUSD(amount, "hidePennies")}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <AmountPicker
+              label="Min"
+              value={amountFilter.min}
+              options={getMinOptions()}
+              sort="smallestFirst"
+              onChange={handleMinAmountChange}
+              className="toolbar-item medium-screen large-screen"
+              id="min-amount"
+            />
+            <AmountPicker
+              label="Max"
+              value={amountFilter.max}
+              options={getMaxOptions()}
+              sort="biggestFirst"
+              onChange={handleMaxAmountChange}
+              className="toolbar-item medium-screen large-screen"
+              id="max-amount"
+            />
           </>
         )}
-        <div className="toolbar-item">
-          <label htmlFor="filter">Search</label>
-          <input
-            type="search"
-            id="filter"
-            value={currentFilter}
-            onChange={(e) => textFilterChanged(e.target.value)}
-            placeholder="Search"
-          />
-        </div>
+        <SearchFilterBox
+          value={currentFilter}
+          onChange={textFilterChanged}
+          className="toolbar-item"
+          id="filter"
+          placeholder="Search"
+        />
         {hasActiveFilters && (
           <div className="toolbar-item">
             <button type="button" onClick={onClearFilters}>
@@ -303,9 +258,7 @@ const DonationsView = ({
             <div key={donation.id} className="row">
               <div>{donation.date}</div>
               <div className="amount">
-                <Link to={`/donations/${donation.id}`}>
-                  {donation.amount}
-                </Link>
+                <Link to={`/donations/${donation.id}`}>{donation.amount}</Link>
               </div>
               <div>
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>

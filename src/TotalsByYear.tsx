@@ -1,37 +1,51 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { useSearchParams } from "react-router-dom";
 import { type DonationsData } from "./types";
 import { extractYear, getCurrentYear } from "./date";
 import { formatUSD as formatAmount } from "./amount";
-import { useUrlParamValue } from "./useUrlParam";
-import { yearFilterParam, getYearRange } from "./yearFilter";
+import { useSearchParam } from "./useSearchParam";
 import {
-  taxStatusFilterParam,
+  yearFilterSearchParam,
+  getYearRange,
+  type YearFilter,
+} from "./yearFilter";
+import YearFilterComponent from "./YearFilterComponent";
+import {
+  taxStatusParam,
   matchesTaxStatusFilter,
+  type TaxStatusFilter,
 } from "./taxStatusFilter";
+import TaxStatusFilterSelect from "./TaxStatusFilterSelect";
 import {
-  paymentKindUrlParam,
+  paymentKindParam,
   matchesPaymentKindFilter,
+  type PaymentKindFilterParam,
 } from "./donationKindFilter";
+import DonationKindFilterSelect from "./DonationKindFilterSelect";
 import { getDonationYearRange } from "./donationsData";
 
 interface TotalsByYearProps {
   donationsData: DonationsData;
 }
 
-const NO_FILTER = "__no_filter__";
-
 const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const currentYear = getCurrentYear();
   const yearRange = getDonationYearRange(donationsData.donations);
   const minYear = yearRange?.minYear ?? currentYear;
   const maxYear = yearRange?.maxYear ?? currentYear;
 
-  const yearFilter = useUrlParamValue("year", yearFilterParam);
-  const taxStatusFilter = useUrlParamValue("tax", taxStatusFilterParam);
-  const paymentKindFilter = useUrlParamValue("type", paymentKindUrlParam);
+  const [yearFilter, setYearFilter] = useSearchParam(
+    "year",
+    yearFilterSearchParam,
+  );
+  const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
+    "tax",
+    taxStatusParam,
+  );
+  const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
+    "type",
+    paymentKindParam,
+  );
 
   const processedData = useMemo(() => {
     let years: number[] = [];
@@ -119,106 +133,50 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
     currentYear,
   ]);
 
-  const updateYearFilter = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    const yearFilter =
-      value === NO_FILTER ? undefined : yearFilterParam.parse(value);
-    const encoded = yearFilterParam.encode(yearFilter ?? { kind: "all" });
-    if (encoded) {
-      newParams.set("year", encoded);
-    } else {
-      newParams.delete("year");
-    }
-    setSearchParams(newParams);
+  const updateYearFilter = (yearFilter: YearFilter | undefined) => {
+    setYearFilter(yearFilter);
   };
 
-  const updateTaxStatusFilter = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    const taxStatusFilter =
-      value === NO_FILTER ? undefined : taxStatusFilterParam.parse(value);
-    const encoded = taxStatusFilterParam.encode(taxStatusFilter ?? "all");
-    if (encoded) {
-      newParams.set("tax", encoded);
-    } else {
-      newParams.delete("tax");
-    }
-    setSearchParams(newParams);
+  const updateTaxStatusFilter = (
+    taxStatusFilter: TaxStatusFilter | undefined,
+  ) => {
+    setTaxStatusFilter(taxStatusFilter);
   };
 
-  const updatePaymentKindFilter = (value: string) => {
-    const newParams = new URLSearchParams(searchParams);
-    const paymentKindFilter =
-      value === NO_FILTER ? undefined : paymentKindUrlParam.parse(value);
-    const encoded = paymentKindUrlParam.encode(paymentKindFilter ?? "all");
-    if (encoded) {
-      newParams.set("type", encoded);
-    } else {
-      newParams.delete("type");
-    }
-    setSearchParams(newParams);
+  const updatePaymentKindFilter = (
+    paymentKindFilter: PaymentKindFilterParam | undefined,
+  ) => {
+    setPaymentKindFilter(paymentKindFilter);
   };
-
-  const currentYearValue =
-    yearFilter === undefined
-      ? NO_FILTER
-      : (yearFilterParam.encode(yearFilter) ?? NO_FILTER);
-  const currentTaxStatusValue = taxStatusFilter
-    ? (taxStatusFilterParam.encode(taxStatusFilter) ?? NO_FILTER)
-    : NO_FILTER;
-  const currentPaymentKindValue = paymentKindFilter
-    ? (paymentKindUrlParam.encode(paymentKindFilter) ?? NO_FILTER)
-    : NO_FILTER;
 
   return (
     <div>
       <h1>Organization totals</h1>
 
       <div className="filters">
-        <div>
-          <label htmlFor="yearRange">Years</label>
-          <select
-            id="yearRange"
-            value={currentYearValue}
-            onChange={(e) => updateYearFilter(e.target.value)}
-          >
-            <option value={NO_FILTER}>All years</option>
-            <option value="current">Current year</option>
-            <option value="previous">Previous year</option>
-            <option value="last2">Last 2 years</option>
-            <option value="last3">Last 3 years</option>
-            <option value="last4">Last 4 years</option>
-            <option value="last5">Last 5 years</option>
-          </select>
-        </div>
+        <YearFilterComponent
+          value={yearFilter}
+          onChange={updateYearFilter}
+          minYear={minYear}
+          maxYear={maxYear}
+          lastYearOptions={[2, 3, 4, 5]}
+          className="toolbar-item"
+          id="yearRange"
+        />
 
-        <div>
-          <label htmlFor="taxStatus">Tax status</label>
-          <select
-            id="taxStatus"
-            value={currentTaxStatusValue}
-            onChange={(e) => updateTaxStatusFilter(e.target.value)}
-          >
-            <option value={NO_FILTER}>All</option>
-            <option value="charity">Charity</option>
-            <option value="notTaxDeductible">Not deductible</option>
-          </select>
-        </div>
+        <TaxStatusFilterSelect
+          value={taxStatusFilter}
+          onChange={updateTaxStatusFilter}
+          className="toolbar-item"
+          id="taxStatus"
+        />
 
-        <div>
-          <label htmlFor="donationType">Kind</label>
-          <select
-            id="donationType"
-            value={currentPaymentKindValue}
-            onChange={(e) => updatePaymentKindFilter(e.target.value)}
-          >
-            <option value={NO_FILTER}>Any kind</option>
-            <option value="paid">Paid</option>
-            <option value="pledge">Pledge</option>
-            <option value="paidAndPledge">Paid and pledge</option>
-            <option value="unknown">Unknown</option>
-            <option value="idea">Idea</option>
-          </select>
-        </div>
+        <DonationKindFilterSelect
+          value={paymentKindFilter}
+          onChange={updatePaymentKindFilter}
+          className="toolbar-item"
+          id="donationType"
+        />
       </div>
 
       {processedData.sortedOrgs.length === 0 ? (

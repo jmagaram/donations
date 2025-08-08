@@ -1,4 +1,4 @@
-import type { UrlParam } from "./useUrlParam";
+import type { SearchParam } from "./useSearchParam";
 
 export type PaymentKindFilterParam =
   | "all"
@@ -7,6 +7,8 @@ export type PaymentKindFilterParam =
   | "paidAndPledge"
   | "unknown"
   | "idea";
+
+const NO_FILTER = "__all_payment_kind__";
 
 const validValues: PaymentKindFilterParam[] = [
   "all",
@@ -17,15 +19,43 @@ const validValues: PaymentKindFilterParam[] = [
   "idea",
 ];
 
-export const paymentKindUrlParam: UrlParam<PaymentKindFilterParam> = {
-  parse: (value) => {
-    if (!value) return undefined;
-    const normalized = value.trim().toLowerCase() as PaymentKindFilterParam;
-    if (normalized === "all") return undefined;
-    return validValues.includes(normalized) ? normalized : undefined;
-  },
+const parse = (value: string | undefined): PaymentKindFilterParam => {
+  if (value === undefined || value === "" || value === NO_FILTER) return "all";
 
-  encode: (value) => (value === "all" ? undefined : value),
+  const normalized = value.trim() as PaymentKindFilterParam;
+  return validValues.includes(normalized) ? normalized : "all";
+};
+
+const encode = (value: PaymentKindFilterParam): string | undefined => {
+  return value === "all" ? undefined : value;
+};
+
+export const displayLabel = (value: PaymentKindFilterParam) => {
+  switch (value) {
+    case "all":
+      return "Any kind";
+    case "paid":
+      return "Paid";
+    case "pledge":
+      return "Pledge";
+    case "paidAndPledge":
+      return "Paid and pledge";
+    case "unknown":
+      return "Unknown";
+    case "idea":
+      return "Idea";
+  }
+};
+
+export const makeOption = (value: PaymentKindFilterParam) => {
+  return { label: displayLabel(value), value: encode(value) ?? NO_FILTER };
+};
+
+export const paymentKindChoices = validValues.map(makeOption);
+
+export const paymentKindParam: SearchParam<PaymentKindFilterParam> = {
+  parse: parse,
+  encode: encode,
 };
 
 export const matchesPaymentKindFilter = (

@@ -1,4 +1,4 @@
-import type { UrlParam } from "./useUrlParam";
+import type { SearchParam } from "./useSearchParam";
 
 // Defines a category filter, such as "Healthcare" or "Politics". It is possible
 // to find organizations and donations that do not have an assigned category by
@@ -6,7 +6,7 @@ import type { UrlParam } from "./useUrlParam";
 // distinct from the absence of a filter.
 export type CategoryFilter = string;
 
-export const categoryFilterParam: UrlParam<CategoryFilter> = {
+export const categoryFilterSearchParam: SearchParam<CategoryFilter> = {
   parse: (value: string | undefined) => value?.trim(),
   encode: (value: CategoryFilter) => value.trim(),
 };

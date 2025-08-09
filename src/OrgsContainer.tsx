@@ -1,5 +1,5 @@
 import { type DonationsData } from "./types";
-import { orgTextMatch } from "./donationsData";
+import { orgTextMatchFuzzy } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
 import { useSearchParam } from "./useSearchParam";
@@ -27,41 +27,44 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const [searchFilter, setSearchFilter] = useSearchParam(
     "search",
-    searchFilterParam,
+    searchFilterParam
   );
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
-    categoryFilterSearchParam,
+    categoryFilterSearchParam
   );
   const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
     "tax",
-    taxStatusParam,
+    taxStatusParam
   );
   const availableCategories = useMemo(
     () => getAvailableCategories(donationsData),
-    [donationsData],
+    [donationsData]
   );
 
-  const filteredOrgs = donationsData.orgs
-    .filter((org) => {
-      const matchesSearchText =
-        searchFilter === undefined || orgTextMatch(org, searchFilter);
-      const matchesCategory =
-        categoryFilter === undefined ||
-        matchesCategoryFilter(categoryFilter, org.category);
-      const matchesTaxStatus =
-        taxStatusFilter === undefined ||
-        matchesTaxStatusFilter(taxStatusFilter, org.taxDeductible ?? false);
-      return matchesSearchText && matchesCategory && matchesTaxStatus;
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
+  let filteredOrgs = donationsData.orgs;
+
+  if (categoryFilter !== undefined) {
+    filteredOrgs = filteredOrgs.filter((org) =>
+      matchesCategoryFilter(categoryFilter, org.category)
+    );
+  }
+  if (taxStatusFilter !== undefined) {
+    filteredOrgs = filteredOrgs.filter((org) =>
+      matchesTaxStatusFilter(taxStatusFilter, org.taxDeductible ?? false)
+    );
+  }
+  if (searchFilter !== undefined && searchFilter.trim() !== "") {
+    filteredOrgs = orgTextMatchFuzzy(filteredOrgs, searchFilter);
+  }
 
   const handleClearFilters = () => {
     setSearchParams(new URLSearchParams());
   };
 
   const updateSearchFilter = (value: SearchFilter) => {
-    const trimmed = value.trim();
+    // const trimmed = value.trim();
+    const trimmed = value;
     setSearchFilter(trimmed === "" ? undefined : trimmed);
   };
 

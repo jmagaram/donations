@@ -38,3 +38,4 @@ AWS, using the CDK to manage infrastructure and deployment.
 ## To do
 
 - Consider adding webmanifest
+- Convert data grid to table, for more semantically correct

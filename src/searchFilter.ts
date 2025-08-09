@@ -3,11 +3,13 @@ import type { SearchParam } from "./useSearchParam";
 export type SearchFilter = string;
 
 const parse = (value: string | undefined): SearchFilter | undefined => {
-  return value?.trim();
+  return value;
+  // return value?.trim();
 };
 
 const encode = (value: SearchFilter): string | undefined => {
-  return value?.trim();
+  return value;
+  // return value?.trim();
 };
 
 export const searchFilterParam: SearchParam<SearchFilter> = {

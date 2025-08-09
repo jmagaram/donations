@@ -7,7 +7,7 @@ import { useSearchParams } from "react-router-dom";
 import {
   matchesYearFilter,
   matchesAmountFilter,
-  matchesSearchFilter,
+  donationTextMatchFuzzy,
   getOrgName,
 } from "./donationsData";
 import { getYearRange, yearFilterSearchParam } from "./yearFilter";
@@ -45,29 +45,29 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const [yearFilter, setYearFilter] = useSearchParam(
     "year",
-    yearFilterSearchParam,
+    yearFilterSearchParam
   );
   const [searchFilter, setSearchFilter] = useSearchParam(
     "search",
-    searchFilterParam,
+    searchFilterParam
   );
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
-    categoryFilterSearchParam,
+    categoryFilterSearchParam
   );
   const [amountFilter, setAmountFilter] = useSearchParam(
     "amount",
-    amountFilterSearchParam,
+    amountFilterSearchParam
   );
   const [taxFilter, setTaxFilter] = useSearchParam("tax", taxStatusParam);
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
-    paymentKindParam,
+    paymentKindParam
   );
 
   const availableCategories = useMemo(
     () => getAvailableCategories(donationsData),
-    [donationsData],
+    [donationsData]
   );
 
   const [yearFrom, yearTo] = yearFilter
@@ -79,22 +79,27 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       })
     : [minYear, maxYear];
 
-  const donations: DonationDisplay[] = [...donationsData.donations]
-    .filter((d) => {
-      const org = donationsData.orgs.find((o) => o.id === d.orgId);
-      return (
-        matchesYearFilter(d, yearFrom, yearTo) &&
-        (amountFilter === undefined || matchesAmountFilter(d, amountFilter)) &&
-        (categoryFilter === undefined ||
-          matchesCategoryFilter(categoryFilter, org?.category)) &&
-        (searchFilter === undefined ||
-          matchesSearchFilter(d, donationsData, searchFilter)) &&
-        (taxFilter === undefined ||
-          matchesTaxStatusFilter(taxFilter, org?.taxDeductible ?? false)) &&
-        (paymentKindFilter === undefined ||
-          matchesPaymentKindFilter(d.kind, paymentKindFilter))
-      );
-    })
+  let filteredDonations = [...donationsData.donations].filter((d) => {
+    const org = donationsData.orgs.find((o) => o.id === d.orgId);
+    return (
+      matchesYearFilter(d, yearFrom, yearTo) &&
+      (amountFilter === undefined || matchesAmountFilter(d, amountFilter)) &&
+      (categoryFilter === undefined ||
+        matchesCategoryFilter(categoryFilter, org?.category)) &&
+      (taxFilter === undefined ||
+        matchesTaxStatusFilter(taxFilter, org?.taxDeductible ?? false)) &&
+      (paymentKindFilter === undefined ||
+        matchesPaymentKindFilter(d.kind, paymentKindFilter))
+    );
+  });
+  if (searchFilter !== undefined && searchFilter.trim() !== "") {
+    filteredDonations = donationTextMatchFuzzy(
+      filteredDonations,
+      donationsData.orgs,
+      searchFilter
+    );
+  }
+  const donations: DonationDisplay[] = filteredDonations
     .sort((a, b) => compareDatesDesc(a.date, b.date))
     .map((donation) => {
       return {
@@ -110,7 +115,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     });
 
   const updateSearchFilter = (value: SearchFilter) => {
-    const trimmed = value.trim();
+    // const trimmed = value.trim();
+    const trimmed = value;
     setSearchFilter(trimmed === "" ? undefined : trimmed);
   };
 

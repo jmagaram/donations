@@ -1,5 +1,5 @@
 import { type SearchFilter } from "./searchFilter";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface SearchFilterBoxProps {
   value: SearchFilter;
@@ -17,37 +17,14 @@ const SearchFilterBox = ({
   placeholder = "Search",
 }: SearchFilterBoxProps) => {
   const [inputValue, setInputValue] = useState(value);
-  const [isSearching, setIsSearching] = useState(false);
-  const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
-  const REQUIRED_IDLE_MS = 750;
 
   useEffect(() => {
     setInputValue(value);
   }, [value]);
 
-  useEffect(() => {
-    if (debounceTimeout.current) {
-      clearTimeout(debounceTimeout.current);
-    }
-    debounceTimeout.current = setTimeout(() => {
-      if (inputValue !== value) {
-        onChange(inputValue);
-      }
-      setIsSearching(false);
-    }, REQUIRED_IDLE_MS);
-    return () => {
-      if (debounceTimeout.current) {
-        clearTimeout(debounceTimeout.current);
-      }
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inputValue]);
-
   const handleChange = (newValue: string) => {
     setInputValue(newValue);
-    if (newValue !== value) {
-      setIsSearching(true);
-    }
+    onChange(newValue);
   };
 
   return (
@@ -61,7 +38,6 @@ const SearchFilterBox = ({
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
         />
-        {isSearching && <div className="search-animation-overlay" />}
       </div>
     </div>
   );

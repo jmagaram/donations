@@ -100,7 +100,10 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     const words = search.trim().split(/\s+/);
     
     // Pre-compute search results for all words to avoid redundant searches
-    const wordSearchResults = new Map<string, any[]>();
+    const wordSearchResults = new Map<
+      string,
+      FuseResult<SearchableDonation>[]
+    >();
     words.forEach((word) => {
       wordSearchResults.set(word, fuseInstance.search(word));
     });

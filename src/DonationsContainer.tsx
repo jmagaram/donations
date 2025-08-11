@@ -98,16 +98,26 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     const maxYear = yearRange?.maxYear;
 
     const words = search.trim().split(/\s+/);
+    
+    // Pre-compute search results for all words to avoid redundant searches
+    const wordSearchResults = new Map<string, any[]>();
+    words.forEach((word) => {
+      wordSearchResults.set(word, fuseInstance.search(word));
+    });
+    
     const donationScores = searchableDonations
-      .filter((searchable: SearchableDonation) => donations.some((d) => d.id === searchable.id))
+      .filter((searchable: SearchableDonation) =>
+        donations.some((d) => d.id === searchable.id),
+      )
       .map((donationObj: SearchableDonation) =>
         scoreDonationAgainstWords(
           donationObj,
           words,
           fuseInstance,
           minYear,
-          maxYear
-        )
+          maxYear,
+          wordSearchResults,
+        ),
       );
     return filterAndSortDonations(donationScores);
   };

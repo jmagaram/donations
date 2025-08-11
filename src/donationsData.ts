@@ -1,7 +1,7 @@
 import { extractYear, MAX_PARSE_YYYY, MIN_PARSE_YYYY } from "./date";
 import { type AmountFilter } from "./amountFilter";
 import { type Donation, type DonationsData, type Org } from "./types";
-import Fuse, { type IFuseOptions } from "fuse.js";
+import Fuse, { type FuseResult, type IFuseOptions } from "fuse.js";
 import { fuzzyAmountMatch, parseCurrency } from "./amount";
 import { fuzzyDateSearchFromRanges, parseStringToDayRanges } from "./date";
 
@@ -353,13 +353,21 @@ const calculateWordScore = (
   donationObj: SearchableDonation,
   fuse: Fuse<SearchableDonation>,
   minYear: number | undefined,
-  maxYear: number | undefined
+  maxYear: number | undefined,
+  wordSearchResults?: Map<string, FuseResult<SearchableDonation>[]>,
 ): number => {
   // Text search score (Fuse)
   let textScore = 1;
-  const fuseResults = fuse
-    .search(word)
-    .find((r) => r.item.id === donationObj.id);
+
+  // Use cached results if available, otherwise search
+  let searchResults: FuseResult<SearchableDonation>[];
+  if (wordSearchResults?.has(word)) {
+    searchResults = wordSearchResults.get(word)!;
+  } else {
+    searchResults = fuse.search(word);
+  }
+
+  const fuseResults = searchResults.find((r) => r.item.id === donationObj.id);
   if (fuseResults) textScore = fuseResults.score ?? 1;
 
   // Amount search score
@@ -411,10 +419,18 @@ export const scoreDonationAgainstWords = (
   words: string[],
   fuse: Fuse<SearchableDonation>,
   minYear: number | undefined,
-  maxYear: number | undefined
+  maxYear: number | undefined,
+  wordSearchResults?: Map<string, Fuse.FuseResult<SearchableDonation>[]>,
 ): { donation: Donation; scores: number[] } => {
   const scores = words.map((word) =>
-    calculateWordScore(word, donationObj, fuse, minYear, maxYear)
+    calculateWordScore(
+      word,
+      donationObj,
+      fuse,
+      minYear,
+      maxYear,
+      wordSearchResults,
+    ),
   );
   return {
     donation: donationObj.original,
@@ -450,8 +466,25 @@ export const donationTextMatchFuzzy = (
   );
   const fuse = new Fuse(searchableDonations, createFuseConfig());
   const words = search.trim().split(/\s+/);
+
+  // Pre-compute search results for all words to avoid redundant searches
+  const wordSearchResults = new Map<
+    string,
+    Fuse.FuseResult<SearchableDonation>[]
+  >();
+  words.forEach((word) => {
+    wordSearchResults.set(word, fuse.search(word));
+  });
+
   const donationScores = searchableDonations.map((donationObj) =>
-    scoreDonationAgainstWords(donationObj, words, fuse, minYear, maxYear)
+    scoreDonationAgainstWords(
+      donationObj,
+      words,
+      fuse,
+      minYear,
+      maxYear,
+      wordSearchResults,
+    ),
   );
   return filterAndSortDonations(donationScores);
 };

@@ -291,11 +291,6 @@ export const parseStringToDayRanges = (params: {
     .flatMap((i) => i);
 };
 
-export const looksLikeDate = (input: string): boolean => {
-  const digits = parseDigits(input);
-  return digits ? convertDigitsToDatePatterns(digits).length > 0 : false;
-};
-
 // Returns precision score using Fuse.js scale
 // 0 = perfect match, 1 = worst
 // Smaller date ranges get better scores for fuzzy matching
@@ -314,25 +309,18 @@ export const overlapPrecision = (r1: DateRange, r2: DateRange): number => {
   return Math.min(rangePrecision(r1), rangePrecision(r2));
 };
 
-export const fuzzyDateSearch = (params: {
-  searchFor: string;
+export const fuzzyDateSearchFromRanges = (params: {
+  searchForRanges: DateRange[];
   target: Date;
-  minYear: number;
-  maxYear: number;
-  toleranceDays: number;
+  paddingDays: number;
 }) => {
-  const searchForRanges = parseStringToDayRanges({
-    input: params.searchFor,
-    minYear: params.minYear,
-    maxYear: params.maxYear,
-  });
-  if (searchForRanges.length === 0) return 0.0;
+  if (params.searchForRanges.length === 0) return 1.0; // No ranges = worst score (Fuse.js scale)
   const targetRange = { start: params.target, end: params.target };
-  const extendedTargetRange = padDateRange(targetRange, params.toleranceDays);
-  const results = searchForRanges.map((r) =>
-    overlapPrecision(r, extendedTargetRange)
+  const paddedTargetRange = padDateRange(targetRange, params.paddingDays);
+  const results = params.searchForRanges.map((r) =>
+    overlapPrecision(r, paddedTargetRange)
   );
-  return Math.max(...results);
+  return Math.min(...results); // Best (lowest) score wins
 };
 
 // Schema for YYYY-MM-DD date strings where year starts with 19 or 20

@@ -347,6 +347,13 @@ describe("looksLikeDate", () => {
     },
   ];
 
+  const looksLikeDate = (input: string): boolean => {
+    const m = parseDigits(input);
+    if (m === undefined) return false;
+    const patterns = convertDigitsToDatePatterns(m);
+    return patterns.length > 0;
+  };
+
   test.each(validDatePatterns)("recognizes %s", (input) => {
     expect(looksLikeDate(input)).toBe(true);
   });

@@ -2,7 +2,6 @@ import {
   parseDigits,
   parseInteger,
   rangesOverlap,
-  looksLikeDate,
   convertDigitsToDatePatterns,
   addDays,
   fullDaysInRange,

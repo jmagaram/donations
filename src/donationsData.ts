@@ -221,28 +221,48 @@ export const donationTextMatch = (
   return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
 };
 
-export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
-  if (!search || search.trim() === "") return orgs;
-  const searchableOrgs = orgs.map((org) => ({
+export interface SearchableOrg {
+  name: string;
+  category: string;
+  notes: string;
+  original: Org;
+}
+
+export const createSearchableOrgs = (orgs: Org[]): SearchableOrg[] => {
+  return orgs.map((org) => ({
     name: org.name,
     category: org.category || "",
     notes: org.notes || "",
     original: org,
   }));
-  const fuse = new Fuse(searchableOrgs, {
-    keys: [
-      { name: "name", weight: 5 },
-      { name: "category", weight: 3 },
-      { name: "notes", weight: 1 },
-    ],
-    includeScore: true,
-    threshold: 0.4,
-    shouldSort: true,
-    useExtendedSearch: true,
-  });
+};
+
+export const createOrgFuseConfig = (): IFuseOptions<SearchableOrg> => ({
+  keys: [
+    { name: "name", weight: 5 },
+    { name: "category", weight: 3 },
+    { name: "notes", weight: 1 },
+  ],
+  includeScore: true,
+  threshold: 0.4,
+  shouldSort: true,
+  useExtendedSearch: true,
+});
+
+export const performOrgSearch = (
+  orgs: Org[], 
+  _searchableOrgs: SearchableOrg[], 
+  fuseInstance: Fuse<SearchableOrg>, 
+  search: string
+): Org[] => {
+  if (!search || search.trim() === "" || orgs.length === 0) {
+    return orgs;
+  }
+  
   const words = search.trim().split(/\s+/);
-  const resultsPerWord = words.map((word) => fuse.search(word));
+  const resultsPerWord = words.map((word) => fuseInstance.search(word));
   const orgScoreMap = new Map<string, { org: Org; scores: number[] }>();
+  
   resultsPerWord.forEach((results, wordIdx) => {
     results.forEach((res) => {
       const key = res.item.original.id;
@@ -255,8 +275,12 @@ export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
       orgScoreMap.get(key)!.scores[wordIdx] = res.score ?? 1;
     });
   });
+  
+  // Only include orgs that match all words and are in the filtered list
+  const orgIds = new Set(orgs.map(o => o.id));
   const matchingOrgs = Array.from(orgScoreMap.values())
     .filter((entry) => entry.scores.every((score) => score !== undefined))
+    .filter((entry) => orgIds.has(entry.org.id))
     .map((entry) => ({
       org: entry.org,
       totalScore: entry.scores.reduce((a, b) => a + (b ?? 1), 0),
@@ -265,7 +289,14 @@ export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
   return matchingOrgs.map((entry) => entry.org);
 };
 
-interface SearchableDonation {
+export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
+  if (!search || search.trim() === "") return orgs;
+  const searchableOrgs = createSearchableOrgs(orgs);
+  const fuse = new Fuse(searchableOrgs, createOrgFuseConfig());
+  return performOrgSearch(orgs, searchableOrgs, fuse, search);
+};
+
+export interface SearchableDonation {
   id: string;
   orgName: string;
   orgNotes: string;
@@ -281,7 +312,7 @@ interface DonationSearchResult {
   totalScore: number;
 }
 
-const createSearchableDonations = (
+export const createSearchableDonations = (
   donations: Donation[],
   orgMap: Map<string, Org>
 ): {
@@ -361,7 +392,7 @@ const calculateWordScore = (
   return Math.min(textScore, amountScore, dateScore);
 };
 
-const createFuseConfig = (): IFuseOptions<SearchableDonation> => ({
+export const createFuseConfig = (): IFuseOptions<SearchableDonation> => ({
   keys: [
     { name: "orgName", weight: 4 },
     { name: "orgNotes", weight: 2 },
@@ -375,7 +406,7 @@ const createFuseConfig = (): IFuseOptions<SearchableDonation> => ({
   useExtendedSearch: true,
 });
 
-const scoreDonationAgainstWords = (
+export const scoreDonationAgainstWords = (
   donationObj: SearchableDonation,
   words: string[],
   fuse: Fuse<SearchableDonation>,
@@ -391,7 +422,7 @@ const scoreDonationAgainstWords = (
   };
 };
 
-const filterAndSortDonations = (
+export const filterAndSortDonations = (
   donationScores: Array<{ donation: Donation; scores: number[] }>
 ): Donation[] => {
   const matchingDonations: DonationSearchResult[] = donationScores

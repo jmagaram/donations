@@ -5,6 +5,7 @@ import {
   overlapRanges,
   rangePrecision,
   looksLikeDate,
+  convertTwoDigitsToDateParts,
 } from "./date";
 import { describe, test, expect } from "vitest";
 
@@ -42,8 +43,8 @@ describe("parseDigits", () => {
   });
 
   test("rejects invalid digit patterns", () => {
-    invalidParseDigitsCases.forEach(({ input, reason }) => {
-      expect(parseDigits(input)).toBeUndefined(); // ${reason}
+    invalidParseDigitsCases.forEach(({ input }) => {
+      expect(parseDigits(input)).toBeUndefined();
     });
   });
 
@@ -58,6 +59,118 @@ describe("parseDigits", () => {
   invalidParseDigitsCases.forEach(({ input, reason }) => {
     test(`rejects "${input}" (${reason})`, () => {
       expect(parseDigits(input)).toBeUndefined();
+    });
+  });
+});
+
+describe("convertTwoDigitsToDateParts", () => {
+  const validTwoDigitCases = [
+    {
+      input: [3, 2025],
+      expectedToContain: [{ kind: "ym", year: 2025, month: 3 }],
+      notes: "month/year",
+    },
+    {
+      input: [3, 25],
+      expectedToContain: [
+        { kind: "ym", year: 2025, month: 3 },
+        { kind: "md", month: 3, day: 25 },
+      ],
+      notes: "ambiguous: month/abbreviated year and month/day",
+    },
+    {
+      input: [2025, 3],
+      expectedToContain: [{ kind: "ym", year: 2025, month: 3 }],
+      notes: "year/month",
+    },
+    {
+      input: [3, 14],
+      expectedToContain: [
+        { kind: "md", month: 3, day: 14 },
+        { kind: "ym", year: 2014, month: 3 },
+      ],
+      notes: "ambiguous: month/day and month/abbreviated year",
+    },
+    {
+      input: [12, 31],
+      expectedToContain: [
+        { kind: "md", month: 12, day: 31 },
+        { kind: "ym", year: 2031, month: 12 },
+      ],
+      notes: "ambiguous: month/day and month/abbreviated year",
+    },
+    {
+      input: [1, 1],
+      expectedToContain: [{ kind: "md", month: 1, day: 1 }],
+      notes: "minimum month/day values",
+    },
+    {
+      input: [3, 5],
+      expectedToContain: [{ kind: "md", month: 3, day: 5 }],
+      notes: "month/day (no abbreviated year interpretation since 5 < 10)",
+    },
+    {
+      input: [12, 2035],
+      expectedToContain: [{ kind: "ym", year: 2035, month: 12 }],
+      notes: "maximum year boundary",
+    },
+    {
+      input: [1, 10],
+      expectedToContain: [
+        { kind: "md", month: 1, day: 10 },
+        { kind: "ym", year: 2010, month: 1 },
+      ],
+      notes: "ambiguous: month/day and month/abbreviated year",
+    },
+  ];
+
+  const invalidTwoDigitCases = [
+    { input: [13, 45], reason: "invalid month and day (both out of range)" },
+    { input: [0, 5], reason: "zero month" },
+    { input: [15, 40], reason: "invalid month and day (both out of range)" },
+    { input: [3, 0], reason: "zero day" },
+    { input: [3, 2009], reason: "year below valid range" },
+    { input: [3, 2036], reason: "year above valid range" },
+    { input: [13, 2025], reason: "invalid month" },
+    { input: [0, 0], reason: "zero month and day" },
+    { input: [50, 60], reason: "both values out of all valid ranges" },
+  ];
+
+  test("parses valid two-digit patterns", () => {
+    validTwoDigitCases.forEach(({ input, expectedToContain }) => {
+      const result = convertTwoDigitsToDateParts(input);
+      expect(result).toBeDefined();
+      expect(result !== undefined && result.length).toBeGreaterThan(0);
+
+      expectedToContain.forEach((expectedItem) => {
+        expect(result).toContainEqual(expectedItem);
+      });
+    });
+  });
+
+  test("rejects invalid two-digit patterns", () => {
+    invalidTwoDigitCases.forEach(({ input }) => {
+      expect(convertTwoDigitsToDateParts(input)).toBeUndefined();
+    });
+  });
+
+  validTwoDigitCases.forEach(({ input, expectedToContain, notes }) => {
+    test(`parses [${input.join(", ")}] (${notes})`, () => {
+      const result = convertTwoDigitsToDateParts(input);
+      expect(result).toBeDefined();
+
+      expectedToContain.forEach((expectedItem) => {
+        expect(result).toContainEqual(expectedItem);
+      });
+
+      // Ensure we don't get extra unexpected items
+      expect(result).toHaveLength(expectedToContain.length);
+    });
+  });
+
+  invalidTwoDigitCases.forEach(({ input, reason }) => {
+    test(`rejects [${input.join(", ")}] (${reason})`, () => {
+      expect(convertTwoDigitsToDateParts(input)).toBeUndefined();
     });
   });
 });

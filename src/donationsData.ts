@@ -156,7 +156,6 @@ export const getUniqueDonationYears = (
   data: Readonly<DonationsData>
 ): Set<number> => new Set(data.donations.map((d) => extractYear(d.date)));
 
-/** Return the set of non-empty categories assigned to all organizations. */
 export const getUniqueOrgCategories = (
   data: Readonly<DonationsData>
 ): Set<string> =>
@@ -220,20 +219,6 @@ export const donationTextMatch = (
     ...getWords(donation.paymentMethod || ""),
   ];
   return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
-};
-
-export const matchesSearchFilter = (
-  donation: Donation,
-  data: Readonly<DonationsData>,
-  searchFilter: string
-): boolean => {
-  if (searchFilter === "") return true;
-  const org = data.orgs.find((o) => o.id === donation.orgId) || {
-    name: "",
-    notes: "",
-    category: undefined,
-  };
-  return donationTextMatch(searchFilter, donation, org);
 };
 
 export const orgTextMatch = (org: Org, filter: string): boolean => {

@@ -107,7 +107,7 @@ const convertSingleDigitToDateParts = (
   return undefined;
 };
 
-const convertTwoDigitsToDateParts = (
+export const convertTwoDigitsToDateParts = (
   nums: number[]
 ): DateParts[] | undefined => {
   const result: DateParts[] = [];

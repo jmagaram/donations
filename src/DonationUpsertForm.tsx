@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { orgTextMatch } from "./donationsData";
+import { orgTextMatchFuzzy } from "./donationsData";
 import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
@@ -40,6 +40,7 @@ const DonationUpsertForm = ({
 }: DonationUpsertFormProps) => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [orgSearchInput, setOrgSearchInput] = React.useState("");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const reactSelectRef = React.useRef<any>(null);
   const dateInputRef = React.useRef<HTMLInputElement>(null);
@@ -93,7 +94,11 @@ const DonationUpsertForm = ({
   const orgOptions: OrgOption[] = React.useMemo(() => {
     if (!donationsData?.orgs) return [];
 
-    return donationsData.orgs
+    const orgsToUse = orgSearchInput.trim()
+      ? orgTextMatchFuzzy(donationsData.orgs, orgSearchInput)
+      : donationsData.orgs;
+
+    return orgsToUse
       .map((org) => ({
         value: org.id,
         label: org.name,
@@ -106,8 +111,8 @@ const DonationUpsertForm = ({
           webSite: org.webSite,
         },
       }))
-      .sort((a, b) => a.label.localeCompare(b.label));
-  }, [donationsData?.orgs]);
+      .sort((a, b) => orgSearchInput.trim() ? 0 : a.label.localeCompare(b.label));
+  }, [donationsData?.orgs, orgSearchInput]);
 
   const currentOrgId = watch("orgId");
   const currentPaymentMethod = watch("paymentMethod");
@@ -161,10 +166,6 @@ const DonationUpsertForm = ({
     return KIND_OPTIONS.find((option) => option.value === currentKind) || null;
   }, [currentKind]);
 
-  const filterOption = (option: { data: OrgOption }, inputValue: string) => {
-    if (!inputValue.trim()) return true;
-    return orgTextMatch(option.data.org, inputValue);
-  };
 
   const filterPaymentMethodOption = (
     option: { data: PaymentMethodOption },
@@ -228,7 +229,10 @@ const DonationUpsertForm = ({
                   field.onChange(selectedOption?.value || "");
                 }}
                 onBlur={field.onBlur}
-                filterOption={filterOption}
+                onInputChange={(inputValue: string) => {
+                  setOrgSearchInput(inputValue || "");
+                }}
+                filterOption={false}
                 placeholder=""
                 isClearable
                 isSearchable

@@ -221,23 +221,6 @@ export const donationTextMatch = (
   return filterWords.some((fw) => targetWords.some((tw) => tw.includes(fw)));
 };
 
-export const orgTextMatch = (org: Org, filter: string): boolean => {
-  const filterKeywords = filter
-    .split(/[\s,]+/)
-    .map((k) => k.trim().toLowerCase())
-    .filter((k) => k.length > 0);
-  if (filterKeywords.length === 0) return true;
-  const orgKeywords = [org.name, org.category, org.notes]
-    .filter(Boolean)
-    .join(" ")
-    .split(/[\s,]+/)
-    .map((k) => k.trim().toLowerCase())
-    .filter((k) => k.length > 0);
-  return filterKeywords.some((filterKeyword) =>
-    orgKeywords.some((orgKeyword) => orgKeyword.includes(filterKeyword))
-  );
-};
-
 export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
   if (!search || search.trim() === "") return orgs;
   const searchableOrgs = orgs.map((org) => ({

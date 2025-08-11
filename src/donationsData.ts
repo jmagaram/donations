@@ -3,7 +3,7 @@ import { type AmountFilter } from "./amountFilter";
 import { type Donation, type DonationsData, type Org } from "./types";
 import Fuse from "fuse.js";
 import { fuzzyAmountMatch } from "./amount";
-import { fuzzyDateMatch } from "./date";
+import { fuzzyDateSearch, looksLikeDate } from "./date";
 
 export function getDonationYearRange(
   donations: Pick<Donation, "date">[]
@@ -365,13 +365,16 @@ export const donationTextMatchFuzzy = (
       }
       // Date search score (only if word looks like a date)
       let dateScore = 1;
-      const looksLikeDate = /\d/.test(word) && /[-/]/.test(word);
-      if (looksLikeDate) {
-        dateScore = fuzzyDateMatch({
-          searchWithin: donationObj.original.date,
-          searchFor: word,
-          toleranceDays: 7,
-        });
+      if (looksLikeDate(word)) {
+        dateScore =
+          1 -
+          fuzzyDateSearch({
+            searchFor: word,
+            target: new Date(donationObj.original.date),
+            minYear: 2015,
+            maxYear: 2035,
+            toleranceDays: 5,
+          });
       }
       // OR: take the best (lowest) score
       const bestScore = Math.min(textScore, amountScore, dateScore);

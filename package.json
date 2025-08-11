@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "test": "vitest",
     "deploy": "npm run build && aws s3 sync dist/ s3://donationscdkstack-websitebucket75c24d94-srsm45813vmh/ && aws cloudfront create-invalidation --distribution-id E3RLXFK07Q0NCE --paths '/*'"
   },
   "dependencies": {
@@ -35,6 +36,7 @@
     "globals": "^16.3.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.4"
+    "vite": "^7.0.4",
+    "vitest": "^3.2.4"
   }
 }

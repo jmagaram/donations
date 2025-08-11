@@ -233,7 +233,7 @@ const DonationUpsertForm = ({
                 onInputChange={(inputValue: string) => {
                   setOrgSearchInput(inputValue || "");
                 }}
-                filterOption={undefined}
+                filterOption={() => true}
                 placeholder=""
                 isClearable
                 isSearchable

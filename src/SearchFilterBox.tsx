@@ -17,6 +17,7 @@ const SearchFilterBox = ({
   placeholder = "Search",
 }: SearchFilterBoxProps) => {
   const [inputValue, setInputValue] = useState(value);
+  const [isSearching, setIsSearching] = useState(false);
   const debounceTimeout = useRef<NodeJS.Timeout | null>(null);
   const REQUIRED_IDLE_MS = 750;
 
@@ -32,6 +33,7 @@ const SearchFilterBox = ({
       if (inputValue !== value) {
         onChange(inputValue);
       }
+      setIsSearching(false);
     }, REQUIRED_IDLE_MS);
     return () => {
       if (debounceTimeout.current) {
@@ -43,18 +45,24 @@ const SearchFilterBox = ({
 
   const handleChange = (newValue: string) => {
     setInputValue(newValue);
+    if (newValue !== value) {
+      setIsSearching(true);
+    }
   };
 
   return (
     <div className={className}>
       <label htmlFor={id}>Search</label>
-      <input
-        type="search"
-        id={id}
-        value={inputValue}
-        onChange={(e) => handleChange(e.target.value)}
-        placeholder={placeholder}
-      />
+      <div className="search-input-container">
+        <input
+          type="search"
+          id={id}
+          value={inputValue}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder={placeholder}
+        />
+        {isSearching && <div className="search-animation-overlay" />}
+      </div>
     </div>
   );
 };

@@ -308,6 +308,34 @@ nav a {
     white-space: pre-line;
 }
 
+@keyframes searchPulse {
+    0%, 100% {
+        opacity: 0.5;
+        box-shadow: 0 0 8px rgba(76, 175, 80, 0.7);
+    }
+    50% {
+        opacity: 1;
+        box-shadow: 0 0 20px rgba(76, 175, 80, 1.0);
+    }
+}
+
+.search-input-container {
+    position: relative;
+    display: inline-block;
+}
+
+.search-animation-overlay {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: 8px;
+    pointer-events: none;
+    animation: searchPulse 1.5s ease-in-out infinite;
+    z-index: 1;
+}
+
 .orgs-grid {
     display: grid;
     gap: 0.25rem 0.25rem;

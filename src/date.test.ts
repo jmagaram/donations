@@ -2,11 +2,12 @@ import {
   parseDigits,
   parseInteger,
   getDateRange,
-  extendDateRange,
   rangesOverlap,
   rangePrecision,
   looksLikeDate,
   convertDigitsToDatePatterns,
+  addDays,
+  fullDaysInRange,
   type DatePattern,
 } from "./date";
 import { describe, test, expect } from "vitest";
@@ -219,96 +220,81 @@ describe("rangesOverlap", () => {
     expect(rangesOverlap(r1, r2)).toBe(expected);
   });
 
-  // Test symmetry property: rangesOverlap(A, B) should equal rangesOverlap(B, A)
-  const symmetryTestCases = [
-    ["2025-03-10", "2025-03-20", "2025-03-15", "2025-03-25"], // overlapping
-    ["2025-03-10", "2025-03-15", "2025-03-15", "2025-03-20"], // touching
-    ["2025-03-10", "2025-03-15", "2025-03-20", "2025-03-25"], // non-overlapping
-    ["2025-03-10", "2025-03-30", "2025-03-15", "2025-03-20"], // containment
-  ];
-
-  test.each(symmetryTestCases)(
-    "symmetry: ranges %s-%s and %s-%s",
-    (start1, end1, start2, end2) => {
-      const r1 = makeRange(start1, end1);
-      const r2 = makeRange(start2, end2);
-      expect(rangesOverlap(r1, r2)).toBe(rangesOverlap(r2, r1));
-    }
-  );
-});
-
-describe("extendDateRange", () => {
-  test("extends March 2025 month range with 3-day tolerance", () => {
-    const marchRanges = getDateRange({
-      pattern: { kind: "ym", year: 2025, month: 3 },
-    });
-    const extendedRange = extendDateRange(marchRanges[0], 3);
-
-    // March 2025: March 1 - March 31
-    // With 3-day tolerance: Feb 26 - Apr 3
-    expect(extendedRange.start).toEqual(new Date(2025, 1, 26)); // Feb 26
-    expect(extendedRange.end).toEqual(new Date(2025, 3, 3)); // Apr 3
-  });
-
-  test("extends specific date with 3-day tolerance", () => {
-    const specificDateRanges = getDateRange({
-      pattern: { kind: "ymd", year: 2025, month: 3, day: 15 },
-    });
-    const extendedRange = extendDateRange(specificDateRanges[0], 3);
-
-    // March 15, 2025 with 3-day tolerance: March 12 - March 18
-    expect(extendedRange.start).toEqual(new Date(2025, 2, 12)); // Mar 12
-    expect(extendedRange.end).toEqual(new Date(2025, 2, 18)); // Mar 18
-  });
-
-  test("extends range with zero tolerance (no change)", () => {
-    const originalRanges = getDateRange({
-      pattern: { kind: "ymd", year: 2025, month: 3, day: 15 },
-    });
-    const extendedRange = extendDateRange(originalRanges[0], 0);
-
-    expect(extendedRange.start).toEqual(originalRanges[0].start);
-    expect(extendedRange.end).toEqual(originalRanges[0].end);
+  test.each(testCases)("symmetry $description", ({ range1, range2 }) => {
+    const r1 = makeRange(range1[0], range1[1]);
+    const r2 = makeRange(range2[0], range2[1]);
+    expect(rangesOverlap(r1, r2)).toBe(rangesOverlap(r2, r1));
   });
 });
 
-describe("rangePrecision", () => {
-  const makeRange = (start: string, end: string) => ({
-    start: new Date(start),
-    end: new Date(end),
+describe("addDays", () => {
+  test.each([
+    [new Date(2025, 2, 15), 0, new Date(2025, 2, 15)],
+    [new Date(2025, 2, 15), 3, new Date(2025, 2, 18)],
+    [new Date(2025, 2, 15), -3, new Date(2025, 2, 12)],
+    [new Date(2025, 2, 31), 1, new Date(2025, 3, 1)],
+    [new Date(2025, 0, 1), -1, new Date(2024, 11, 31)],
+  ])("adds $1 days to date", (inputDate, days, expected) => {
+    expect(addDays(inputDate, days)).toEqual(expected);
   });
+});
 
-  test("same day range returns perfect precision (1.0)", () => {
-    const range = makeRange("2025-03-15", "2025-03-15");
-    expect(rangePrecision(range)).toBe(1.0);
-  });
+describe("fullDaysInRange", () => {
+  const makeRange = (start: Date, end: Date) => ({ start, end });
 
-  test("1-6 day range returns high precision (0.8)", () => {
-    const range1 = makeRange("2025-03-15", "2025-03-16"); // 1 day
-    const range6 = makeRange("2025-03-15", "2025-03-21"); // 6 days
-    expect(rangePrecision(range1)).toBe(0.8);
-    expect(rangePrecision(range6)).toBe(0.8);
-  });
-
-  test("7-29 day range returns good precision (0.6)", () => {
-    const range7 = makeRange("2025-03-15", "2025-03-22"); // 7 days
-    const range29 = makeRange("2025-03-01", "2025-03-30"); // 29 days
-    expect(rangePrecision(range7)).toBe(0.6);
-    expect(rangePrecision(range29)).toBe(0.6);
-  });
-
-  test("30-364 day range returns medium precision (0.4)", () => {
-    const range30 = makeRange("2025-03-01", "2025-03-31"); // 30 days (full month)
-    const range364 = makeRange("2025-01-01", "2025-12-31"); // 364 days (full year minus 1)
-    expect(rangePrecision(range30)).toBe(0.4);
-    expect(rangePrecision(range364)).toBe(0.4);
-  });
-
-  test("365+ day range returns low precision (0.2)", () => {
-    const range365 = makeRange("2024-01-01", "2024-12-31"); // 365 days (full year)
-    const range400 = makeRange("2024-01-01", "2025-02-05"); // 400+ days
-    expect(rangePrecision(range365)).toBe(0.2);
-    expect(rangePrecision(range400)).toBe(0.2);
+  test.each([
+    // Same day - exactly 0 days
+    {
+      start: new Date(2025, 2, 15, 10, 0, 0),
+      end: new Date(2025, 2, 15, 10, 0, 0),
+      expected: 0,
+      description: "same exact moment",
+    },
+    {
+      start: new Date(2025, 2, 15, 0, 0, 0),
+      end: new Date(2025, 2, 15, 23, 59, 59),
+      expected: 0,
+      description: "same day different times",
+    },
+    {
+      start: new Date(2025, 2, 15, 10, 0, 0),
+      end: new Date(2025, 2, 16, 9, 50, 0),
+      expected: 0,
+      description: "1 day minus 10 minutes",
+    },
+    {
+      start: new Date(2025, 2, 15, 10, 0, 0),
+      end: new Date(2025, 2, 16, 10, 0, 0),
+      expected: 1,
+      description: "exactly 24 hours",
+    },
+    {
+      start: new Date(2025, 2, 15, 10, 0, 0),
+      end: new Date(2025, 2, 16, 10, 10, 0),
+      expected: 1,
+      description: "1 day plus 10 minutes",
+    },
+    {
+      start: new Date(2025, 2, 15, 0, 0, 0),
+      end: new Date(2025, 2, 18, 0, 0, 0),
+      expected: 3,
+      description: "exactly 3 days",
+    },
+    {
+      start: new Date(2025, 2, 15, 10, 0, 0),
+      end: new Date(2025, 2, 18, 14, 0, 0),
+      expected: 3,
+      description: "3 days plus 4 hours",
+    },
+    {
+      start: new Date(2025, 2, 16, 10, 0, 0),
+      end: new Date(2025, 2, 15, 10, 0, 0),
+      expected: 0,
+      description: "starts after end",
+    },
+  ])("$description => $expected", ({ start, end, expected }) => {
+    const range = makeRange(start, end);
+    expect(fullDaysInRange(range)).toBe(expected);
   });
 });
 

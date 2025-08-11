@@ -258,11 +258,21 @@ export const rangesOverlap = (r1: DateRange, r2: DateRange): boolean => {
   return r1.start <= r2.end && r2.start <= r1.end;
 };
 
-export const extendDateRange = (range: DateRange, toleranceDays: number) => {
-  const msPerDay = 24 * 60 * 60 * 1000;
+const MS_PER_DAY = 24 * 60 * 60 * 1000;
+
+export const addDays = (date: Date, days: number): Date => {
+  return new Date(date.getTime() + days * MS_PER_DAY);
+};
+
+export const fullDaysInRange = (range: DateRange): number => {
+  if (range.start > range.end) return 0;
+  return Math.floor((range.end.getTime() - range.start.getTime()) / MS_PER_DAY);
+};
+
+export const padDateRange = (range: DateRange, paddingDays: number) => {
   return {
-    start: new Date(range.start.getTime() - toleranceDays * msPerDay),
-    end: new Date(range.end.getTime() + toleranceDays * msPerDay),
+    start: addDays(range.start, -paddingDays),
+    end: addDays(range.end, paddingDays),
   };
 };
 
@@ -286,14 +296,9 @@ export const looksLikeDate = (input: string): boolean => {
   return digits ? convertDigitsToDatePatterns(digits).length > 0 : false;
 };
 
-export const daysInRange = (range: DateRange): number => {
-  const msPerDay = 24 * 60 * 60 * 1000;
-  return Math.round((range.end.getTime() - range.start.getTime()) / msPerDay);
-};
-
 // Returns precision score based on date range size. Smaller ranges = higher precision scores for fuzzy matching
 export const rangePrecision = (range: DateRange): number => {
-  const days = daysInRange(range);
+  const days = fullDaysInRange(range);
 
   if (days === 0) return 1.0; // Same day - perfect precision
   if (days <= 6) return 0.8; // Few days - high precision
@@ -321,10 +326,7 @@ export const fuzzyDateSearch = (params: {
   });
   if (searchForRanges.length === 0) return 0.0;
   const targetRange = { start: params.target, end: params.target };
-  const extendedTargetRange = extendDateRange(
-    targetRange,
-    params.toleranceDays
-  );
+  const extendedTargetRange = padDateRange(targetRange, params.toleranceDays);
   const results = searchForRanges.map((r) =>
     overlapPrecision(r, extendedTargetRange)
   );

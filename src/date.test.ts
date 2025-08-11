@@ -1,184 +1,246 @@
 import {
   parseDigits,
+  parseInteger,
   getDateRange,
   extendDateRange,
-  overlapRanges,
+  rangesOverlap,
   rangePrecision,
   looksLikeDate,
-  convertTwoDigitsToDateParts,
+  convertDigitsToDatePatterns,
+  type DatePattern,
 } from "./date";
 import { describe, test, expect } from "vitest";
 
-describe("parseDigits", () => {
-  const validParseDigitsCases = [
-    { input: "2025-3-14", output: [2025, 3, 14] },
-    { input: "2025/3/14", output: [2025, 3, 14] },
-    { input: "3/2025", output: [3, 2025] },
-    { input: "   3/2025   ", output: [3, 2025], notes: "trims whitespace" },
-    { input: "2025", output: [2025] },
-    {
-      input: "02025/03/04",
-      output: [2025, 3, 4],
-      notes: "strips leading zeroes",
-    },
-  ];
-
-  const invalidParseDigitsCases = [
-    { input: "2025/3-14", reason: "mixing separators" },
-    { input: "-2025", reason: "leading dash" },
-    { input: "2025-", reason: "trailing dash" },
-    { input: "2025--3", reason: "missing number between separators" },
-    { input: "2025-3-14-7", reason: "too many parts" },
-    { input: "2025-abc-14", reason: "non-numeric part" },
-    { input: "", reason: "empty string" },
-    { input: "   ", reason: "whitespace only" },
-    { input: "abc", reason: "letters only" },
-    { input: "2025.03.14", reason: "unsupported separator" },
-  ];
-
-  test("parses valid digit patterns", () => {
-    validParseDigitsCases.forEach(({ input, output }) => {
-      expect(parseDigits(input)).toEqual(output);
-    });
+describe("parseInteger", () => {
+  test.each([
+    ["0", 0],
+    ["1", 1],
+    ["9", 9],
+    ["01", 1],
+    ["09", 9],
+    ["10", 10],
+    ["99", 99],
+    ["1000", 1000],
+    ["9999", 9999],
+    ["0123", 123],
+    ["0999", 999],
+  ])("valid %s to %i", (input, expected) => {
+    expect(parseInteger(input)).toBe(expected);
   });
 
-  test("rejects invalid digit patterns", () => {
-    invalidParseDigitsCases.forEach(({ input }) => {
-      expect(parseDigits(input)).toBeUndefined();
-    });
-  });
-
-  validParseDigitsCases.forEach(({ input, output, notes }) => {
-    test(`parses "${input}" to ${JSON.stringify(output)}${
-      notes ? ` (${notes})` : ""
-    }`, () => {
-      expect(parseDigits(input)).toEqual(output);
-    });
-  });
-
-  invalidParseDigitsCases.forEach(({ input, reason }) => {
-    test(`rejects "${input}" (${reason})`, () => {
-      expect(parseDigits(input)).toBeUndefined();
-    });
+  test.each([
+    ["00", "double zero"],
+    ["000", "triple zero"],
+    ["0000", "quadruple zero"],
+    ["001", "too many leading zeros"],
+    ["0012", "too many leading zeros"],
+    ["123", "three digits"],
+    ["12345", "five digits"],
+    ["abc", "non-numeric"],
+    ["", "empty string"],
+    ["-1", "negative number"],
+    ["1.5", "decimal"],
+    [" 1", "leading space"],
+    ["1 ", "trailing space"],
+  ])("rejects %s (%s)", (input) => {
+    expect(parseInteger(input)).toBeUndefined();
   });
 });
 
-describe("convertTwoDigitsToDateParts", () => {
-  const validTwoDigitCases = [
+describe("parseDigits", () => {
+  const mockParseFn = (s: string): number | undefined => {
+    if (s === "reject") return undefined;
+    return parseInt(s, 10);
+  };
+
+  test.each([
+    ["1-2-3", [1, 2, 3]],
+    ["10/20/30", [10, 20, 30]],
+    ["5", [5]],
+    ["100-200", [100, 200]],
+  ])('parses "%s" to %j', (input, expected) => {
+    expect(parseDigits(input, mockParseFn)).toEqual(expected);
+  });
+
+  test.each([
+    ["1-reject-3", "digit rejection"],
+    ["reject", "single digit rejection"],
+    ["1/2-3", "mixed separators"],
+    ["", "empty string"],
+    ["1-2-3-4", "too many parts"],
+  ])('rejects "%s" (%s)', (input) => {
+    expect(parseDigits(input, mockParseFn)).toBeUndefined();
+  });
+});
+
+describe("convertDigitsToDatePatterns", () => {
+  const testCases: Array<{
+    input: number[];
+    expected: DatePattern[];
+    description: string;
+  }> = [
+    // Single digit cases
+    {
+      input: [2025],
+      expected: [{ kind: "y", year: 2025 }],
+      description: "single year",
+    },
+    {
+      input: [1934],
+      expected: [],
+      description: "year too low",
+    },
+    {
+      input: [2087],
+      expected: [],
+      description: "year too high",
+    },
+
+    // Two digit cases
     {
       input: [3, 2025],
-      expectedToContain: [{ kind: "ym", year: 2025, month: 3 }],
-      notes: "month/year",
+      expected: [{ kind: "ym", year: 2025, month: 3 }],
+      description: "March 2025",
     },
     {
       input: [3, 25],
-      expectedToContain: [
+      expected: [
         { kind: "ym", year: 2025, month: 3 },
         { kind: "md", month: 3, day: 25 },
       ],
-      notes: "ambiguous: month/abbreviated year and month/day",
+      description: "March 2025 and March 25th",
     },
     {
       input: [2025, 3],
-      expectedToContain: [{ kind: "ym", year: 2025, month: 3 }],
-      notes: "year/month",
+      expected: [{ kind: "ym", year: 2025, month: 3 }],
+      description: "March 2025",
     },
     {
-      input: [3, 14],
-      expectedToContain: [
-        { kind: "md", month: 3, day: 14 },
-        { kind: "ym", year: 2014, month: 3 },
+      input: [12, 25],
+      expected: [
+        { kind: "ym", year: 2025, month: 12 },
+        { kind: "md", month: 12, day: 25 },
       ],
-      notes: "ambiguous: month/day and month/abbreviated year",
+      description: "December 2025 or December 25th",
     },
     {
-      input: [12, 31],
-      expectedToContain: [
-        { kind: "md", month: 12, day: 31 },
-        { kind: "ym", year: 2031, month: 12 },
-      ],
-      notes: "ambiguous: month/day and month/abbreviated year",
+      input: [13, 2025],
+      expected: [],
+      description: "Month too big",
     },
     {
-      input: [1, 1],
-      expectedToContain: [{ kind: "md", month: 1, day: 1 }],
-      notes: "minimum month/day values",
+      input: [5, 2099],
+      expected: [],
+      description: "Year too big",
     },
     {
-      input: [3, 5],
-      expectedToContain: [{ kind: "md", month: 3, day: 5 }],
-      notes: "month/day (no abbreviated year interpretation since 5 < 10)",
+      input: [13, 45],
+      expected: [],
+      description: "Month and year are both invalid",
+    },
+
+    // Three digit cases
+    {
+      input: [3, 14, 2025],
+      expected: [{ kind: "ymd", year: 2025, month: 3, day: 14 }],
+      description: "March 14, 2025",
     },
     {
-      input: [12, 2035],
-      expectedToContain: [{ kind: "ym", year: 2035, month: 12 }],
-      notes: "maximum year boundary",
+      input: [3, 14, 25],
+      expected: [{ kind: "ymd", year: 2025, month: 3, day: 14 }],
+      description: "March 14, 2025",
     },
     {
-      input: [1, 10],
-      expectedToContain: [
-        { kind: "md", month: 1, day: 10 },
-        { kind: "ym", year: 2010, month: 1 },
-      ],
-      notes: "ambiguous: month/day and month/abbreviated year",
+      input: [2025, 3, 14],
+      expected: [{ kind: "ymd", year: 2025, month: 3, day: 14 }],
+      description: "March 14, 2025",
+    },
+    {
+      input: [13, 14, 2025],
+      expected: [],
+      description: "Invalid month",
     },
   ];
 
-  const invalidTwoDigitCases = [
-    { input: [13, 45], reason: "invalid month and day (both out of range)" },
-    { input: [0, 5], reason: "zero month" },
-    { input: [15, 40], reason: "invalid month and day (both out of range)" },
-    { input: [3, 0], reason: "zero day" },
-    { input: [3, 2009], reason: "year below valid range" },
-    { input: [3, 2036], reason: "year above valid range" },
-    { input: [13, 2025], reason: "invalid month" },
-    { input: [0, 0], reason: "zero month and day" },
-    { input: [50, 60], reason: "both values out of all valid ranges" },
+  test.each(testCases)("$input => $description", ({ input, expected }) => {
+    const result = convertDigitsToDatePatterns(input);
+    expect(result).toHaveLength(expected.length);
+    if (expected.length > 0) {
+      expect(result).toEqual(expect.arrayContaining(expected));
+      expected.forEach((expectedPattern) => {
+        expect(result).toContainEqual(expectedPattern);
+      });
+    }
+  });
+});
+
+describe("rangesOverlap", () => {
+  const makeRange = (start: string, end: string) => ({
+    start: new Date(start),
+    end: new Date(end),
+  });
+
+  const testCases = [
+    {
+      range1: ["2025-03-10", "2025-03-20"],
+      range2: ["2025-03-15", "2025-03-25"],
+      expected: true,
+      description: "overlapping ranges",
+    },
+    {
+      range1: ["2025-03-10", "2025-03-15"],
+      range2: ["2025-03-15", "2025-03-20"],
+      expected: true,
+      description: "touching ranges",
+    },
+    {
+      range1: ["2025-03-10", "2025-03-15"],
+      range2: ["2025-03-20", "2025-03-25"],
+      expected: false,
+      description: "non-overlapping ranges",
+    },
+    {
+      range1: ["2025-03-10", "2025-03-30"],
+      range2: ["2025-03-15", "2025-03-20"],
+      expected: true,
+      description: "one range completely inside another",
+    },
+    {
+      range1: ["2025-03-15", "2025-03-20"],
+      range2: ["2025-03-15", "2025-03-20"],
+      expected: true,
+      description: "identical ranges",
+    },
   ];
 
-  test("parses valid two-digit patterns", () => {
-    validTwoDigitCases.forEach(({ input, expectedToContain }) => {
-      const result = convertTwoDigitsToDateParts(input);
-      expect(result).toBeDefined();
-      expect(result !== undefined && result.length).toBeGreaterThan(0);
-
-      expectedToContain.forEach((expectedItem) => {
-        expect(result).toContainEqual(expectedItem);
-      });
-    });
+  test.each(testCases)("$description", ({ range1, range2, expected }) => {
+    const r1 = makeRange(range1[0], range1[1]);
+    const r2 = makeRange(range2[0], range2[1]);
+    expect(rangesOverlap(r1, r2)).toBe(expected);
   });
 
-  test("rejects invalid two-digit patterns", () => {
-    invalidTwoDigitCases.forEach(({ input }) => {
-      expect(convertTwoDigitsToDateParts(input)).toBeUndefined();
-    });
-  });
+  // Test symmetry property: rangesOverlap(A, B) should equal rangesOverlap(B, A)
+  const symmetryTestCases = [
+    ["2025-03-10", "2025-03-20", "2025-03-15", "2025-03-25"], // overlapping
+    ["2025-03-10", "2025-03-15", "2025-03-15", "2025-03-20"], // touching
+    ["2025-03-10", "2025-03-15", "2025-03-20", "2025-03-25"], // non-overlapping
+    ["2025-03-10", "2025-03-30", "2025-03-15", "2025-03-20"], // containment
+  ];
 
-  validTwoDigitCases.forEach(({ input, expectedToContain, notes }) => {
-    test(`parses [${input.join(", ")}] (${notes})`, () => {
-      const result = convertTwoDigitsToDateParts(input);
-      expect(result).toBeDefined();
-
-      expectedToContain.forEach((expectedItem) => {
-        expect(result).toContainEqual(expectedItem);
-      });
-
-      // Ensure we don't get extra unexpected items
-      expect(result).toHaveLength(expectedToContain.length);
-    });
-  });
-
-  invalidTwoDigitCases.forEach(({ input, reason }) => {
-    test(`rejects [${input.join(", ")}] (${reason})`, () => {
-      expect(convertTwoDigitsToDateParts(input)).toBeUndefined();
-    });
-  });
+  test.each(symmetryTestCases)(
+    "symmetry: ranges %s-%s and %s-%s",
+    (start1, end1, start2, end2) => {
+      const r1 = makeRange(start1, end1);
+      const r2 = makeRange(start2, end2);
+      expect(rangesOverlap(r1, r2)).toBe(rangesOverlap(r2, r1));
+    }
+  );
 });
 
 describe("extendDateRange", () => {
   test("extends March 2025 month range with 3-day tolerance", () => {
     const marchRanges = getDateRange({
-      parts: { kind: "ym", year: 2025, month: 3 },
+      pattern: { kind: "ym", year: 2025, month: 3 },
     });
     const extendedRange = extendDateRange(marchRanges[0], 3);
 
@@ -190,7 +252,7 @@ describe("extendDateRange", () => {
 
   test("extends specific date with 3-day tolerance", () => {
     const specificDateRanges = getDateRange({
-      parts: { kind: "ymd", year: 2025, month: 3, day: 15 },
+      pattern: { kind: "ymd", year: 2025, month: 3, day: 15 },
     });
     const extendedRange = extendDateRange(specificDateRanges[0], 3);
 
@@ -201,61 +263,12 @@ describe("extendDateRange", () => {
 
   test("extends range with zero tolerance (no change)", () => {
     const originalRanges = getDateRange({
-      parts: { kind: "ymd", year: 2025, month: 3, day: 15 },
+      pattern: { kind: "ymd", year: 2025, month: 3, day: 15 },
     });
     const extendedRange = extendDateRange(originalRanges[0], 0);
 
     expect(extendedRange.start).toEqual(originalRanges[0].start);
     expect(extendedRange.end).toEqual(originalRanges[0].end);
-  });
-});
-
-describe("overlapRanges", () => {
-  const makeRange = (start: string, end: string) => ({
-    start: new Date(start),
-    end: new Date(end),
-  });
-
-  test("overlapping ranges (range1 starts first) return true", () => {
-    const range1 = makeRange("2025-03-10", "2025-03-20");
-    const range2 = makeRange("2025-03-15", "2025-03-25");
-    expect(overlapRanges(range1, range2)).toBe(true);
-  });
-
-  test("overlapping ranges (range2 starts first) return true", () => {
-    const range1 = makeRange("2025-03-15", "2025-03-30");
-    const range2 = makeRange("2025-03-10", "2025-03-20");
-    expect(overlapRanges(range1, range2)).toBe(true);
-  });
-
-  test("touching ranges (range1 ends when range2 starts) return true", () => {
-    const range1 = makeRange("2025-03-10", "2025-03-15");
-    const range2 = makeRange("2025-03-15", "2025-03-20");
-    expect(overlapRanges(range1, range2)).toBe(true);
-  });
-
-  test("touching ranges (range2 ends when range1 starts) return true", () => {
-    const range1 = makeRange("2025-03-15", "2025-03-20");
-    const range2 = makeRange("2025-03-10", "2025-03-15");
-    expect(overlapRanges(range1, range2)).toBe(true);
-  });
-
-  test("non-overlapping ranges return false", () => {
-    const range1 = makeRange("2025-03-10", "2025-03-15");
-    const range2 = makeRange("2025-03-20", "2025-03-25");
-    expect(overlapRanges(range1, range2)).toBe(false);
-  });
-
-  test("one range completely inside another returns true", () => {
-    const range1 = makeRange("2025-03-10", "2025-03-30");
-    const range2 = makeRange("2025-03-15", "2025-03-20");
-    expect(overlapRanges(range1, range2)).toBe(true);
-  });
-
-  test("identical ranges return true", () => {
-    const range1 = makeRange("2025-03-15", "2025-03-20");
-    const range2 = makeRange("2025-03-15", "2025-03-20");
-    expect(overlapRanges(range1, range2)).toBe(true);
   });
 });
 

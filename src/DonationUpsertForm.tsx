@@ -111,7 +111,9 @@ const DonationUpsertForm = ({
           webSite: org.webSite,
         },
       }))
-      .sort((a, b) => orgSearchInput.trim() ? 0 : a.label.localeCompare(b.label));
+      .sort((a, b) =>
+        orgSearchInput.trim() ? 0 : a.label.localeCompare(b.label)
+      );
   }, [donationsData?.orgs, orgSearchInput]);
 
   const currentOrgId = watch("orgId");
@@ -134,8 +136,8 @@ const DonationUpsertForm = ({
       new Set(
         donationsData.donations
           .map((donation) => donation.paymentMethod)
-          .filter((pm): pm is string => pm !== undefined && pm.trim() !== ""),
-      ),
+          .filter((pm): pm is string => pm !== undefined && pm.trim() !== "")
+      )
     ).sort((a, b) => a.localeCompare(b)); // Sort alphabetically
 
     return uniquePaymentMethods.map((pm) => ({
@@ -149,7 +151,7 @@ const DonationUpsertForm = ({
     if (!currentPaymentMethod) return null;
 
     const existingOption = paymentMethodOptions.find(
-      (option) => option.value === currentPaymentMethod,
+      (option) => option.value === currentPaymentMethod
     );
 
     if (existingOption) {
@@ -166,10 +168,9 @@ const DonationUpsertForm = ({
     return KIND_OPTIONS.find((option) => option.value === currentKind) || null;
   }, [currentKind]);
 
-
   const filterPaymentMethodOption = (
     option: { data: PaymentMethodOption },
-    inputValue: string,
+    inputValue: string
   ) => {
     if (!inputValue.trim()) return true;
     return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
@@ -177,7 +178,7 @@ const DonationUpsertForm = ({
 
   const filterKindOption = (
     option: { data: KindOption },
-    inputValue: string,
+    inputValue: string
   ) => {
     if (!inputValue.trim()) return true;
     return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
@@ -232,7 +233,7 @@ const DonationUpsertForm = ({
                 onInputChange={(inputValue: string) => {
                   setOrgSearchInput(inputValue || "");
                 }}
-                filterOption={false}
+                filterOption={undefined}
                 placeholder=""
                 isClearable
                 isSearchable
@@ -318,7 +319,7 @@ const DonationUpsertForm = ({
                 options={paymentMethodOptions}
                 value={selectedPaymentMethodOption}
                 onChange={(
-                  selectedOption: SingleValue<PaymentMethodOption>,
+                  selectedOption: SingleValue<PaymentMethodOption>
                 ) => {
                   field.onChange(selectedOption?.value || "");
                 }}
@@ -352,7 +353,11 @@ const DonationUpsertForm = ({
             <button
               type="button"
               onClick={() => {
-                if (window.confirm("Are you sure you want to delete this donation?")) {
+                if (
+                  window.confirm(
+                    "Are you sure you want to delete this donation?"
+                  )
+                ) {
                   onDelete();
                 }
               }}

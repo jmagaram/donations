@@ -1,88 +1,261 @@
 import z from "zod";
 
-export type DateParts =
-  | { kind: "y"; year: number }
-  | { kind: "ym"; year: number; month: number }
-  | { kind: "my"; year: number; month: number }
-  | { kind: "ymd"; year: number; month: number; day: number }
-  | { kind: "md"; month: number; day: number };
-
-type DateRange = {
-  start: Date;
-  end: Date;
+/**
+ * Parses a string to an integer if it matches the expected format.
+ * Accepts numbers that are 1, 2, or 4 digits long, allowing at most one leading zero.
+ */
+export const parseInteger = (input: string): number | undefined => {
+  const validNumRegex = /^(\d|[1-9]\d|0[1-9]|[1-9]\d{3}|0[1-9]\d{2})$/;
+  if (!validNumRegex.test(input)) return undefined;
+  return Number(input);
 };
 
 /**
- * Parses a string into 1, 2, or 3 digits, splitting on dash (-) and slash (/) characters. The input is trimmed before parsing. Mixed separators are not allowed. Examples:
- * '2025-3-14' => [2025, 3, 14]
- * '3/17' => [3, 17]
+ * Parses a string into an array of 1 to 3 numbers by splitting on dash (-) or slash (/).
+ *
+ * - The input string is trimmed before parsing.
+ * - Mixed separators (both '-' and '/') are not allowed.
+ * - Each part must be a non-empty string of digits.
+ * - Numbers must be exactly 1, 2, or 4 digits long.
+ * - Each number can have at most 1 leading zero.
+ *
+ * Examples:
+ * - "2025-3-14" => [2025, 3, 14]
+ * - "03/2025" => [3, 2025]
+ *
+ * @param input - The date string to parse.
+ * @param parseDigitFn - Function to parse individual digit strings. Defaults to parseInteger.
+ * @returns An array of numbers if parsing is successful, otherwise `undefined`.
  */
-export const parseDigits = (input: string): number[] | undefined => {
+export const parseDigits = (
+  input: string,
+  parseDigitFn: (part: string) => number | undefined = parseInteger
+): number[] | undefined => {
   if (typeof input !== "string") return undefined;
   const trimmed = input.trim();
-  if (!/^[\d\-/]*$/.test(trimmed)) return undefined;
-  // Disallow mixed separators
-  if (trimmed.includes("-") && trimmed.includes("/")) return undefined;
+  const hasDash = trimmed.includes("-");
+  const hasSlash = trimmed.includes("/");
+  if (hasDash && hasSlash) return undefined;
   const parts = trimmed.split(/[-/]/);
   if (parts.length < 1 || parts.length > 3) return undefined;
   const nums = parts.reduce<number[] | undefined>((acc, part) => {
     if (acc === undefined) return undefined;
     if (part === "") return undefined;
-    const n = Number(part);
-    if (!Number.isFinite(n)) return undefined;
+    const n = parseDigitFn(part);
+    if (n === undefined) return undefined;
     return [...acc, n];
   }, []);
   if (!nums || nums.length < 1 || nums.length > 3) return undefined;
   return nums;
 };
 
-export const overlapRanges = (
-  range1: DateRange,
-  range2: DateRange
-): boolean => {
-  return range1.start <= range2.end && range2.start <= range1.end;
+const YEAR_CENTURY_BASE = 2000;
+const MIN_YEAR_OFFSET = 10;
+const MAX_YEAR_OFFSET = 35;
+const MIN_PARSE_YYYY = YEAR_CENTURY_BASE + MIN_YEAR_OFFSET;
+const MAX_PARSE_YYYY = YEAR_CENTURY_BASE + MAX_YEAR_OFFSET;
+const MIN_PARSE_YY = MIN_YEAR_OFFSET;
+const MAX_PARSE_YY = MAX_YEAR_OFFSET;
+
+const isYear = (n: number) => n >= MIN_PARSE_YYYY && n <= MAX_PARSE_YYYY;
+const isYearAbbrev = (n: number) => n >= MIN_PARSE_YY && n <= MAX_PARSE_YY;
+const convertYearAbbrev = (n: number) => n + YEAR_CENTURY_BASE;
+const isMonth = (n: number) => n >= 1 && n <= 12;
+const isDay = (n: number) => n >= 1 && n <= 31;
+
+const getLastDayOfMonth = ({
+  year,
+  month,
+}: {
+  year: number;
+  month: number;
+}): number => new Date(year, month, 0).getDate();
+
+export type DatePattern =
+  | { kind: "y"; year: number }
+  | { kind: "ym"; year: number; month: number }
+  | { kind: "ymd"; year: number; month: number; day: number }
+  | { kind: "md"; month: number; day: number };
+
+type DateValidators = {
+  isYear: (n: number) => boolean;
+  isYearAbbrev: (n: number) => boolean;
+  isMonth: (n: number) => boolean;
+  isDay: (n: number) => boolean;
+  convertYearAbbrev: (n: number) => number;
+};
+
+const create_YYYY = (
+  year: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isYear(year) ? { kind: "y", year: year } : undefined;
+
+const create_MM_YYYY = (
+  month: number,
+  year: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isMonth(month) && v.isYear(year)
+    ? { kind: "ym", year: year, month: month }
+    : undefined;
+
+const create_YYYY_MM = (
+  year: number,
+  month: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isYear(year) && v.isMonth(month) ? { kind: "ym", year, month } : undefined;
+
+const create_MM_YY = (
+  month: number,
+  abbrevYear: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isMonth(month) && v.isYearAbbrev(abbrevYear)
+    ? { kind: "ym", year: v.convertYearAbbrev(abbrevYear), month }
+    : undefined;
+
+const create_MM_DD = (
+  month: number,
+  day: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isMonth(month) && v.isDay(day) ? { kind: "md", month, day } : undefined;
+
+const create_MM_DD_YYYY = (
+  month: number,
+  day: number,
+  year: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isMonth(month) && v.isDay(day) && v.isYear(year)
+    ? { kind: "ymd", year, month, day }
+    : undefined;
+
+const create_MM_DD_YY = (
+  month: number,
+  day: number,
+  abbrevYear: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isMonth(month) && v.isDay(day) && v.isYearAbbrev(abbrevYear)
+    ? { kind: "ymd", year: v.convertYearAbbrev(abbrevYear), month, day }
+    : undefined;
+
+const create_YYYY_MM_DD = (
+  year: number,
+  month: number,
+  day: number,
+  v: DateValidators
+): DatePattern | undefined =>
+  v.isYear(year) && v.isMonth(month) && v.isDay(day)
+    ? { kind: "ymd", year, month, day }
+    : undefined;
+
+export const convertDigitsToDatePatterns = (
+  nums: number[],
+  validators?: {
+    isYear?: (n: number) => boolean;
+    isYearAbbrev?: (n: number) => boolean;
+    isMonth?: (n: number) => boolean;
+    isDay?: (n: number) => boolean;
+    convertYearAbbrev?: (n: number) => number;
+  }
+): DatePattern[] => {
+  const v: DateValidators = {
+    isYear: validators?.isYear ?? isYear,
+    isYearAbbrev: validators?.isYearAbbrev ?? isYearAbbrev,
+    isMonth: validators?.isMonth ?? isMonth,
+    isDay: validators?.isDay ?? isDay,
+    convertYearAbbrev: validators?.convertYearAbbrev ?? convertYearAbbrev,
+  };
+
+  if (nums.length === 1) {
+    const [x] = nums;
+    return [create_YYYY(x, v)].filter(
+      (part): part is DatePattern => part !== undefined
+    );
+  }
+
+  if (nums.length === 2) {
+    const [x, y] = nums;
+    return [
+      create_MM_YYYY(x, y, v),
+      create_MM_YY(x, y, v),
+      create_YYYY_MM(x, y, v),
+      create_MM_DD(x, y, v),
+    ].filter((part): part is DatePattern => part !== undefined);
+  }
+
+  if (nums.length === 3) {
+    const [x, y, z] = nums;
+    return [
+      create_MM_DD_YYYY(x, y, z, v),
+      create_MM_DD_YY(x, y, z, v),
+      create_YYYY_MM_DD(x, y, z, v),
+    ].filter((part): part is DatePattern => part !== undefined);
+  }
+
+  return [];
+};
+
+type DateRange = {
+  start: Date;
+  end: Date;
 };
 
 export const getDateRange = (params: {
-  parts: DateParts;
+  pattern: DatePattern;
   minYear?: number;
   maxYear?: number;
 }): DateRange[] => {
-  const { parts: d, minYear = 2010, maxYear = 2035 } = params;
-  const toDate = (year: number, month: number, day: number) =>
+  const {
+    pattern: p,
+    minYear = MIN_PARSE_YYYY,
+    maxYear = MAX_PARSE_YYYY,
+  } = params;
+  const dateFromYMD = (year: number, month: number, day: number) =>
     new Date(year, month - 1, day);
-  switch (d.kind) {
+  switch (p.kind) {
     case "y":
       return [
         {
-          start: toDate(d.year, 1, 1),
-          end: toDate(d.year, 12, 31),
+          start: dateFromYMD(p.year, 1, 1),
+          end: dateFromYMD(p.year, 12, 31),
         },
       ];
     case "ym":
-    case "my":
       return [
         {
-          start: toDate(d.year, d.month, 1),
-          end: toDate(d.year, d.month, 31),
+          start: dateFromYMD(p.year, p.month, 1),
+          end: dateFromYMD(
+            p.year,
+            p.month,
+            getLastDayOfMonth({ year: p.year, month: p.month })
+          ),
         },
       ];
     case "ymd":
       return [
         {
-          start: toDate(d.year, d.month, d.day),
-          end: toDate(d.year, d.month, d.day),
+          start: dateFromYMD(p.year, p.month, p.day),
+          end: dateFromYMD(p.year, p.month, p.day),
         },
       ];
     case "md":
       return Array.from({ length: maxYear - minYear + 1 }, (_, i) => {
         const year = minYear + i;
         return {
-          start: toDate(year, d.month, d.day),
-          end: toDate(year, d.month, d.day),
+          start: dateFromYMD(year, p.month, p.day),
+          end: dateFromYMD(year, p.month, p.day),
         };
       });
   }
+};
+
+export const rangesOverlap = (r1: DateRange, r2: DateRange): boolean => {
+  return r1.start <= r2.end && r2.start <= r1.end;
 };
 
 export const extendDateRange = (range: DateRange, toleranceDays: number) => {
@@ -93,72 +266,6 @@ export const extendDateRange = (range: DateRange, toleranceDays: number) => {
   };
 };
 
-const isYear = (n: number) => n >= 2010 && n <= 2035;
-const isYearAbbrev = (n: number) => n >= 10 && n <= 35;
-const convertYearAbbrev = (n: number) => n + 2000;
-const isMonth = (n: number) => n >= 1 && n <= 12;
-const isDay = (n: number) => n >= 1 && n <= 31;
-
-const convertSingleDigitToDateParts = (
-  nums: number[]
-): DateParts[] | undefined => {
-  const y = nums[0];
-  if (isYear(y)) return [{ kind: "y", year: y }];
-  return undefined;
-};
-
-export const convertTwoDigitsToDateParts = (
-  nums: number[]
-): DateParts[] | undefined => {
-  const result: DateParts[] = [];
-  const [x, y] = nums;
-  // MM-YYYY like 3/2025
-  if (isMonth(x) && isYear(y)) {
-    result.push({ kind: "ym", year: y, month: x });
-  }
-  // MM-YY like 3/25
-  if (isMonth(x) && isYearAbbrev(y)) {
-    result.push({ kind: "ym", year: convertYearAbbrev(y), month: x });
-  }
-  // YYYY-MM like 2025-03
-  if (isYear(x) && isMonth(y)) {
-    result.push({ kind: "ym", year: x, month: y });
-  }
-  // MM-DD like 3/14 or March 14
-  if (isMonth(x) && isDay(y)) {
-    result.push({ kind: "md", month: x, day: y });
-  }
-  return result.length > 0 ? result : undefined;
-};
-
-const convertThreeDigitsToDateParts = (
-  nums: number[]
-): DateParts[] | undefined => {
-  const [x, y, z] = nums;
-  // MM-DD-YYYY like 3/2/2025 (March 2, 2025)
-  if (isMonth(x) && isDay(y) && isYear(z)) {
-    return [{ kind: "ymd", year: z, month: x, day: y }];
-  }
-  // MM-DD-YY like 3/2/25 (March 2, 2025)
-  if (isMonth(x) && isDay(y) && isYearAbbrev(z)) {
-    return [{ kind: "ymd", year: convertYearAbbrev(z), month: x, day: y }];
-  }
-  // YYYY-MM-DD like 2025-03-01
-  if (isYear(x) && isMonth(y) && isDay(z)) {
-    return [{ kind: "ymd", year: x, month: y, day: z }];
-  }
-  return undefined;
-};
-
-export const convertDigitsToDateParts = (
-  nums: number[]
-): DateParts[] | undefined => {
-  if (nums.length === 1) return convertSingleDigitToDateParts(nums);
-  if (nums.length === 2) return convertTwoDigitsToDateParts(nums);
-  if (nums.length === 3) return convertThreeDigitsToDateParts(nums);
-  return undefined;
-};
-
 export const parseStringToDayRanges = (params: {
   input: string;
   minYear: number;
@@ -167,20 +274,18 @@ export const parseStringToDayRanges = (params: {
   const { input, minYear, maxYear } = params;
   const digits = parseDigits(input);
   if (digits === undefined) return [];
-  const parts = convertDigitsToDateParts(digits);
-  if (parts === undefined) return [];
+  const parts = convertDigitsToDatePatterns(digits);
+  if (parts.length === 0) return [];
   return parts
-    .map((p) => getDateRange({ parts: p, minYear, maxYear }))
+    .map((p) => getDateRange({ pattern: p, minYear, maxYear }))
     .flatMap((i) => i);
 };
 
-// Fast check if a string looks like a date without doing full parsing
 export const looksLikeDate = (input: string): boolean => {
   const digits = parseDigits(input);
-  return digits ? convertDigitsToDateParts(digits) !== undefined : false;
+  return digits ? convertDigitsToDatePatterns(digits).length > 0 : false;
 };
 
-// Helper function to calculate the number of days in a date range (inclusive)
 export const daysInRange = (range: DateRange): number => {
   const msPerDay = 24 * 60 * 60 * 1000;
   return Math.round((range.end.getTime() - range.start.getTime()) / msPerDay);
@@ -198,7 +303,7 @@ export const rangePrecision = (range: DateRange): number => {
 };
 
 export const overlapPrecision = (r1: DateRange, r2: DateRange): number => {
-  if (!overlapRanges(r1, r2)) return 0.0;
+  if (!rangesOverlap(r1, r2)) return 0.0;
   return Math.min(rangePrecision(r1), rangePrecision(r2));
 };
 

@@ -1,4 +1,4 @@
-import { extractYear } from "./date";
+import { extractYear, MAX_PARSE_YYYY, MIN_PARSE_YYYY } from "./date";
 import { type AmountFilter } from "./amountFilter";
 import { type Donation, type DonationsData, type Org } from "./types";
 import Fuse from "fuse.js";
@@ -278,21 +278,44 @@ export const donationTextMatchFuzzy = (
   orgs: Org[],
   search: string
 ): Donation[] => {
-  if (!search || search.trim() === "") return donations;
+  if (!search || search.trim() === "" || donations.length === 0)
+    return donations;
   const orgMap = new Map(orgs.map((org) => [org.id, org]));
-  const searchableDonations = donations.map((donation) => {
-    const org = orgMap.get(donation.orgId);
-    return {
-      id: donation.id,
-      orgName: org?.name || "",
-      orgNotes: org?.notes || "",
-      donationNotes: donation.notes || "",
-      kind: donation.kind || "",
-      paymentMethod: donation.paymentMethod || "",
-      amount: donation.amount,
-      original: donation,
-    };
-  });
+  const { searchableDonations, minYear, maxYear } = donations.reduce(
+    (acc, donation) => {
+      const org = orgMap.get(donation.orgId);
+      const searchable = {
+        id: donation.id,
+        orgName: org?.name || "",
+        orgNotes: org?.notes || "",
+        donationNotes: donation.notes || "",
+        kind: donation.kind || "",
+        paymentMethod: donation.paymentMethod || "",
+        amount: donation.amount,
+        original: donation,
+      };
+      const year = extractYear(donation.date);
+      return {
+        searchableDonations: [...acc.searchableDonations, searchable],
+        minYear: acc.minYear === undefined ? year : Math.min(acc.minYear, year),
+        maxYear: acc.maxYear === undefined ? year : Math.max(acc.maxYear, year),
+      };
+    },
+    {
+      searchableDonations: [] as Array<{
+        id: string;
+        orgName: string;
+        orgNotes: string;
+        donationNotes: string;
+        kind: string;
+        paymentMethod: string;
+        amount: number;
+        original: Donation;
+      }>,
+      minYear: undefined as number | undefined,
+      maxYear: undefined as number | undefined,
+    }
+  );
   const fuse = new Fuse(searchableDonations, {
     keys: [
       { name: "orgName", weight: 4 },
@@ -333,19 +356,23 @@ export const donationTextMatchFuzzy = (
       }
       // Date search score (only if word looks like a date)
       let dateScore = 1;
-      const dateRanges = parseStringToDayRanges({
-        input: word,
-        minYear: 2015,
-        maxYear: 2035,
-      });
-      if (dateRanges.length > 0) {
-        dateScore = fuzzyDateSearchFromRanges({
-          searchForRanges: dateRanges,
-          target: new Date(donationObj.original.date),
-          paddingDays: 5,
+      if (minYear !== undefined && maxYear !== undefined) {
+        // this branch should always be taken since there are donations
+        // and they must have a max and min year
+        const dateRanges = parseStringToDayRanges({
+          input: word,
+          minYear: Math.max(MIN_PARSE_YYYY, minYear),
+          maxYear: Math.min(MAX_PARSE_YYYY, maxYear),
         });
+        if (dateRanges.length > 0) {
+          dateScore = fuzzyDateSearchFromRanges({
+            searchForRanges: dateRanges,
+            target: new Date(donationObj.original.date),
+            paddingDays: 5,
+          });
+        }
       }
-      // OR: take the best (lowest) score
+
       const bestScore = Math.min(textScore, amountScore, dateScore);
       scores.push(bestScore);
     }

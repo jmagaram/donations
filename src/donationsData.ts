@@ -2,7 +2,7 @@ import { extractYear, MAX_PARSE_YYYY, MIN_PARSE_YYYY } from "./date";
 import { type AmountFilter } from "./amountFilter";
 import { type Donation, type DonationsData, type Org } from "./types";
 import Fuse, { type IFuseOptions } from "fuse.js";
-import { fuzzyAmountMatch } from "./amount";
+import { fuzzyAmountMatch, parseCurrency } from "./amount";
 import { fuzzyDateSearchFromRanges, parseStringToDayRanges } from "./date";
 
 export function getDonationYearRange(
@@ -333,7 +333,7 @@ const calculateWordScore = (
 
   // Amount search score
   let amountScore = 1;
-  if (isFinite(Number(word))) {
+  if (parseCurrency(word) !== undefined) {
     amountScore = fuzzyAmountMatch({
       searchWithin: String(donationObj.amount),
       searchFor: word,

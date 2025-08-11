@@ -326,11 +326,11 @@ nav a {
 
 .search-animation-overlay {
     position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    border-radius: 8px;
+    top: 2px;
+    left: 2px;
+    right: 2px;
+    bottom: 2px;
+    border-radius: 6px;
     pointer-events: none;
     animation: searchPulse 1.5s ease-in-out infinite;
     z-index: 1;

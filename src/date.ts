@@ -296,19 +296,21 @@ export const looksLikeDate = (input: string): boolean => {
   return digits ? convertDigitsToDatePatterns(digits).length > 0 : false;
 };
 
-// Returns precision score based on date range size. Smaller ranges = higher precision scores for fuzzy matching
+// Returns precision score using Fuse.js scale
+// 0 = perfect match, 1 = worst
+// Smaller date ranges get better scores for fuzzy matching
 export const rangePrecision = (range: DateRange): number => {
   const days = fullDaysInRange(range);
-
-  if (days === 0) return 1.0; // Same day - perfect precision
-  if (days <= 6) return 0.8; // Few days - high precision
-  if (days <= 29) return 0.6; // Week-ish - good precision
-  if (days <= 364) return 0.4; // Month-ish - medium precision
-  return 0.2; // Year+ - low precision
+  if (days <= 1) return 0.0; // perfect match, high precision
+  if (days <= 6) return 0.2;
+  if (days <= 29) return 0.4;
+  if (days <= 45) return 0.6;
+  if (days <= 365) return 0.8;
+  return 1.0;
 };
 
 export const overlapPrecision = (r1: DateRange, r2: DateRange): number => {
-  if (!rangesOverlap(r1, r2)) return 0.0;
+  if (!rangesOverlap(r1, r2)) return 1.0; // No overlap - worst score
   return Math.min(rangePrecision(r1), rangePrecision(r2));
 };
 

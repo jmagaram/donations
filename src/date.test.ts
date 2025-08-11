@@ -1,9 +1,7 @@
 import {
   parseDigits,
   parseInteger,
-  getDateRange,
   rangesOverlap,
-  rangePrecision,
   looksLikeDate,
   convertDigitsToDatePatterns,
   addDays,
@@ -300,17 +298,17 @@ describe("fullDaysInRange", () => {
 
 describe("looksLikeDate", () => {
   const validDatePatterns = [
-    "8/26", // month/day
-    "2025", // year only (2010-2035)
-    "3/2025", // month/year
-    "2025-03-15", // year-month-day
-    "12/25/2025", // month/day/year
-    "2025-3", // year-month
-    "3/24", // month/abbreviated year (10-35 becomes 2010-2035)
-    "03/14", // month/day with leading zero
-    "2024/12/31", // year/month/day
-    "1/1", // single digit month/day
-    "2025-02-30", // function doesn't validate calendar dates, only ranges
+    "8/26",
+    "2025",
+    "3/2025",
+    "2025-03-15",
+    "12/25/2025",
+    "2025-3",
+    "3/24",
+    "03/14",
+    "2024/12/31",
+    "1/1",
+    "2025-02-30",
   ];
 
   const invalidDatePatterns = [
@@ -349,21 +347,11 @@ describe("looksLikeDate", () => {
     },
   ];
 
-  test("recognizes valid date patterns", () => {
-    validDatePatterns.forEach((input) => {
-      expect(looksLikeDate(input)).toBe(true);
-    });
+  test.each(validDatePatterns)("recognizes %s", (input) => {
+    expect(looksLikeDate(input)).toBe(true);
   });
 
-  validDatePatterns.forEach((input) => {
-    test(`recognizes "${input}" as a valid date`, () => {
-      expect(looksLikeDate(input)).toBe(true);
-    });
-  });
-
-  invalidDatePatterns.forEach(({ input, reason }) => {
-    test(`rejects "${input}" (${reason})`, () => {
-      expect(looksLikeDate(input)).toBe(false);
-    });
+  test.each(invalidDatePatterns)("rejects $input $reason", ({ input }) => {
+    expect(looksLikeDate(input)).toBe(false);
   });
 });

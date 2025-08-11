@@ -334,15 +334,13 @@ export const donationTextMatchFuzzy = (
       // Date search score (only if word looks like a date)
       let dateScore = 1;
       if (looksLikeDate(word)) {
-        dateScore =
-          1 -
-          fuzzyDateSearch({
-            searchFor: word,
-            target: new Date(donationObj.original.date),
-            minYear: 2015,
-            maxYear: 2035,
-            toleranceDays: 5,
-          });
+        dateScore = fuzzyDateSearch({
+          searchFor: word,
+          target: new Date(donationObj.original.date),
+          minYear: 2015,
+          maxYear: 2035,
+          toleranceDays: 5,
+        });
       }
       // OR: take the best (lowest) score
       const bestScore = Math.min(textScore, amountScore, dateScore);

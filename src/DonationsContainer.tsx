@@ -14,7 +14,7 @@ import {
   filterAndSortDonations,
   type SearchableDonation,
 } from "./donationsData";
-import Fuse from "fuse.js";
+import Fuse, { type FuseResult } from "fuse.js";
 import { getYearRange, yearFilterSearchParam } from "./yearFilter";
 import { amountFilterSearchParam } from "./amountFilter";
 import { useSearchParam } from "./useSearchParam";
@@ -50,36 +50,36 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
 
   const [yearFilter, setYearFilter] = useSearchParam(
     "year",
-    yearFilterSearchParam
+    yearFilterSearchParam,
   );
   const [searchFilter, setSearchFilter] = useSearchParam(
     "search",
-    searchFilterParam
+    searchFilterParam,
   );
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
-    categoryFilterSearchParam
+    categoryFilterSearchParam,
   );
   const [amountFilter, setAmountFilter] = useSearchParam(
     "amount",
-    amountFilterSearchParam
+    amountFilterSearchParam,
   );
   const [taxFilter, setTaxFilter] = useSearchParam("tax", taxStatusParam);
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
-    paymentKindParam
+    paymentKindParam,
   );
 
   const availableCategories = useMemo(
     () => getAvailableCategories(donationsData),
-    [donationsData]
+    [donationsData],
   );
 
   const { searchableDonations, fuseInstance } = useMemo(() => {
     const orgMap = new Map(donationsData.orgs.map((org) => [org.id, org]));
     const { searchableDonations: searchable } = createSearchableDonations(
       donationsData.donations,
-      orgMap
+      orgMap,
     );
     const fuse = new Fuse(searchable, createFuseConfig());
     return {
@@ -98,7 +98,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     const maxYear = yearRange?.maxYear;
 
     const words = search.trim().split(/\s+/);
-    
+
     // Pre-compute search results for all words to avoid redundant searches
     const wordSearchResults = new Map<
       string,
@@ -107,7 +107,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     words.forEach((word) => {
       wordSearchResults.set(word, fuseInstance.search(word));
     });
-    
+
     const donationScores = searchableDonations
       .filter((searchable: SearchableDonation) =>
         donations.some((d) => d.id === searchable.id),

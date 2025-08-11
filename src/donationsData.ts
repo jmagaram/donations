@@ -6,7 +6,7 @@ import { fuzzyAmountMatch, parseCurrency } from "./amount";
 import { fuzzyDateSearchFromRanges, parseStringToDayRanges } from "./date";
 
 export function getDonationYearRange(
-  donations: Pick<Donation, "date">[]
+  donations: Pick<Donation, "date">[],
 ): { minYear: number; maxYear: number } | undefined {
   if (donations.length === 0) return undefined;
   const years = donations.map((d) => extractYear(d.date));
@@ -25,12 +25,12 @@ export const isEmpty = (data: Readonly<DonationsData>): boolean =>
 
 export const findOrgById = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): Org | undefined => data.orgs.find((org) => org.id === id);
 
 export const findDonationById = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): Donation | undefined =>
   data.donations.find((donation) => donation.id === id);
 
@@ -39,15 +39,15 @@ const orgExistsById = (data: Readonly<DonationsData>, id: string): boolean =>
 
 const donationExistsById = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): boolean => findDonationById(data, id) !== undefined;
 
 const orgExistsByName = (
   data: Readonly<DonationsData>,
-  name: string
+  name: string,
 ): boolean =>
   data.orgs.some(
-    (org) => org.name.toLowerCase().trim() === name.toLowerCase().trim()
+    (org) => org.name.toLowerCase().trim() === name.toLowerCase().trim(),
   );
 
 const replaceItemAtIndex = <T>(array: T[], index: number, item: T): T[] => {
@@ -58,12 +58,12 @@ const replaceItemAtIndex = <T>(array: T[], index: number, item: T): T[] => {
 
 const removeItemById = <T extends { id: string }>(
   array: T[],
-  id: string
+  id: string,
 ): T[] => array.filter((item) => item.id !== id);
 
 export const orgAdd = (
   data: Readonly<DonationsData>,
-  org: Readonly<Org>
+  org: Readonly<Org>,
 ): DonationsData | undefined => {
   const exists = orgExistsById(data, org.id) || orgExistsByName(data, org.name);
   if (exists) {
@@ -77,10 +77,10 @@ export const orgAdd = (
 
 export const orgUpdate = (
   data: Readonly<DonationsData>,
-  org: Readonly<Org>
+  org: Readonly<Org>,
 ): DonationsData | undefined => {
   const orgIndex = data.orgs.findIndex(
-    (existingOrg) => existingOrg.id === org.id
+    (existingOrg) => existingOrg.id === org.id,
   );
   if (orgIndex === -1) {
     return undefined;
@@ -93,11 +93,11 @@ export const orgUpdate = (
 
 export const orgDelete = (
   data: Readonly<DonationsData>,
-  id: string
+  id: string,
 ): DonationsData => {
   const orgExists = orgExistsById(data, id);
   const donationExists = data.donations.some(
-    (donation) => donation.orgId === id
+    (donation) => donation.orgId === id,
   );
   if (!orgExists && !donationExists) {
     return data;
@@ -111,7 +111,7 @@ export const orgDelete = (
 
 export const donationAdd = (
   data: Readonly<DonationsData>,
-  donation: Readonly<Donation>
+  donation: Readonly<Donation>,
 ): DonationsData | undefined => {
   const orgExists = orgExistsById(data, donation.orgId);
   const donationExists = donationExistsById(data, donation.id);
@@ -126,7 +126,7 @@ export const donationAdd = (
 
 export const donationUpdate = (
   data: Readonly<DonationsData>,
-  donation: Readonly<Donation>
+  donation: Readonly<Donation>,
 ): DonationsData | undefined => {
   const donationIndex = data.donations.findIndex((d) => d.id === donation.id);
   if (donationIndex === -1) return undefined;
@@ -140,7 +140,7 @@ export const donationUpdate = (
 
 export const donationDelete = (
   data: Readonly<DonationsData>,
-  donationId: string
+  donationId: string,
 ): DonationsData => {
   const donationExists = donationExistsById(data, donationId);
   if (!donationExists) {
@@ -153,25 +153,25 @@ export const donationDelete = (
 };
 
 export const getUniqueDonationYears = (
-  data: Readonly<DonationsData>
+  data: Readonly<DonationsData>,
 ): Set<number> => new Set(data.donations.map((d) => extractYear(d.date)));
 
 export const getUniqueOrgCategories = (
-  data: Readonly<DonationsData>
+  data: Readonly<DonationsData>,
 ): Set<string> =>
   new Set(
     data.orgs
       .map((org) => org.category)
       .filter(
         (category): category is string =>
-          category !== undefined && category.trim() !== ""
-      )
+          category !== undefined && category.trim() !== "",
+      ),
   );
 
 export const matchesYearFilter = (
   donation: Donation,
   yearFrom: number,
-  yearTo: number
+  yearTo: number,
 ): boolean => {
   const year = extractYear(donation.date);
   return year >= yearFrom && year <= yearTo;
@@ -179,7 +179,7 @@ export const matchesYearFilter = (
 
 export const matchesAmountFilter = (
   donation: Donation,
-  amountFilter: AmountFilter
+  amountFilter: AmountFilter,
 ): boolean => {
   const amt = donation.amount;
   switch (amountFilter.kind) {
@@ -196,7 +196,7 @@ export const matchesAmountFilter = (
 
 export const getOrgName = (
   data: Readonly<DonationsData>,
-  orgId: string
+  orgId: string,
 ): string => {
   const org = data.orgs.find((o) => o.id === orgId);
   return org?.name || "Unknown organization";
@@ -205,7 +205,7 @@ export const getOrgName = (
 export const donationTextMatch = (
   filter: string,
   donation: Donation,
-  org: { name: string; notes: string }
+  org: { name: string; notes: string },
 ): boolean => {
   const getWords = (text: string): string[] =>
     text.toLowerCase().split(/[ ,]+/);
@@ -250,19 +250,19 @@ export const createOrgFuseConfig = (): IFuseOptions<SearchableOrg> => ({
 });
 
 export const performOrgSearch = (
-  orgs: Org[], 
-  _searchableOrgs: SearchableOrg[], 
-  fuseInstance: Fuse<SearchableOrg>, 
-  search: string
+  orgs: Org[],
+  _searchableOrgs: SearchableOrg[],
+  fuseInstance: Fuse<SearchableOrg>,
+  search: string,
 ): Org[] => {
   if (!search || search.trim() === "" || orgs.length === 0) {
     return orgs;
   }
-  
+
   const words = search.trim().split(/\s+/);
   const resultsPerWord = words.map((word) => fuseInstance.search(word));
   const orgScoreMap = new Map<string, { org: Org; scores: number[] }>();
-  
+
   resultsPerWord.forEach((results, wordIdx) => {
     results.forEach((res) => {
       const key = res.item.original.id;
@@ -275,9 +275,9 @@ export const performOrgSearch = (
       orgScoreMap.get(key)!.scores[wordIdx] = res.score ?? 1;
     });
   });
-  
+
   // Only include orgs that match all words and are in the filtered list
-  const orgIds = new Set(orgs.map(o => o.id));
+  const orgIds = new Set(orgs.map((o) => o.id));
   const matchingOrgs = Array.from(orgScoreMap.values())
     .filter((entry) => entry.scores.every((score) => score !== undefined))
     .filter((entry) => orgIds.has(entry.org.id))
@@ -314,7 +314,7 @@ interface DonationSearchResult {
 
 export const createSearchableDonations = (
   donations: Donation[],
-  orgMap: Map<string, Org>
+  orgMap: Map<string, Org>,
 ): {
   searchableDonations: SearchableDonation[];
   minYear: number | undefined;
@@ -344,7 +344,7 @@ export const createSearchableDonations = (
       searchableDonations: [] as SearchableDonation[],
       minYear: undefined as number | undefined,
       maxYear: undefined as number | undefined,
-    }
+    },
   );
 };
 
@@ -420,7 +420,7 @@ export const scoreDonationAgainstWords = (
   fuse: Fuse<SearchableDonation>,
   minYear: number | undefined,
   maxYear: number | undefined,
-  wordSearchResults?: Map<string, Fuse.FuseResult<SearchableDonation>[]>,
+  wordSearchResults?: Map<string, FuseResult<SearchableDonation>[]>,
 ): { donation: Donation; scores: number[] } => {
   const scores = words.map((word) =>
     calculateWordScore(
@@ -439,7 +439,7 @@ export const scoreDonationAgainstWords = (
 };
 
 export const filterAndSortDonations = (
-  donationScores: Array<{ donation: Donation; scores: number[] }>
+  donationScores: Array<{ donation: Donation; scores: number[] }>,
 ): Donation[] => {
   const matchingDonations: DonationSearchResult[] = donationScores
     .filter((entry) => entry.scores.every((score) => score < 1))
@@ -454,7 +454,7 @@ export const filterAndSortDonations = (
 export const donationTextMatchFuzzy = (
   donations: Donation[],
   orgs: Org[],
-  search: string
+  search: string,
 ): Donation[] => {
   if (!search || search.trim() === "" || donations.length === 0) {
     return donations;
@@ -462,16 +462,13 @@ export const donationTextMatchFuzzy = (
   const orgMap = new Map(orgs.map((org) => [org.id, org]));
   const { searchableDonations, minYear, maxYear } = createSearchableDonations(
     donations,
-    orgMap
+    orgMap,
   );
   const fuse = new Fuse(searchableDonations, createFuseConfig());
   const words = search.trim().split(/\s+/);
 
   // Pre-compute search results for all words to avoid redundant searches
-  const wordSearchResults = new Map<
-    string,
-    Fuse.FuseResult<SearchableDonation>[]
-  >();
+  const wordSearchResults = new Map<string, FuseResult<SearchableDonation>[]>();
   words.forEach((word) => {
     wordSearchResults.set(word, fuse.search(word));
   });

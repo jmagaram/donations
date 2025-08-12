@@ -294,12 +294,13 @@ nav a {
 
 .donations-grid > .row > div {
     border-bottom: 1px solid #eee;
-    display: flex;
+    /*display: flex;
     flex-direction: row;
-    align-items: center;
+    align-items: center;*/
 }
 
 .donations-grid > .row > .amount {
+    display: flex;
     justify-content: flex-end;
 }
 

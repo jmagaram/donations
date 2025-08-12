@@ -72,6 +72,9 @@ const OrgUpsertForm = ({
             id="category"
             type="text"
             list="categories"
+            spellCheck={false}
+            autoComplete="off"
+            autoCorrect="off"
             onKeyDown={(e) => {
               if (e.altKey && e.key === "ArrowDown") {
                 e.preventDefault();

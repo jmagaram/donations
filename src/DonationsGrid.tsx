@@ -14,7 +14,11 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
         <div>Date</div>
         <div className="amount">Amount</div>
         {showOrgName && <div>Organization</div>}
-        <div className="medium-screen">Kind</div>
+        {showOrgName ? (
+          <div className="medium-screen">Kind</div>
+        ) : (
+          <div>Kind</div>
+        )}
         <div className="large-screen">Paid by</div>
         <div className="large-screen">Notes</div>
       </div>
@@ -30,7 +34,9 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
               <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
             </div>
           )}
-          <div className="kind medium-screen">{donation.kind}</div>
+          <div className={`kind${showOrgName ? " medium-screen" : ""}`}>
+            {donation.kind}
+          </div>
           <div className="payment-method large-screen">
             {donation.paymentMethod || ""}
           </div>

@@ -3,10 +3,10 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { 
-  createSearchableOrgs, 
-  createOrgFuseConfig, 
-  performOrgSearch 
+import {
+  createSearchableOrgs,
+  createOrgFuseConfig,
+  performOrgSearch,
 } from "./donationsData";
 import Fuse from "fuse.js";
 import StatusBox from "./StatusBox";
@@ -112,7 +112,12 @@ const DonationUpsertForm = ({
     if (!donationsData?.orgs || !orgFuseInstance) return [];
 
     const orgsToUse = orgSearchInput.trim()
-      ? performOrgSearch(donationsData.orgs, searchableOrgs, orgFuseInstance, orgSearchInput)
+      ? performOrgSearch(
+          donationsData.orgs,
+          searchableOrgs,
+          orgFuseInstance,
+          orgSearchInput,
+        )
       : donationsData.orgs;
 
     return orgsToUse
@@ -129,7 +134,7 @@ const DonationUpsertForm = ({
         },
       }))
       .sort((a, b) =>
-        orgSearchInput.trim() ? 0 : a.label.localeCompare(b.label)
+        orgSearchInput.trim() ? 0 : a.label.localeCompare(b.label),
       );
   }, [donationsData?.orgs, orgSearchInput, searchableOrgs, orgFuseInstance]);
 
@@ -153,8 +158,8 @@ const DonationUpsertForm = ({
       new Set(
         donationsData.donations
           .map((donation) => donation.paymentMethod)
-          .filter((pm): pm is string => pm !== undefined && pm.trim() !== "")
-      )
+          .filter((pm): pm is string => pm !== undefined && pm.trim() !== ""),
+      ),
     ).sort((a, b) => a.localeCompare(b)); // Sort alphabetically
 
     return uniquePaymentMethods.map((pm) => ({
@@ -168,7 +173,7 @@ const DonationUpsertForm = ({
     if (!currentPaymentMethod) return null;
 
     const existingOption = paymentMethodOptions.find(
-      (option) => option.value === currentPaymentMethod
+      (option) => option.value === currentPaymentMethod,
     );
 
     if (existingOption) {
@@ -187,7 +192,7 @@ const DonationUpsertForm = ({
 
   const filterPaymentMethodOption = (
     option: { data: PaymentMethodOption },
-    inputValue: string
+    inputValue: string,
   ) => {
     if (!inputValue.trim()) return true;
     return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
@@ -195,7 +200,7 @@ const DonationUpsertForm = ({
 
   const filterKindOption = (
     option: { data: KindOption },
-    inputValue: string
+    inputValue: string,
   ) => {
     if (!inputValue.trim()) return true;
     return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
@@ -262,7 +267,9 @@ const DonationUpsertForm = ({
               />
             )}
           />
-          {errors.orgId && <span className="form-error">{errors.orgId.message}</span>}
+          {errors.orgId && (
+            <span className="form-error">{errors.orgId.message}</span>
+          )}
         </div>
         <div className="form-field">
           <label htmlFor="date">Date</label>
@@ -277,7 +284,9 @@ const DonationUpsertForm = ({
               dateInputRef.current = e;
             }}
           />
-          {errors.date && <span className="form-error">{errors.date.message}</span>}
+          {errors.date && (
+            <span className="form-error">{errors.date.message}</span>
+          )}
         </div>
         <div className="form-field">
           <label htmlFor="amount">Amount</label>
@@ -295,7 +304,9 @@ const DonationUpsertForm = ({
             }}
             {...register("amount", { valueAsNumber: true })}
           />
-          {errors.amount && <span className="form-error">{errors.amount.message}</span>}
+          {errors.amount && (
+            <span className="form-error">{errors.amount.message}</span>
+          )}
         </div>
         <div className="form-field">
           <label htmlFor="kind">Type</label>
@@ -321,7 +332,9 @@ const DonationUpsertForm = ({
               />
             )}
           />
-          {errors.kind && <span className="form-error">{errors.kind.message}</span>}
+          {errors.kind && (
+            <span className="form-error">{errors.kind.message}</span>
+          )}
         </div>
         <div className="form-field">
           <label htmlFor="paymentMethod">Payment method</label>
@@ -336,7 +349,7 @@ const DonationUpsertForm = ({
                 options={paymentMethodOptions}
                 value={selectedPaymentMethodOption}
                 onChange={(
-                  selectedOption: SingleValue<PaymentMethodOption>
+                  selectedOption: SingleValue<PaymentMethodOption>,
                 ) => {
                   field.onChange(selectedOption?.value || "");
                 }}
@@ -355,7 +368,9 @@ const DonationUpsertForm = ({
               />
             )}
           />
-          {errors.paymentMethod && <span className="form-error">{errors.paymentMethod.message}</span>}
+          {errors.paymentMethod && (
+            <span className="form-error">{errors.paymentMethod.message}</span>
+          )}
         </div>
         <div className="form-field">
           <label htmlFor="notes">Notes</label>
@@ -372,7 +387,7 @@ const DonationUpsertForm = ({
               onClick={() => {
                 if (
                   window.confirm(
-                    "Are you sure you want to delete this donation?"
+                    "Are you sure you want to delete this donation?",
                   )
                 ) {
                   onDelete();

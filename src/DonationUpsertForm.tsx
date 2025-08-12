@@ -262,7 +262,7 @@ const DonationUpsertForm = ({
               />
             )}
           />
-          {errors.orgId && <span>{errors.orgId.message}</span>}
+          {errors.orgId && <span className="form-error">{errors.orgId.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="date">Date</label>
@@ -277,7 +277,7 @@ const DonationUpsertForm = ({
               dateInputRef.current = e;
             }}
           />
-          {errors.date && <span>{errors.date.message}</span>}
+          {errors.date && <span className="form-error">{errors.date.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="amount">Amount</label>
@@ -295,7 +295,7 @@ const DonationUpsertForm = ({
             }}
             {...register("amount", { valueAsNumber: true })}
           />
-          {errors.amount && <span>{errors.amount.message}</span>}
+          {errors.amount && <span className="form-error">{errors.amount.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="kind">Type</label>
@@ -321,7 +321,7 @@ const DonationUpsertForm = ({
               />
             )}
           />
-          {errors.kind && <span>{errors.kind.message}</span>}
+          {errors.kind && <span className="form-error">{errors.kind.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="paymentMethod">Payment method</label>
@@ -355,7 +355,7 @@ const DonationUpsertForm = ({
               />
             )}
           />
-          {errors.paymentMethod && <span>{errors.paymentMethod.message}</span>}
+          {errors.paymentMethod && <span className="form-error">{errors.paymentMethod.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="notes">Notes</label>

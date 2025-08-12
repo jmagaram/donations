@@ -64,7 +64,7 @@ const OrgUpsertForm = ({
         <div className="form-field">
           <label htmlFor="name">Name</label>
           <input id="name" type="text" {...register("name")} />
-          {errors.name && <span>{errors.name.message}</span>}
+          {errors.name && <span className="form-error">{errors.name.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="category">Category</label>
@@ -119,7 +119,7 @@ const OrgUpsertForm = ({
             spellCheck={false}
             onBlur={handleWebSiteBlur}
           />
-          {errors.webSite && <span>{errors.webSite.message}</span>}
+          {errors.webSite && <span className="form-error">{errors.webSite.message}</span>}
         </div>
         <div className="form-field">
           <label htmlFor="notes">Notes</label>

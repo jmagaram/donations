@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseCurrency } from "./amount";
+import { parseCurrency, formatUSD } from "./amount";
 
 describe("parseCurrency", () => {
   test.each([
@@ -33,4 +33,34 @@ describe("parseCurrency", () => {
   ])("invalid currency '%s' (%s)", (input) => {
     expect(parseCurrency(input)).toBeUndefined();
   });
+});
+
+describe("formatUSD", () => {
+  test.each`
+    amount     | pennies          | expected
+    ${1.5}     | ${"hidePennies"} | ${"$2"}
+    ${1.4}     | ${"hidePennies"} | ${"$1"}
+    ${1.6}     | ${"hidePennies"} | ${"$2"}
+    ${123}     | ${"showPennies"} | ${"$123.00"}
+    ${123}     | ${"hidePennies"} | ${"$123"}
+    ${123}     | ${undefined}     | ${"$123.00"}
+    ${123.45}  | ${"showPennies"} | ${"$123.45"}
+    ${123.45}  | ${"hidePennies"} | ${"$123"}
+    ${0}       | ${"showPennies"} | ${"$0.00"}
+    ${0}       | ${"hidePennies"} | ${"$0"}
+    ${-123.45} | ${"showPennies"} | ${"-$123.45"}
+    ${-123.45} | ${"hidePennies"} | ${"-$123"}
+    ${1234.56} | ${"showPennies"} | ${"$1,234.56"}
+    ${1234.56} | ${"hidePennies"} | ${"$1,235"}
+    ${1000000} | ${"showPennies"} | ${"$1,000,000.00"}
+    ${1000000} | ${"hidePennies"} | ${"$1,000,000"}
+    ${0.01}    | ${"showPennies"} | ${"$0.01"}
+    ${0.01}    | ${"hidePennies"} | ${"$0"}
+    ${999.99}  | ${"hidePennies"} | ${"$1,000"}
+  `(
+    "formats $amount with pennies=$pennies to $expected",
+    ({ amount, pennies, expected }) => {
+      expect(formatUSD(amount, pennies)).toBe(expected);
+    },
+  );
 });

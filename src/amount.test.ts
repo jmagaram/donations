@@ -3,8 +3,13 @@ import { parseCurrency, formatUSD } from "./amount";
 
 describe("parseCurrency", () => {
   test.each([
+    ["1", 1],
+    ["12", 12],
     ["123", 123],
+    ["1234", 1234],
     ["$123", 123],
+    ["1.5", 1.5],
+    ["1.57", 1.57],
     ["1,234", 1234],
     ["$1,234.56", 1234.56],
     ["-123", -123],
@@ -23,6 +28,7 @@ describe("parseCurrency", () => {
     ["$abc", "Currency symbol with non-numeric text"],
     ["", "Empty string"],
     ["$", "Currency symbol only"],
+    ["12.", "Not enough decimal places"],
     ["12.34.56", "Multiple decimal points"],
     ["12,34.56", "Invalid comma placement"],
     ["$12€34", "Multiple currency symbols"],

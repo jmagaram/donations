@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { type DonationDisplay } from "./DonationsView";
 import KindBadge from "./KindBadge";
+import { getCurrentDateIso, compareDatesDesc } from "./date";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -8,6 +9,10 @@ interface DonationsGridProps {
 }
 
 const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
+  const isFutureDonation = (donationDate: string): boolean => {
+    return compareDatesDesc(donationDate, getCurrentDateIso()) < 0;
+  };
+
   return (
     <div className={`donations-grid${showOrgName ? "" : " hide-org-name"}`}>
       <div className="header">
@@ -23,7 +28,7 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
         <div className="large-screen">Notes</div>
       </div>
       {donations.map((donation) => (
-        <div key={donation.id} className="row">
+        <div key={donation.id} className={`row${isFutureDonation(donation.date) ? " future" : ""}`}>
           <div>{donation.date}</div>
           <div className="amount">
             <KindBadge kind={donation.kind} />

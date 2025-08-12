@@ -688,3 +688,7 @@ dl {
     margin-top: 0.25rem;
     display: block;
 }
+
+.donations-grid > .row.future > div {
+    opacity: 0.5;
+}

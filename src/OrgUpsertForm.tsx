@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OrgUpsertFieldsSchema, defaultFields } from "./organization";
 import type { OrgUpsertFields } from "./organization";
+import { OrgWebSiteSchema } from "./types";
 
 interface OrgUpsertFormProps {
   onSubmit: (formData: OrgUpsertFields) => void;
@@ -25,6 +26,8 @@ const OrgUpsertForm = ({
     handleSubmit,
     formState: { errors, isDirty },
     reset,
+    setValue,
+    getValues,
   } = useForm<OrgUpsertFields>({
     resolver: zodResolver(OrgUpsertFieldsSchema),
     defaultValues,
@@ -42,6 +45,16 @@ const OrgUpsertForm = ({
       return;
     }
     onSubmit(data);
+  };
+
+  const handleWebSiteBlur = () => {
+    const currentValue = getValues("webSite");
+    if (!currentValue) return;
+
+    const result = OrgWebSiteSchema.safeParse(currentValue);
+    if (result.success && result.data !== currentValue) {
+      setValue("webSite", result.data, { shouldDirty: true });
+    }
   };
 
   return (
@@ -93,7 +106,12 @@ const OrgUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="webSite">Website</label>
-          <input id="webSite" type="text" {...register("webSite")} />
+          <input 
+            id="webSite" 
+            type="text" 
+            {...register("webSite")} 
+            onBlur={handleWebSiteBlur}
+          />
           {errors.webSite && <span>{errors.webSite.message}</span>}
         </div>
         <div className="form-field">

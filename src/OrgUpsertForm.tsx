@@ -106,10 +106,14 @@ const OrgUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="webSite">Website</label>
-          <input 
-            id="webSite" 
-            type="text" 
-            {...register("webSite")} 
+          <input
+            id="webSite"
+            type="text"
+            {...register("webSite")}
+            autoCapitalize="off"
+            autoCorrect="off"
+            autoComplete="off"
+            spellCheck={false}
             onBlur={handleWebSiteBlur}
           />
           {errors.webSite && <span>{errors.webSite.message}</span>}

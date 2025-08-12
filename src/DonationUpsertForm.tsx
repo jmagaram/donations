@@ -15,6 +15,7 @@ import type { DonationUpsertFields } from "./donation";
 import type { DonationsData } from "./donationsData";
 import { findOrgById } from "./donationsData";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import { parseCurrency } from "./amount";
 
 type KindOption = {
   value: string;
@@ -206,6 +207,17 @@ const DonationUpsertForm = ({
     return option.data.label.toLowerCase().includes(inputValue.toLowerCase());
   };
 
+  const handleAmountBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    const currentValue = event.target.value;
+    const parsedAmount = parseCurrency(currentValue);
+    if (parsedAmount !== undefined) {
+      console.log(`Updated: ${parsedAmount}`);
+      const formattedValue = parsedAmount.toFixed(2);
+      setValue("amount", parsedAmount, { shouldDirty: true });
+      event.target.value = formattedValue;
+    }
+  };
+
   const handleFormSubmit = (data: DonationUpsertFields) => {
     if (mode === "edit" && !isDirty) {
       navigate(-1);
@@ -302,7 +314,10 @@ const DonationUpsertForm = ({
                 });
               }
             }}
-            {...register("amount", { valueAsNumber: true })}
+            {...register("amount", {
+              valueAsNumber: true,
+              onBlur: handleAmountBlur,
+            })}
           />
           {errors.amount && (
             <span className="form-error">{errors.amount.message}</span>

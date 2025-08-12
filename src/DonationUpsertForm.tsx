@@ -292,8 +292,8 @@ const DonationUpsertForm = ({
           <label htmlFor="amount">Amount</label>
           <input
             id="amount"
-            type="number"
-            step="0.01"
+            type="text"
+            inputMode="decimal"
             onFocus={() => {
               const currentAmount = watch("amount");
               if (currentAmount === 0) {

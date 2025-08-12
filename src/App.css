@@ -297,6 +297,13 @@ nav a {
 }
 
 .donations-grid > .row > .amount {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.donations-grid .header .amount {
     text-align: right;
 }
 
@@ -306,6 +313,34 @@ nav a {
 
 .donations-grid > .row > .notes {
     white-space: pre-line;
+}
+
+.kind-badge {
+    display: inline-block;
+    margin-right: 3px;
+    cursor: default;
+    font-size: 0.7em;
+}
+
+.kind-badge-paid {
+    color: black;
+    opacity: 0.2;
+    display: none;
+}
+
+.kind-badge-pledge {
+    color: #6366f1;
+    font-size: inherit;
+}
+
+.kind-badge-idea {
+    color: #059669;
+}
+
+.kind-badge-unknown {
+    color: #d97706;
+    font-size: inherit;
+    /*color: #6c757d;*/
 }
 
 .orgs-grid {
@@ -444,7 +479,6 @@ nav a {
 .total-column {
     justify-self: end;
 }
-
 
 .totals-by-year-header {
     font-weight: bold;

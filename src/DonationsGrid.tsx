@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { type DonationDisplay } from "./DonationsView";
+import KindBadge from "./KindBadge";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -11,7 +12,7 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
     <div className={`donations-grid${showOrgName ? "" : " hide-org-name"}`}>
       <div className="header">
         <div>Date</div>
-        <div>Amount</div>
+        <div className="amount">Amount</div>
         {showOrgName && <div>Organization</div>}
         <div className="medium-screen">Kind</div>
         <div className="large-screen">Paid by</div>
@@ -21,6 +22,7 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
         <div key={donation.id} className="row">
           <div>{donation.date}</div>
           <div className="amount">
+            <KindBadge kind={donation.kind} />
             <Link to={`/donations/${donation.id}`}>{donation.amount}</Link>
           </div>
           {showOrgName && (

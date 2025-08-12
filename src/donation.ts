@@ -8,6 +8,8 @@ export const DonationKindSchema = z.enum(["idea", "pledge", "paid", "unknown"]);
 export const DonationNotesSchema = z.string();
 export const DonationPaymentMethodSchema = z.string().optional();
 
+export type DonationKind = z.infer<typeof DonationKindSchema>;
+
 export const DonationSchema = z.object({
   id: IdSchema,
   orgId: OrgIdSchema,

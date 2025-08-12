@@ -13,6 +13,7 @@ import { type SearchFilter } from "./searchFilter";
 import SearchFilterBox from "./SearchFilterBox";
 import DonationsGrid from "./DonationsGrid";
 import StatusBox from "./StatusBox";
+import type { DonationKind } from "./donation";
 
 export interface DonationDisplay {
   id: string;
@@ -20,7 +21,7 @@ export interface DonationDisplay {
   amount: string;
   orgId: string;
   orgName: string;
-  kind: string;
+  kind: DonationKind;
   notes: string;
   paymentMethod?: string;
 }

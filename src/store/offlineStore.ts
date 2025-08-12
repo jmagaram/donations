@@ -16,7 +16,7 @@ export type SyncError =
   | "other";
 
 export type SyncStatus =
-  | { kind: "idle"; requiresSync: boolean }
+  | { kind: "idle"; requiresSync: boolean; lastSuccessfulPull?: Date }
   | { kind: "syncing" }
   | { kind: "error"; error: SyncError };
 
@@ -48,6 +48,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   private syncStatus: SyncStatus;
   private callbacks: ((state: StorageState<T>) => void)[] = [];
   private currentEtag: string | undefined;
+  private readonly LAST_PULL_STORAGE_KEY = "donations-last-pull";
 
   constructor(params: {
     remote: RemoteStore<T>;
@@ -56,7 +57,11 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   }) {
     this.remote = params.remote;
     this.isEmpty = params.isEmpty || ((data) => data === params.emptyData);
-    this.syncStatus = { kind: "idle", requiresSync: true };
+    this.syncStatus = {
+      kind: "idle",
+      requiresSync: true,
+      lastSuccessfulPull: this.loadLastPull(),
+    };
     this.cachedData = { kind: "new", data: params.emptyData };
   }
 
@@ -68,7 +73,11 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
           : this.cachedData.kind,
       data,
     };
-    this.syncStatus = { kind: "idle", requiresSync: true };
+    this.syncStatus = {
+      kind: "idle",
+      requiresSync: true,
+      lastSuccessfulPull: this.loadLastPull(),
+    };
     this.notifyCallbacks();
     this.syncOnSave();
   }
@@ -104,7 +113,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   }
 
   async sync(
-    option: "pull" | "push" | "pushForce"
+    option: "pull" | "push" | "pushForce",
   ): Promise<Result<void, SyncError>> {
     if (this.syncStatus.kind === "syncing") {
       return { kind: "success", value: undefined };
@@ -146,7 +155,12 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
         // Server has data - update with server state
         this.currentEtag = result.value.etag;
         this.cachedData = { kind: "unchanged", data: result.value.data };
-        this.syncStatus = { kind: "idle", requiresSync: false };
+        this.saveLastPull(new Date());
+        this.syncStatus = {
+          kind: "idle",
+          requiresSync: false,
+          lastSuccessfulPull: this.loadLastPull(),
+        };
       } else {
         // Server has no data - clear etag and mark local data as "new"
         this.currentEtag = undefined;
@@ -154,7 +168,11 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
 
         // Only require sync if we have non-empty data to push
         const needsSync = !this.isEmpty(this.cachedData.data);
-        this.syncStatus = { kind: "idle", requiresSync: needsSync };
+        this.syncStatus = {
+          kind: "idle",
+          requiresSync: needsSync,
+          lastSuccessfulPull: this.loadLastPull(),
+        };
       }
 
       this.notifyCallbacks();
@@ -185,7 +203,7 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
   private async pushToRemote(): Promise<Result<Versioned<T>, SyncError>> {
     const saveResult = await this.remote.save(
       this.cachedData.data,
-      this.currentEtag
+      this.currentEtag,
     );
     if (saveResult.kind === "error") {
       return {
@@ -261,6 +279,26 @@ export class OfflineStoreImpl<T> implements OfflineStore<T> {
         return "unauthorized";
       case "server-error":
         return "server-error";
+    }
+  }
+
+  private loadLastPull(): Date | undefined {
+    try {
+      const stored = sessionStorage.getItem(this.LAST_PULL_STORAGE_KEY);
+      return stored ? new Date(stored) : undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  private saveLastPull(timestamp: Date): void {
+    try {
+      sessionStorage.setItem(
+        this.LAST_PULL_STORAGE_KEY,
+        timestamp.toISOString(),
+      );
+    } catch {
+      // Ignore storage errors
     }
   }
 }

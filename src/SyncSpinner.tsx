@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   type SyncStatus as SyncStatusType,
   type SyncError,
@@ -7,13 +8,34 @@ import { type Result } from "./result";
 interface SyncSpinnerProps {
   status: SyncStatusType;
   sync: (
-    option: "pull" | "push" | "pushForce"
+    option: "pull" | "push" | "pushForce",
   ) => Promise<Result<void, SyncError>>;
+  stalenessMinutes?: number;
 }
 
-const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
+const SyncSpinner = ({
+  status,
+  sync,
+  stalenessMinutes = 30,
+}: SyncSpinnerProps) => {
+  const [currentTime, setCurrentTime] = useState(Date.now());
+
+  useEffect(() => {
+    const CHECK_STALENESS_MS = 60000;
+    const interval = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, CHECK_STALENESS_MS);
+    return () => clearInterval(interval);
+  }, []);
+
+  const isDataStale = (lastPull: Date | undefined): boolean => {
+    if (!lastPull) return false;
+    const minutesElapsed = (currentTime - lastPull.getTime()) / (1000 * 60);
+    return minutesElapsed >= stalenessMinutes;
+  };
+
   const getStatusInfo = (
-    status: SyncStatusType
+    status: SyncStatusType,
   ): { text: string; iconClass: string } => {
     switch (status.kind) {
       case "syncing":
@@ -21,12 +43,15 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
           text: "Sync...",
           iconClass: "sync-spinning sync-black",
         };
-      case "idle":
-        if (status.requiresSync) {
+      case "idle": {
+        const needsSync =
+          status.requiresSync || isDataStale(status.lastSuccessfulPull);
+        if (needsSync) {
           return { text: "Needs sync", iconClass: "sync-red" };
         } else {
           return { text: "Saved", iconClass: "sync-complete sync-green" };
         }
+      }
       case "error":
         return { text: "Sync error", iconClass: "sync-error sync-red" };
     }
@@ -34,6 +59,20 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
 
   const isDisabled = status.kind === "syncing";
   const statusInfo = getStatusInfo(status);
+
+  const getButtonClassName = (): string => {
+    const baseClass = "sync-status-button";
+    const stateClass = status.kind;
+
+    if (status.kind === "idle") {
+      const needsSync =
+        status.requiresSync || isDataStale(status.lastSuccessfulPull);
+      const subStateClass = needsSync ? "needs-sync" : "saved";
+      return `${baseClass} ${stateClass} ${subStateClass}`;
+    }
+
+    return `${baseClass} ${stateClass}`;
+  };
 
   const handleClick = () => {
     if (!isDisabled) {
@@ -45,7 +84,7 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
 
   return (
     <button
-      className="sync-status-button"
+      className={getButtonClassName()}
       onClick={handleClick}
       disabled={isDisabled}
     >
@@ -57,11 +96,11 @@ const SyncSpinner = ({ status, sync }: SyncSpinnerProps) => {
         fill="none"
       >
         {statusInfo.iconClass.includes("sync-complete") ? (
-          <path 
-            d={checkmarkPath} 
-            stroke="currentColor" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
+          <path
+            d={checkmarkPath}
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
             fill="none"
           />
         ) : (

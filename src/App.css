@@ -1,3 +1,13 @@
+:root {
+    --red-shadow: hsl(12, 100%, 60%);
+}
+
+@keyframes glow {
+    50% {
+        box-shadow: 0 0 40px var(--red-shadow);
+    }
+}
+
 @supports (-webkit-touch-callout: none) {
     .hide-on-ios-safari {
         display: none;
@@ -691,4 +701,9 @@ dl {
 
 .donations-grid > .row.future > div {
     opacity: 0.5;
+}
+
+.sync-status-button.idle.needs-sync {
+    animation: glow 1000ms ease-in-out infinite alternate;
+    outline: 1px solid #8b0000;
 }

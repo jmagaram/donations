@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { formatUSD } from "./amount";
-import type { Donation, Org } from "./types";
+import type { Donation } from "./donation";
+import type { Org } from "./organization";
 
 interface DonationDetailsViewProps {
   donation: Donation;

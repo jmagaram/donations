@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { type Org } from "./types";
+import { type Org } from "./organization";
 
 interface OrgGridProps {
   orgs: Org[];

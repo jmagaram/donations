@@ -17,7 +17,7 @@ import SyncStatusBox from "./SyncStatusBox";
 import Admin from "./Admin";
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
-import { type DonationsData, DonationsDataSchema } from "./types";
+import { type DonationsData, DonationsDataSchema } from "./donationsData";
 import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
 import { BrowserStore } from "./store/browserStore";
 import { WebApiStore } from "./store/webApi";
@@ -27,7 +27,7 @@ import StatusBox from "./StatusBox";
 import { sampleData } from "./sampleData";
 
 const createStore = (
-  kind: "browser" | "webApi"
+  kind: "browser" | "webApi",
 ): RemoteStore<DonationsData> => {
   switch (kind) {
     case "browser": {
@@ -90,7 +90,7 @@ const AppContent = () => {
     (option: "pull" | "push" | "pushForce") => {
       return offlineStore.sync(option);
     },
-    [offlineStore]
+    [offlineStore],
   );
 
   const donationsData = storageState.data.data;

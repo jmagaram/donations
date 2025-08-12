@@ -1,9 +1,18 @@
+import { z } from "zod";
 import { extractYear, MAX_PARSE_YYYY, MIN_PARSE_YYYY } from "./date";
 import { type AmountFilter } from "./amountFilter";
-import { type Donation, type DonationsData, type Org } from "./types";
+import { OrgSchema, type Org } from "./organization";
+import { DonationSchema, type Donation } from "./donation";
 import Fuse, { type FuseResult, type IFuseOptions } from "fuse.js";
 import { fuzzyAmountMatch, parseCurrency } from "./amount";
 import { fuzzyDateSearchFromRanges, parseStringToDayRanges } from "./date";
+
+export const DonationsDataSchema = z.object({
+  orgs: z.array(OrgSchema),
+  donations: z.array(DonationSchema),
+});
+
+export type DonationsData = z.infer<typeof DonationsDataSchema>;
 
 export function getDonationYearRange(
   donations: Pick<Donation, "date">[],

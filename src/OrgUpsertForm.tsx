@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { OrgUpsertFieldsSchema, defaultFields } from "./organization";
 import type { OrgUpsertFields } from "./organization";
-import { OrgWebSiteSchema } from "./types";
+import { OrgWebSiteSchema } from "./organization";
 
 interface OrgUpsertFormProps {
   onSubmit: (formData: OrgUpsertFields) => void;

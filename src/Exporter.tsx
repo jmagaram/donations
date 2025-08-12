@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Papa from "papaparse";
 import StatusBox, { type StatusBoxProps } from "./StatusBox";
-import { type DonationsData } from "./types";
+import { type DonationsData } from "./donationsData";
 
 interface ExporterProps {
   donationsData: DonationsData;

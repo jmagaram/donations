@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { type Org } from "./types";
+import { type Org } from "./organization";
 import StatusBox from "./StatusBox";
 import SearchFilterBox from "./SearchFilterBox";
 import CategoryPicker from "./CategoryPicker";

@@ -1,6 +1,6 @@
 import { type OfflineStore } from "./store/offlineStore";
 import { tryCreateSampleData } from "./sampleData";
-import { type DonationsData } from "./types";
+import { type DonationsData } from "./donationsData";
 import { empty } from "./donationsData";
 
 interface AdminProps {

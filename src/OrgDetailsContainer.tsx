@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import OrgDetailsView from "./OrgDetailsView";
 import { orgDelete } from "./donationsData";
-import type { DonationsData, Org } from "./types";
+import type { DonationsData } from "./donationsData";
+import type { Org } from "./organization";
 import StatusBox from "./StatusBox";
 
 interface OrgDetailsContainerProps {

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import DonationDetailsView from "./DonationDetailsView";
 import StatusBox from "./StatusBox";
-import type { DonationsData } from "./types";
+import type { DonationsData } from "./donationsData";
 import { findDonationById, findOrgById } from "./donationsData";
 
 interface DonationDetailsContainerProps {

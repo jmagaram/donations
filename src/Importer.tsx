@@ -5,17 +5,21 @@ import { nanoid } from "nanoid";
 import StatusBox, { type StatusBoxProps } from "./StatusBox";
 
 import {
-  type Donation,
   DonationAmountSchema,
   DonationKindSchema,
   DonationSchema,
-  type DonationsData,
-  DonationsDataSchema,
+  type Donation,
+} from "./donation";
+import {
   type Org,
   OrgNameSchema,
   OrgNotesSchema,
   OrgSchema,
-} from "./types";
+} from "./organization";
+import {
+  type DonationsData,
+  DonationsDataSchema,
+} from "./donationsData";
 import { empty, orgAdd, donationAdd } from "./donationsData";
 import { DateIsoSchema } from "./date";
 

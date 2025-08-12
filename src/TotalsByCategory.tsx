@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { type DonationsData } from "./types";
+import { type DonationsData } from "./donationsData";
 import { extractYear, getCurrentYear } from "./date";
 import { formatUSD as formatAmount } from "./amount";
 import { useSearchParam } from "./useSearchParam";

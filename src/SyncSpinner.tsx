@@ -2,7 +2,7 @@ import {
   type SyncStatus as SyncStatusType,
   type SyncError,
 } from "./store/offlineStore";
-import { type Result } from "./types";
+import { type Result } from "./result";
 
 interface SyncSpinnerProps {
   status: SyncStatusType;

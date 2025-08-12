@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import DonationUpsertForm from "./DonationUpsertForm";
 import StatusBox from "./StatusBox";
-import type { DonationsData } from "./types";
+import type { DonationsData } from "./donationsData";
 import {
   donationDelete,
   donationUpdate,

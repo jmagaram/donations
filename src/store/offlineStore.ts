@@ -1,4 +1,4 @@
-import type { Result } from "../types";
+import type { Result } from "../result";
 import type {
   RemoteStore,
   LoadError,

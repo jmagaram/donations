@@ -1,7 +1,8 @@
 import { getCurrentYear, compareDatesDesc } from "./date";
 import { useMemo } from "react";
 import { getDonationYearRange } from "./donationsData";
-import { type Donation, type DonationsData } from "./types";
+import { type Donation } from "./donation";
+import { type DonationsData } from "./donationsData";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useSearchParams } from "react-router-dom";
 import {

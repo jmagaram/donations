@@ -1,11 +1,48 @@
 import { z } from "zod";
-import {
-  OrgNameSchema,
-  OrgCategorySchema,
-  OrgTaxDeductibleSchema,
-  OrgWebSiteSchema,
-  OrgNotesSchema,
-} from "./types";
+import { IdSchema } from "./nanoId";
+
+export const OrgIdSchema = IdSchema;
+
+export const OrgNameSchema = z.string().trim().min(1);
+export const OrgCategorySchema = z.string().trim().optional();
+export const OrgTaxDeductibleSchema = z.boolean();
+export const OrgWebSiteSchema = z
+  .union([
+    z
+      .string()
+      .trim()
+      .transform((val) => {
+        if (val === "") return val;
+        if (!/^https?:\/\//.test(val)) {
+          return `https://${val}`;
+        }
+        return val;
+      })
+      .pipe(
+        z.union([
+          z.url({
+            protocol: /^https?$/,
+            hostname: z.regexes.domain,
+            normalize: true,
+          }),
+          z.literal(""),
+        ]),
+      ),
+    z.literal(""),
+  ])
+  .optional();
+export const OrgNotesSchema = z.string();
+
+export const OrgSchema = z.object({
+  id: OrgIdSchema,
+  name: OrgNameSchema,
+  category: OrgCategorySchema,
+  taxDeductible: OrgTaxDeductibleSchema,
+  webSite: OrgWebSiteSchema,
+  notes: OrgNotesSchema,
+});
+
+export type Org = z.infer<typeof OrgSchema>;
 
 export const OrgUpsertFieldsSchema = z.object({
   name: OrgNameSchema.min(1, "Name is required"),

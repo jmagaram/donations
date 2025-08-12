@@ -1,7 +1,7 @@
 import React from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import OrgUpsertForm from "./OrgUpsertForm";
-import type { DonationsData } from "./types";
+import type { DonationsData } from "./donationsData";
 import { type OrgUpsertFields } from "./organization";
 import { orgUpdate, orgAdd, findOrgById } from "./donationsData";
 import { nanoid } from "nanoid";

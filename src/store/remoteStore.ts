@@ -1,4 +1,4 @@
-import type { Result } from "../types";
+import type { Result } from "../result";
 
 export interface Versioned<T> {
   data: T;

@@ -1,5 +1,5 @@
 import type { SearchParam } from "./useSearchParam";
-import type { DonationsData } from "./types";
+import type { DonationsData } from "./donationsData";
 import { getUniqueOrgCategories } from "./donationsData";
 
 // Defines a category filter, such as "Healthcare" or "Politics". It is possible

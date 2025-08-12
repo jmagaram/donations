@@ -1,4 +1,5 @@
-import type { Result, DonationsData } from "../types";
+import type { Result } from "../result";
+import type { DonationsData } from "../donationsData";
 import type {
   RemoteStore,
   Versioned,
@@ -6,7 +7,7 @@ import type {
   SaveError,
   DeleteError,
 } from "./remoteStore";
-import { DonationsDataSchema } from "../types";
+import { DonationsDataSchema } from "../donationsData";
 
 const API_URL =
   "https://kpukc066rd.execute-api.us-west-2.amazonaws.com/prod/donations";

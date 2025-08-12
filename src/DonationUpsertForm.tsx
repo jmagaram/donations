@@ -12,7 +12,7 @@ import Fuse from "fuse.js";
 import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
-import type { DonationsData } from "./types";
+import type { DonationsData } from "./donationsData";
 import { findOrgById } from "./donationsData";
 import { useSearchParams, useNavigate } from "react-router-dom";
 

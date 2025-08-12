@@ -1,4 +1,4 @@
-import type { DonationsData } from "./types";
+import type { DonationsData } from "./donationsData";
 import { compareDatesDesc } from "./date";
 import { formatUSD as formatAmount } from "./amount";
 import { type DonationDisplay } from "./DonationsView";

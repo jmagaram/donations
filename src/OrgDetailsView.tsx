@@ -88,7 +88,7 @@ const OrgDetailsView = ({
         )}
         {showNotes && (
           <>
-            <dd>{organization.notes}</dd>
+            <dd className="instructions">{organization.notes}</dd>
           </>
         )}
       </dl>

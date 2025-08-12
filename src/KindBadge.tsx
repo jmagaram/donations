@@ -9,7 +9,7 @@ const getKindSymbol = (kind: DonationKind) => {
     case "paid":
       return { symbol: "●", className: "kind-badge-paid", title: "Paid" };
     case "pledge":
-      return { symbol: "◻", className: "kind-badge-pledge", title: "Pledge" };
+      return { symbol: "▢", className: "kind-badge-pledge", title: "Pledge" };
     case "idea":
       return { symbol: "☆", className: "kind-badge-idea", title: "Idea" };
     case "unknown":

@@ -320,7 +320,6 @@ nav a {
     display: inline-block;
     margin-right: 3px;
     cursor: default;
-    font-size: 0.7em;
 }
 
 .kind-badge-paid {
@@ -331,7 +330,6 @@ nav a {
 
 .kind-badge-pledge {
     color: #6366f1;
-    font-size: inherit;
 }
 
 .kind-badge-idea {
@@ -340,8 +338,6 @@ nav a {
 
 .kind-badge-unknown {
     color: #d97706;
-    font-size: inherit;
-    /*color: #6c757d;*/
 }
 
 .orgs-grid {

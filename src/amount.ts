@@ -12,46 +12,52 @@
 export const parseCurrency = (str: string): number | undefined => {
   // Remove leading/trailing whitespace
   const trimmed = str.trim();
-  
+
   // Check for empty string
   if (trimmed === "") return undefined;
-  
+
   // Check for invalid characters (anything other than digits, $, comma, period, minus, spaces)
   if (!/^[-$\d,.\s]+$/.test(trimmed)) return undefined;
-  
+
   // Check for multiple currency symbols
   const dollarCount = (trimmed.match(/\$/g) || []).length;
   if (dollarCount > 1) return undefined;
-  
+
   // Remove spaces and currency symbol
   const withoutSpacesAndDollar = trimmed.replace(/[\s$]/g, "");
-  
+
   // Check for multiple decimal points
   const decimalCount = (withoutSpacesAndDollar.match(/\./g) || []).length;
   if (decimalCount > 1) return undefined;
-  
+
   // Check for invalid comma placement (commas should only be in groups of 3 digits)
   // Split by decimal point to handle integer and fractional parts separately
   const parts = withoutSpacesAndDollar.split(".");
   const integerPart = parts[0];
-  
+
   // Remove commas and check if the result matches expected comma pattern
   const withoutCommas = integerPart.replace(/,/g, "");
-  
+
   // If there are commas, validate they're in the right places
   if (integerPart.includes(",")) {
     // Build expected format with commas
     const reversed = withoutCommas.split("").reverse().join("");
-    const withExpectedCommas = reversed.replace(/(\d{3})/g, "$1,").split("").reverse().join("");
-    const expectedFormat = withExpectedCommas.startsWith(",") ? withExpectedCommas.slice(1) : withExpectedCommas;
-    
+    const withExpectedCommas = reversed
+      .replace(/(\d{3})/g, "$1,")
+      .split("")
+      .reverse()
+      .join("");
+    const expectedFormat = withExpectedCommas.startsWith(",")
+      ? withExpectedCommas.slice(1)
+      : withExpectedCommas;
+
     if (integerPart !== expectedFormat) return undefined;
   }
-  
+
   // Remove commas and parse
   const cleaned = withoutSpacesAndDollar.replace(/,/g, "");
   const num = parseFloat(cleaned);
-  
+
   return isFinite(num) ? num : undefined;
 };
 

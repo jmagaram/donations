@@ -437,9 +437,14 @@ nav a {
     column-gap: 1rem;
 }
 
-.totals-by-year-grid.max-content-columns {
-    grid-template-columns: auto repeat(var(--year-columns), max-content) max-content;
+.year-column {
+    justify-self: end;
 }
+
+.total-column {
+    justify-self: end;
+}
+
 
 .totals-by-year-header {
     font-weight: bold;

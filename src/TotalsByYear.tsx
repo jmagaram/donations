@@ -188,9 +188,9 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
         <p>No donations to show.</p>
       ) : (
         <div
-          className="totals-by-year-grid max-content-columns"
+          className="totals-by-year-grid"
           style={{
-            "--year-columns": processedData.years.length,
+            gridTemplateColumns: `auto ${processedData.years.map(() => "max-content").join(" ")} max-content`,
           }}
         >
           {/* Header row */}

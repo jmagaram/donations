@@ -4,7 +4,7 @@ import SignOut from "./SignOut";
 import {
   type SyncStatus as SyncStatusType,
   type SyncError,
-} from "./store/offlineStore";
+} from "./offlineStore";
 import { type Result } from "./result";
 
 interface HeaderProps {

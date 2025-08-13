@@ -24,11 +24,11 @@ import Admin from "./Admin";
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
 import { type DonationsData, DonationsDataSchema } from "./donationsData";
-import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
-import { BrowserStore } from "./store/browserStore";
-import { WebApiStore } from "./store/webApi";
+import { OfflineStoreImpl, type SyncError } from "./offlineStore";
+import { BrowserStore } from "./browserStore";
+import { WebApiStore } from "./webApi";
 import { empty, isEmpty } from "./donationsData";
-import type { RemoteStore } from "./store/remoteStore";
+import type { RemoteStore } from "./remoteStore";
 import StatusBox from "./StatusBox";
 import { sampleData } from "./sampleData";
 import {

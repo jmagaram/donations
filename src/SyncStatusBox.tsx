@@ -1,5 +1,5 @@
 import StatusBox from "./StatusBox";
-import { type SyncError } from "./store/offlineStore";
+import { type SyncError } from "./offlineStore";
 import type { StatusBoxProps } from "./StatusBox";
 import { useNavigate } from "react-router-dom";
 

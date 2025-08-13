@@ -1,4 +1,4 @@
-import { type OfflineStore } from "./store/offlineStore";
+import { type OfflineStore } from "./offlineStore";
 import { tryCreateSampleData } from "./sampleData";
 import { type DonationsData } from "./donationsData";
 import { empty } from "./donationsData";

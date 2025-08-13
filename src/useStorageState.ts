@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { OfflineStore, StorageState } from "./store/offlineStore";
+import type { OfflineStore, StorageState } from "./offlineStore";
 
 /**
  * React hook for monitoring storage state from an OfflineStore.

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { getApiKey, setApiKey, clearApiKey } from "./store/webApi";
+import { getApiKey, setApiKey, clearApiKey } from "./webApi";
 import { useInterval } from "./useInterval";
 
 interface ApiKeyHook {
@@ -10,7 +10,9 @@ interface ApiKeyHook {
 }
 
 export const useApiKey = (): ApiKeyHook => {
-  const [apiKey, setApiKeyState] = useState<string | undefined>(() => getApiKey());
+  const [apiKey, setApiKeyState] = useState<string | undefined>(() =>
+    getApiKey(),
+  );
   const [hasApiKey, setHasApiKey] = useState<boolean>(() => !!getApiKey());
 
   const checkApiKey = useCallback(() => {
@@ -25,10 +27,13 @@ export const useApiKey = (): ApiKeyHook => {
 
   useInterval(checkApiKey, 2000);
 
-  const updateApiKey = useCallback((newKey: string) => {
-    setApiKey(newKey);
-    checkApiKey();
-  }, [checkApiKey]);
+  const updateApiKey = useCallback(
+    (newKey: string) => {
+      setApiKey(newKey);
+      checkApiKey();
+    },
+    [checkApiKey],
+  );
 
   const clearApiKeyState = useCallback(() => {
     clearApiKey();

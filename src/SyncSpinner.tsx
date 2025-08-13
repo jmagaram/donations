@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   type SyncStatus as SyncStatusType,
   type SyncError,
-} from "./store/offlineStore";
+} from "./offlineStore";
 import { type Result } from "./result";
 import { useInterval } from "./useInterval";
 

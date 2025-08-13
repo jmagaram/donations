@@ -1,2 +1,0 @@
-- PWA
-- Less redundancy in filtering code

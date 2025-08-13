@@ -196,7 +196,7 @@ export const sampleData = (): DonationsData | undefined => {
 
     result = dataWithOrg;
 
-    const numDonations = randomInt(0, 300);
+    const numDonations = randomInt(0, 450);
     for (let i = 0; i < numDonations; i++) {
       const newDonation = {
         id: makeId(),

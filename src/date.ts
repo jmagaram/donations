@@ -1,10 +1,10 @@
 import z from "zod";
 
 /**
- * Parses a string to an integer if it matches the expected format.
+ * Parses a string to an integer for day, month, and year date components.
  * Accepts numbers that are 1, 2, or 4 digits long, allowing at most one leading zero.
  */
-export const parseInteger = (input: string): number | undefined => {
+export const parseDateComponent = (input: string): number | undefined => {
   const validNumRegex = /^(\d|[1-9]\d|0[1-9]|[1-9]\d{3}|0[1-9]\d{2})$/;
   if (!validNumRegex.test(input)) return undefined;
   return Number(input);
@@ -24,12 +24,12 @@ export const parseInteger = (input: string): number | undefined => {
  * - "03/2025" => [3, 2025]
  *
  * @param input - The date string to parse.
- * @param parseDigitFn - Function to parse individual digit strings. Defaults to parseInteger.
+ * @param parseDigitFn - Function to parse individual digit strings. Defaults to parseDateComponent.
  * @returns An array of numbers if parsing is successful, otherwise `undefined`.
  */
 export const parseDigits = (
   input: string,
-  parseDigitFn: (part: string) => number | undefined = parseInteger
+  parseDigitFn: (part: string) => number | undefined = parseDateComponent
 ): number[] | undefined => {
   if (typeof input !== "string") return undefined;
   const trimmed = input.trim();

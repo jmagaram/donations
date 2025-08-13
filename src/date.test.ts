@@ -1,6 +1,6 @@
 import {
   parseDigits,
-  parseInteger,
+  parseDateComponent,
   rangesOverlap,
   convertDigitsToDatePatterns,
   addDays,
@@ -9,7 +9,7 @@ import {
 } from "./date";
 import { describe, test, expect } from "vitest";
 
-describe("parseInteger", () => {
+describe("parseDateComponent", () => {
   test.each([
     ["0", 0],
     ["1", 1],
@@ -23,7 +23,7 @@ describe("parseInteger", () => {
     ["0123", 123],
     ["0999", 999],
   ])("valid %s to %i", (input, expected) => {
-    expect(parseInteger(input)).toBe(expected);
+    expect(parseDateComponent(input)).toBe(expected);
   });
 
   test.each([
@@ -41,7 +41,7 @@ describe("parseInteger", () => {
     [" 1", "leading space"],
     ["1 ", "trailing space"],
   ])("rejects %s (%s)", (input) => {
-    expect(parseInteger(input)).toBeUndefined();
+    expect(parseDateComponent(input)).toBeUndefined();
   });
 });
 

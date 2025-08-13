@@ -9,6 +9,7 @@ export interface IStorageSelectorService {
 }
 
 const STORAGE_MODE_KEY = "donations-storage-mode";
+const DEFAULT_STORAGE_MODE = "browser";
 
 class StorageSelectorService implements IStorageSelectorService {
   private callbacks: ModeChangeCallback[] = [];
@@ -69,4 +70,4 @@ class StorageSelectorService implements IStorageSelectorService {
 }
 
 export const storageSelectorService: IStorageSelectorService =
-  new StorageSelectorService("browser");
+  new StorageSelectorService(DEFAULT_STORAGE_MODE);

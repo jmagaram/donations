@@ -35,4 +35,3 @@ AWS, using the CDK to manage infrastructure and deployment.
 - SSM Parameter Store: For securely storing and retrieving the API shared secret.
 - IAM Policies: For granting Lambda permissions to access S3 and SSM resources.
 
-## To do

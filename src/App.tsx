@@ -89,11 +89,11 @@ const AppContent = () => {
 
   // Update UI error state when storage status changes
   useEffect(() => {
-    if (storageState.status.kind === "error") {
-      setSyncError(storageState.status.error);
-    } else {
-      setSyncError(undefined);
-    }
+    setSyncError(
+      storageState.status.kind === "error"
+        ? storageState.status.error
+        : undefined,
+    );
   }, [storageState.status]);
 
   // Recreate the offline store when storage mode changes

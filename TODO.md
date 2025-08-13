@@ -1,6 +1,3 @@
 - PWA
 - Less redundancy in filtering code
 - Better code comments
-- isSyncing as return type of sync status hook
-- Move files put of store folder to flatten it
-- Make fuzzyAmountMatch have a separate areNumbersClose function

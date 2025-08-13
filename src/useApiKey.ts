@@ -9,6 +9,7 @@ interface ApiKeyHook {
   clearApiKey: () => void;
 }
 
+// Custom hook to manage API key state with automatic sync checking every 2 seconds
 export const useApiKey = (): ApiKeyHook => {
   const [apiKey, setApiKeyState] = useState<string | undefined>(() =>
     getApiKey(),

@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 
+// Custom hook to run a callback function at regular intervals
 export const useInterval = (
   callback: () => void,
   delayMs: number | undefined,

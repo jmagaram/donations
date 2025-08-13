@@ -1,6 +1,7 @@
 import { type DonationsData } from "./donationsData";
 import { makeId } from "./nanoId";
 import { empty, orgAdd, donationAdd } from "./donationsData";
+import type { DonationKind } from "./donation";
 
 const randomInt = (min: number, max: number): number =>
   Math.floor(Math.random() * (max - min + 1)) + min;
@@ -14,15 +15,16 @@ const randomDate = (): string => {
 
 const randomAmount = (): number => randomInt(10, 10000);
 
-const randomKind = (): "paid" | "pledge" | "idea" => {
+const randomKind = (): DonationKind => {
   const rand = Math.random();
   if (rand < 0.8) return "paid";
   if (rand < 0.9) return "pledge";
-  return "idea";
+  if (rand < 0.95) return "idea";
+  return "unknown";
 };
 
 const randomPaymentMethod = (): string | undefined => {
-  const methods = ["", "Check", "Credit card", "Stock"];
+  const methods = ["", "Check", "Credit card", "Stock", "Transfer"];
   return methods[randomInt(0, methods.length - 1)] || undefined;
 };
 
@@ -142,7 +144,7 @@ const orgsArray = [
   },
   {
     name: "Catholic Charities USA",
-    category: "Social Services",
+    category: "",
     taxDeductible: true,
     webSite: "https://www.catholiccharitiesusa.org",
     notes: "Network of charities providing social services",
@@ -194,7 +196,7 @@ export const sampleData = (): DonationsData | undefined => {
 
     result = dataWithOrg;
 
-    const numDonations = randomInt(0, 30);
+    const numDonations = randomInt(0, 300);
     for (let i = 0; i < numDonations; i++) {
       const newDonation = {
         id: makeId(),

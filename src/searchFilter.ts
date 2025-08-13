@@ -4,12 +4,10 @@ export type SearchFilter = string;
 
 const parse = (value: string | undefined): SearchFilter | undefined => {
   return value;
-  // return value?.trim();
 };
 
 const encode = (value: SearchFilter): string | undefined => {
-  return value;
-  // return value?.trim();
+  return value; // do not trim; restricts ability to search for multiple words
 };
 
 export const searchFilterParam: SearchParam<SearchFilter> = {

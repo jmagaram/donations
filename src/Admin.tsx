@@ -92,14 +92,14 @@ const Admin = ({ storageProvider }: AdminProps) => {
           <button onClick={handleToggleMode} disabled={isSyncing}>
             {(() => {
               return currentMode === "browser"
-                ? "Use real family data"
+                ? "Use real data"
                 : "Use testing environment";
             })()}
           </button>
         </div>
       </section>
       <section>
-        <h2>Changing data</h2>
+        <h2>Other</h2>
         <div className="toolbar">
           <button onClick={confirmUseSampleData} disabled={isSyncing}>
             Use sample data

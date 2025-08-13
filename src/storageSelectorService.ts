@@ -2,6 +2,7 @@ export type StorageMode = "browser" | "webApi";
 
 type ModeChangeCallback = (mode: StorageMode) => void;
 
+// Service interface for managing storage mode selection (browser vs webApi)
 export interface IStorageSelectorService {
   getCurrentMode(): StorageMode;
   setStorageMode(mode: StorageMode): void;

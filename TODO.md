@@ -1,0 +1,3 @@
+PWA
+Less redundancy in filtering code
+Better code comments

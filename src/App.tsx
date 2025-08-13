@@ -1,4 +1,10 @@
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+} from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
 import SetPassword from "./SetPassword";
@@ -30,6 +36,7 @@ import {
   type StorageMode,
 } from "./storageSelectorService";
 import { useStorageMode } from "./useStorageMode";
+import { useStorageState } from "./useStorageState";
 
 // Creates the underlying storage implementation - local browser storage for
 // testing, or internet server storage for real applicaiton usage.
@@ -77,22 +84,17 @@ const AppContent = () => {
     createOfflineStore(storageSelectorService.getCurrentMode()),
   );
 
-  const [storageState, setStorageState] = useState(() => offlineStore.get());
+  const storageState = useStorageState(offlineStore);
   const [syncError, setSyncError] = useState<SyncError | undefined>(undefined);
 
-  // Subscribe to the current offline store's changes for sync status updates
+  // Update UI error state when storage status changes
   useEffect(() => {
-    const unsubscribe = offlineStore.onChange((newState) => {
-      setStorageState(newState);
-      if (newState.status.kind === "error") {
-        setSyncError(newState.status.error);
-      } else {
-        setSyncError(undefined);
-      }
-    });
-    offlineStore.sync("pull"); // Initial data load from storage
-    return unsubscribe;
-  }, [offlineStore]);
+    if (storageState.status.kind === "error") {
+      setSyncError(storageState.status.error);
+    } else {
+      setSyncError(undefined);
+    }
+  }, [storageState.status]);
 
   // Recreate the offline store when storage mode changes
   useEffect(() => {
@@ -130,7 +132,9 @@ const AppContent = () => {
           <div>
             Test Environment
             {location.pathname !== "/admin" && (
-              <>&nbsp;<Link to="/admin">change</Link></>
+              <>
+                &nbsp;<Link to="/admin">change</Link>
+              </>
             )}
           </div>
         </header>

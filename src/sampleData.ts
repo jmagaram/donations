@@ -1,5 +1,5 @@
 import { type DonationsData } from "./donationsData";
-import { nanoid } from "nanoid";
+import { makeId } from "./nanoId";
 import { empty, orgAdd, donationAdd } from "./donationsData";
 
 const randomInt = (min: number, max: number): number =>
@@ -188,7 +188,7 @@ export const sampleData = (): DonationsData | undefined => {
   let result = empty();
 
   for (const org of orgsArray) {
-    const newOrg = { ...org, id: nanoid() };
+    const newOrg = { ...org, id: makeId() };
     const dataWithOrg = orgAdd(result, newOrg);
     if (!dataWithOrg) return undefined;
 
@@ -197,7 +197,7 @@ export const sampleData = (): DonationsData | undefined => {
     const numDonations = randomInt(0, 30);
     for (let i = 0; i < numDonations; i++) {
       const newDonation = {
-        id: nanoid(),
+        id: makeId(),
         orgId: newOrg.id,
         date: randomDate(),
         amount: randomAmount(),

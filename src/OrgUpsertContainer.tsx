@@ -4,7 +4,7 @@ import OrgUpsertForm from "./OrgUpsertForm";
 import type { DonationsData } from "./donationsData";
 import { type OrgUpsertFields } from "./organization";
 import { orgUpdate, orgAdd, findOrgById } from "./donationsData";
-import { nanoid } from "nanoid";
+import { makeId } from "./nanoId";
 
 interface OrgUpsertContainerProps {
   donationsData: DonationsData;
@@ -52,7 +52,7 @@ const OrgUpsertContainer = ({
       setDonationsData(newData);
       navigate("/orgs/" + updatedOrg.id);
     } else {
-      const newOrganization = { ...formData, id: nanoid() };
+      const newOrganization = { ...formData, id: makeId() };
       const updatedData = orgAdd(donationsData, newOrganization);
       if (!updatedData) {
         setError(

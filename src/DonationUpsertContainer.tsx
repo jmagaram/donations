@@ -10,7 +10,7 @@ import {
   findDonationById,
   findOrgById,
 } from "./donationsData";
-import { nanoid } from "nanoid";
+import { makeId } from "./nanoId";
 import type { DonationUpsertFields } from "./donation";
 
 interface DonationUpsertContainerProps {
@@ -64,7 +64,7 @@ const DonationUpsertContainer = ({
       setDonationsData(newData);
       navigate(-1);
     } else {
-      const newDonation = { ...formData, id: nanoid() };
+      const newDonation = { ...formData, id: makeId() };
       const updatedData = donationAdd(donationsData, newDonation);
       if (!updatedData) {
         setError("Failed to add donation");

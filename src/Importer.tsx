@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Papa from "papaparse";
 import { z } from "zod";
-import { nanoid } from "nanoid";
+import { makeId } from "./nanoId";
 import StatusBox, { type StatusBoxProps } from "./StatusBox";
 
 import {
@@ -95,7 +95,7 @@ const convertDonationRowCsvToDonation = (
   orgId: string,
 ): Donation => {
   const donation = {
-    id: nanoid(),
+    id: makeId(),
     orgId: orgId,
     date: row.Date,
     amount: row.Amount,
@@ -111,7 +111,7 @@ const convertDonationRowCsvToDonation = (
 
 const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
   const org = {
-    id: nanoid(),
+    id: makeId(),
     name: row.Organization,
     category:
       row.Category && row.Category.trim().length > 0

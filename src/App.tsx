@@ -102,10 +102,17 @@ const AppContent = () => {
     setOfflineStore(newOfflineStore);
   }, [currentMode]);
 
-  const setDonationsData = (data: DonationsData) => {
-    offlineStore.save(data);
-  };
+  // useCallback ensures child components don't re-render when offlineStore changes
+  // and provides updated save method when store is recreated
+  const setDonationsData = useCallback(
+    (data: DonationsData) => {
+      offlineStore.save(data);
+    },
+    [offlineStore],
+  );
 
+  // useCallback ensures child components don't re-render when offlineStore changes
+  // and provides updated sync method when store is recreated
   const handleSync = useCallback(
     (option: "pull" | "push" | "pushForce") => {
       return offlineStore.sync(option);

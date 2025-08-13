@@ -2,20 +2,28 @@ import { useState, useEffect } from "react";
 import { type OfflineStore, type SyncStatus } from "./offlineStore";
 import { type DonationsData } from "./donationsData";
 
+export interface SyncStatusHookResult {
+  syncStatus: SyncStatus;
+  isSyncing: boolean;
+}
+
 export const useSyncStatus = (
-  offlineStore: OfflineStore<DonationsData>,
-): SyncStatus => {
+  store: OfflineStore<DonationsData>,
+): SyncStatusHookResult => {
   const [syncStatus, setSyncStatus] = useState<SyncStatus>(
-    () => offlineStore.get().status,
+    () => store.get().status,
   );
 
   useEffect(() => {
-    const unsubscribe = offlineStore.onChange((storageState) => {
+    const unsubscribe = store.onChange((storageState) => {
       setSyncStatus(storageState.status);
     });
 
     return unsubscribe;
-  }, [offlineStore]);
+  }, [store]);
 
-  return syncStatus;
+  return {
+    syncStatus,
+    isSyncing: syncStatus.kind === "syncing",
+  };
 };

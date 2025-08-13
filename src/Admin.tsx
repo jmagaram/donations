@@ -13,8 +13,7 @@ interface AdminProps {
 
 const Admin = ({ storageProvider }: AdminProps) => {
   const { currentMode, toggleMode } = useStorageMode();
-  const syncStatus = useSyncStatus(storageProvider);
-  const isSyncing = syncStatus.kind === "syncing";
+  const { syncStatus, isSyncing } = useSyncStatus(storageProvider);
   const navigate = useNavigate();
 
   const confirmUseSampleData = async () => {

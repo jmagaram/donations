@@ -248,8 +248,53 @@ const AppContent = () => {
 };
 
 function App() {
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").then((registration) => {
+        // Check for updates when app comes to foreground
+        const handleVisibilityChange = () => {
+          if (!document.hidden && registration) {
+            registration.update();
+          }
+        };
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        // Listen for when new service worker is ready
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener("statechange", () => {
+              if (
+                newWorker.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                // New version is ready
+                setUpdateAvailable(true);
+              }
+            });
+          }
+        });
+
+        // Cleanup
+        return () => {
+          document.removeEventListener(
+            "visibilitychange",
+            handleVisibilityChange,
+          );
+        };
+      });
+    }
+  }, []);
+
   return (
     <Router>
+      {updateAvailable && (
+        <div className="update-notification">
+          A new version is available. Restart now.
+        </div>
+      )}
       <AppContent />
     </Router>
   );

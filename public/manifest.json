@@ -6,6 +6,9 @@
   "display": "standalone",
   "orientation": "any",
   "categories": ["finance"],
+  "theme_color": "#ffffff",
+  "background_color": "#ffffff",
+  "scope": "/",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",

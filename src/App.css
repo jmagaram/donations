@@ -729,3 +729,20 @@ dl {
     animation: glow 1000ms ease-in-out infinite alternate;
     outline: 1px solid #8b0000;
 }
+
+.update-notification {
+    font-size: 0.7em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    top: 0;
+    background-color: darkred;
+    color: white;
+    z-index: 1000;
+    margin: 0;
+    margin-bottom: 2px;
+    border-radius: 0px;
+    padding-top: 0.25em;
+    padding-bottom: 0.25em;
+    font-variant: small-caps;
+}

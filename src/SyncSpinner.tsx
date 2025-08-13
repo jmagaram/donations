@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   type SyncStatus as SyncStatusType,
   type SyncError,
 } from "./store/offlineStore";
 import { type Result } from "./result";
+import { useInterval } from "./useInterval";
 
 interface SyncSpinnerProps {
   status: SyncStatusType;
@@ -20,13 +21,9 @@ const SyncSpinner = ({
 }: SyncSpinnerProps) => {
   const [currentTime, setCurrentTime] = useState(Date.now());
 
-  useEffect(() => {
-    const CHECK_STALENESS_MS = 60000;
-    const interval = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, CHECK_STALENESS_MS);
-    return () => clearInterval(interval);
-  }, []);
+  useInterval(() => {
+    setCurrentTime(Date.now());
+  }, 60000);
 
   const isDataStale = (lastPull: Date | undefined): boolean => {
     if (!lastPull) return false;

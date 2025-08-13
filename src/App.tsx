@@ -147,8 +147,8 @@ const AppContent = () => {
       <Header syncStatus={syncStatus} onSync={handleSync} />
       <SyncStatusBox
         syncError={dismissibleSyncError}
-        onPull={() => offlineStore.sync("pull")}
-        onPush={() => offlineStore.sync("push")}
+        onPull={() => handleSync("pull")}
+        onPush={() => handleSync("push")}
         onDismissError={() => setDismissibleSyncError(undefined)}
       />
       <Routes>

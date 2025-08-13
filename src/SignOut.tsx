@@ -1,23 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
-import { getApiKey, clearApiKey } from "./store/webApi";
-import { useInterval } from "./useInterval";
+import { useApiKey } from "./useApiKey";
 
 const SignOut = () => {
-  const [hasApiKey, setHasApiKey] = useState(false);
-
-  const checkApiKey = useCallback(() => {
-    setHasApiKey(getApiKey() !== undefined);
-  }, []);
-
-  useEffect(() => {
-    checkApiKey();
-  }, [checkApiKey]);
-
-  useInterval(checkApiKey, 2000);
+  const { hasApiKey, clearApiKey } = useApiKey();
 
   const handleSignOut = () => {
     clearApiKey();
-    setHasApiKey(false);
   };
 
   if (!hasApiKey) {

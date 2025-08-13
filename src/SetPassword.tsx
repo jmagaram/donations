@@ -1,25 +1,16 @@
-import { useState, useEffect } from "react";
-import { getApiKey, setApiKey, clearApiKey } from "./store/webApi";
+import { useState } from "react";
+import { useApiKey } from "./useApiKey";
 
 const SetPassword = () => {
-  const [password, setPassword] = useState("");
-  const [hasPassword, setHasPassword] = useState(false);
+  const { apiKey, hasApiKey, setApiKey, clearApiKey } = useApiKey();
+  const [password, setPassword] = useState(apiKey || "");
   const [showPassword, setShowPassword] = useState(false);
   const [passwordChanged, setPasswordChanged] = useState(false);
-
-  useEffect(() => {
-    const storedPassword = getApiKey();
-    setHasPassword(!!storedPassword);
-    if (storedPassword) {
-      setPassword(storedPassword);
-    }
-  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (password.trim()) {
       setApiKey(password.trim());
-      setHasPassword(true);
       setPasswordChanged(true);
       setTimeout(() => setPasswordChanged(false), 3000);
     }
@@ -27,7 +18,6 @@ const SetPassword = () => {
 
   const handleClear = () => {
     clearApiKey();
-    setHasPassword(false);
     setPassword("");
     setPasswordChanged(false);
   };
@@ -35,13 +25,13 @@ const SetPassword = () => {
   return (
     <div>
       <h1>Set password</h1>
-      {hasPassword && (
+      {hasApiKey && (
         <p className="instructions">
           Password is configured. If incorrect, you'll see a security warning
           when using the site.
         </p>
       )}
-      {!hasPassword && (
+      {!hasApiKey && (
         <p className="instructions">
           Enter your password to access the donation tracker. If incorrect,
           you'll see a security warning when using the site.
@@ -75,9 +65,9 @@ const SetPassword = () => {
         </div>
         <div className="toolbar">
           <button type="submit" disabled={!password.trim()}>
-            {hasPassword ? "Update password" : "Set password"}
+            {hasApiKey ? "Update password" : "Set password"}
           </button>
-          {hasPassword && (
+          {hasApiKey && (
             <button type="button" onClick={handleClear}>
               Sign out
             </button>

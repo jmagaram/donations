@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 import Header from "./Header";
 import Home from "./Home";
 import SetPassword from "./SetPassword";
@@ -25,10 +25,15 @@ import { empty, isEmpty } from "./donationsData";
 import type { RemoteStore } from "./store/remoteStore";
 import StatusBox from "./StatusBox";
 import { sampleData } from "./sampleData";
+import {
+  storageSelectorService,
+  type StorageMode,
+} from "./storageSelectorService";
+import { useStorageMode } from "./useStorageMode";
 
-const createStore = (
-  kind: "browser" | "webApi",
-): RemoteStore<DonationsData> => {
+// Creates the underlying storage implementation - local browser storage for
+// testing, or internet server storage for real applicaiton usage.
+const createStore = (kind: StorageMode): RemoteStore<DonationsData> => {
   switch (kind) {
     case "browser": {
       const initialData: DonationsData = sampleData() ?? empty();
@@ -52,20 +57,30 @@ const createStore = (
   }
 };
 
-const AppContent = () => {
-  const [offlineStore] = useState(() => {
-    const emptyData: DonationsData = empty();
-    const remote = createStore("browser");
-    return new OfflineStoreImpl({
-      remote,
-      emptyData,
-      isEmpty: isEmpty,
-    });
+// Wraps the underlying store for sync management and caching.
+const createOfflineStore = (mode: StorageMode) => {
+  const emptyData: DonationsData = empty();
+  const remote = createStore(mode);
+  return new OfflineStoreImpl({
+    remote,
+    emptyData,
+    isEmpty,
   });
+};
+
+const AppContent = () => {
+  const { currentMode } = useStorageMode();
+  const location = useLocation();
+
+  // Creates the initial offline store based on the current storage mode preference.
+  const [offlineStore, setOfflineStore] = useState(() =>
+    createOfflineStore(storageSelectorService.getCurrentMode()),
+  );
 
   const [storageState, setStorageState] = useState(() => offlineStore.get());
   const [syncError, setSyncError] = useState<SyncError | undefined>(undefined);
 
+  // Subscribe to the current offline store's changes for sync status updates
   useEffect(() => {
     const unsubscribe = offlineStore.onChange((newState) => {
       setStorageState(newState);
@@ -75,12 +90,15 @@ const AppContent = () => {
         setSyncError(undefined);
       }
     });
-
-    // Initial sync to load data
-    offlineStore.sync("pull");
-
+    offlineStore.sync("pull"); // Initial data load from storage
     return unsubscribe;
   }, [offlineStore]);
+
+  // Recreate the offline store when storage mode changes
+  useEffect(() => {
+    const newOfflineStore = createOfflineStore(currentMode);
+    setOfflineStore(newOfflineStore);
+  }, [currentMode]);
 
   const setDonationsData = (data: DonationsData) => {
     offlineStore.save(data);
@@ -107,6 +125,16 @@ const AppContent = () => {
 
   return (
     <>
+      {currentMode === "browser" && (
+        <header className="test-mode">
+          <div>
+            Test Environment
+            {location.pathname !== "/admin" && (
+              <>&nbsp;<Link to="/admin">change</Link></>
+            )}
+          </div>
+        </header>
+      )}
       <Header syncStatus={storageState.status} onSync={handleSync} />
       <SyncStatusBox
         syncError={syncError}

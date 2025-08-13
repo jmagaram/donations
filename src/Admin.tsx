@@ -2,17 +2,23 @@ import { type OfflineStore } from "./store/offlineStore";
 import { tryCreateSampleData } from "./sampleData";
 import { type DonationsData } from "./donationsData";
 import { empty } from "./donationsData";
+import { useStorageMode } from "./useStorageMode";
+import { useSyncStatus } from "./useSyncStatus";
+import type { JSX } from "react";
 
 interface AdminProps {
   storageProvider: OfflineStore<DonationsData>;
 }
 
 const Admin = ({ storageProvider }: AdminProps) => {
+  const { currentMode, toggleMode } = useStorageMode();
+  const syncStatus = useSyncStatus(storageProvider);
+  const isSyncing = syncStatus.kind === "syncing";
+
   const confirmUseSampleData = async () => {
     if (!confirm("Are you sure replace all data?")) {
       return;
     }
-
     try {
       const sampleData = tryCreateSampleData();
       storageProvider.save(sampleData);
@@ -32,31 +38,78 @@ const Admin = ({ storageProvider }: AdminProps) => {
     ) {
       return;
     }
-
     const emptyData = empty();
     storageProvider.save(emptyData);
     await storageProvider.sync("pushForce");
   };
 
   const confirmPushForceSync = async () => {
-    if (
-      !confirm(
-        "Replace server data with your local data?",
-      )
-    ) {
+    if (!confirm("Replace server data with your local data?")) {
       return;
     }
     await storageProvider.sync("pushForce");
   };
 
+  const handleToggleMode = () => {
+    if (
+      currentMode === "webApi" &&
+      (syncStatus.kind === "error" ||
+        (syncStatus.kind === "idle" && syncStatus.requiresSync))
+    ) {
+      const message =
+        "Switch to offline testing storage? If you have any unsaved local changes they will be lost.";
+      if (!confirm(message)) {
+        return;
+      }
+    }
+    toggleMode();
+  };
+
+  const getModeDescription = (): JSX.Element => {
+    return currentMode === "browser" ? (
+      <>
+        You are using a <strong>test-only environment</strong> right now. Data
+        is stored offline and is not backed up or synchronized across devices.
+      </>
+    ) : (
+      <>
+        Your data is securely synchronized with storage on the Internet and is
+        shared across devices. But for testing purposes, you can switch to local
+        offline storage with sample data.
+      </>
+    );
+  };
+
   return (
     <div>
       <h1>Admin</h1>
-      <div className="toolbar">
-        <button onClick={confirmUseSampleData}>Use sample data</button>
-        <button onClick={confirmDeleteAll}>Delete all data</button>
-        <button onClick={confirmPushForceSync}>Force upload</button>
-      </div>
+      <section>
+        <h2>Test environment</h2>
+        <p className="instructions">{getModeDescription()}</p>
+        <div className="toolbar">
+          <button onClick={handleToggleMode} disabled={isSyncing}>
+            {(() => {
+              return currentMode === "browser"
+                ? "Use real family data"
+                : "Use testing environment";
+            })()}
+          </button>
+        </div>
+      </section>
+      <section>
+        <h2>Changing data</h2>
+        <div className="toolbar">
+          <button onClick={confirmUseSampleData} disabled={isSyncing}>
+            Use sample data
+          </button>
+          <button onClick={confirmDeleteAll} disabled={isSyncing}>
+            Delete all data
+          </button>
+          <button onClick={confirmPushForceSync} disabled={isSyncing}>
+            Force upload
+          </button>
+        </div>
+      </section>
     </div>
   );
 };

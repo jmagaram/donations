@@ -5,6 +5,7 @@ import { empty } from "./donationsData";
 import { useStorageMode } from "./useStorageMode";
 import { useSyncStatus } from "./useSyncStatus";
 import type { JSX } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface AdminProps {
   storageProvider: OfflineStore<DonationsData>;
@@ -14,6 +15,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
   const { currentMode, toggleMode } = useStorageMode();
   const syncStatus = useSyncStatus(storageProvider);
   const isSyncing = syncStatus.kind === "syncing";
+  const navigate = useNavigate();
 
   const confirmUseSampleData = async () => {
     if (!confirm("Are you sure replace all data?")) {
@@ -63,6 +65,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
       }
     }
     toggleMode();
+    navigate("/");
   };
 
   const getModeDescription = (): JSX.Element => {

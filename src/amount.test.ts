@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseCurrency, formatUSD } from "./amount";
+import { parseCurrency, formatUSD, closeness } from "./amount";
 
 describe("parseCurrency", () => {
   test.each([
@@ -72,6 +72,27 @@ describe("formatUSD", () => {
     "formats $amount with pennies=$pennies to $expected",
     ({ amount, pennies, expected }) => {
       expect(formatUSD(amount, pennies)).toBe(expected);
+    },
+  );
+});
+
+describe("closeness", () => {
+  test.each([
+    [100, 10, 100, 0, "value === target; perfect match"],
+    [100, 20, 105, 0.25, "1/4 of tolerance above target"],
+    [100, 20, 110, 0.5, "1/2 of tolerance above target"],
+    [100, 20, 115, 0.75, "3/4 of tolerance above target"],
+    [100, 20, 120, 1.0, "at max tolerance"],
+    [100, 20, 130, 1.0, "exceed max tolerance"],
+    [100, 20, 95, 0.25, "1/4 of tolerance below target"],
+    [-100, 20, -95, 0.25, "1/4 of tolerance above target (negative numbers)"],
+    [-100, 20, -105, 0.25, "1/4 of tolerance below target (negative numbers)"],
+  ])(
+    "closeness(%s, %s, %s) = %s (%s)",
+    (target, tolerancePercent, value, expected) => {
+      expect(closeness({ value, target, tolerancePercent })).toBeCloseTo(
+        expected,
+      );
     },
   );
 });

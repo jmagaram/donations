@@ -5,6 +5,7 @@ export interface SearchParam<T> {
   encode: (value: T) => string | undefined;
 }
 
+// Custom hook to sync a typed value with a URL search parameter
 export const useSearchParam = <T>(
   paramName: string,
   param: SearchParam<T>,

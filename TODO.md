@@ -1,3 +1,4 @@
 - PWA
 - Less redundancy in filtering code
 - Better code comments
+- isSyncing as return type of sync status hook

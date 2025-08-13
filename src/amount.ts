@@ -46,28 +46,7 @@ export const closeness = (params: {
   return diff / tolerance;
 };
 
-/**
- * Fuzzy match two amounts using a tolerance percentage.
- *
- * @param params.searchWithin - The string representing the amount to check (e.g., from a donation record).
- * @param params.searchFor - The string representing the amount the user is searching for.
- * @param params.tolerancePercent - The allowed percent difference (e.g., 10 for ±10%).
- * @returns A score between 0 (perfect match) and 1 (no match). If not a valid number, returns 1.
- */
-export function fuzzyAmountMatch(params: {
-  searchWithin: string;
-  searchFor: string;
-  tolerancePercent: number;
-}): number {
-  const within = parseCurrency(params.searchWithin);
-  const target = parseCurrency(params.searchFor);
-  if (within === undefined || target === undefined) return 1;
-  const diff = Math.abs(within - target);
-  const tolerance = (params.tolerancePercent / 100) * Math.abs(target);
-  if (diff > tolerance) return 1;
-  return diff / tolerance;
-}
-
+// Converts a number to USD currency format like $1,234.56
 export const formatUSD = (
   amount: number,
   pennies: "showPennies" | "hidePennies" = "showPennies",

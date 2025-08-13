@@ -170,8 +170,8 @@ header.test-mode {
     align-items: center;
     position: sticky;
     top: 0;
-    background-color: darkolivegreen;
-    color: white;
+    background-color: darkorange;
+    color: black;
     z-index: 1000;
     margin: 0;
     margin-bottom: 2px;
@@ -179,8 +179,7 @@ header.test-mode {
 }
 
 header.test-mode a {
-    /*text-decoration: none;*/
-    color: white;
+    color: black;
 }
 
 .nav-left {

@@ -17,7 +17,7 @@ import DonationDetailsContainer from "./DonationDetailsContainer";
 import Importer from "./Importer";
 import Exporter from "./Exporter";
 import Reports from "./Reports";
-import TotalsByYear from "./TotalsByYear";
+import TotalsByOrg from "./TotalsByOrg";
 import TotalsByCategory from "./TotalsByCategory";
 import SyncStatusBox from "./SyncStatusBox";
 import Admin from "./Admin";
@@ -232,7 +232,7 @@ const AppContent = () => {
         <Route path="/reports" element={<Reports />} />
         <Route
           path="/reports/yearlytotals"
-          element={<TotalsByYear donationsData={donationsData} />}
+          element={<TotalsByOrg donationsData={donationsData} />}
         />
         <Route
           path="/reports/yearlytotalsbycategory"

@@ -29,11 +29,11 @@ const getAmountClasses = (amount: number, ...extraClasses: string[]) => {
   return [valueClass, ...extraClasses].filter(Boolean).join(" ");
 };
 
-interface TotalsByYearProps {
+interface TotalsByOrgProps {
   donationsData: DonationsData;
 }
 
-const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
+const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
   const currentYear = getCurrentYear();
   const yearRange = getDonationYearRange(donationsData.donations);
   const minYear = yearRange?.minYear ?? currentYear;
@@ -276,4 +276,4 @@ const TotalsByYear = ({ donationsData }: TotalsByYearProps) => {
   );
 };
 
-export default TotalsByYear;
+export default TotalsByOrg;

@@ -8,7 +8,7 @@ import {
  * React hook for managing storage mode selection in UI components.
  *
  * This hook provides reactive access to the current storage mode preference
- * ("browser" vs "webApi") which is stored in sessionStorage per browser tab.
+ * ("browser" vs "webApi") which is stored in localStorage.
  *
  * IMPORTANT: This hook only manages the storage mode selection/preference.
  * It does not actually change storage behavior - that happens in other code

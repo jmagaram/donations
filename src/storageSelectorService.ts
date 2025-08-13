@@ -21,7 +21,7 @@ class StorageSelectorService implements IStorageSelectorService {
 
   getCurrentMode(): StorageMode {
     try {
-      const stored = sessionStorage.getItem(STORAGE_MODE_KEY);
+      const stored = localStorage.getItem(STORAGE_MODE_KEY);
       if (stored === "browser" || stored === "webApi") {
         return stored;
       }
@@ -40,11 +40,11 @@ class StorageSelectorService implements IStorageSelectorService {
       return;
     }
     try {
-      sessionStorage.setItem(STORAGE_MODE_KEY, mode);
+      localStorage.setItem(STORAGE_MODE_KEY, mode);
       const actualMode = this.getCurrentMode();
       this.notifyCallbacks(actualMode);
     } catch (error) {
-      console.warn("Failed to set storage mode in sessionStorage:", error);
+      console.warn("Failed to set storage mode in localStorage:", error);
     }
   }
 

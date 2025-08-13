@@ -4,7 +4,7 @@ import { type AmountFilter } from "./amountFilter";
 import { OrgSchema, type Org } from "./organization";
 import { DonationSchema, type Donation } from "./donation";
 import Fuse, { type FuseResult, type IFuseOptions } from "fuse.js";
-import { fuzzyAmountMatch, parseCurrency } from "./amount";
+import { closeness, parseCurrency } from "./amount";
 import { fuzzyDateSearchFromRanges, parseStringToDayRanges } from "./date";
 
 export const DonationsDataSchema = z.object({
@@ -381,10 +381,11 @@ const calculateWordScore = (
 
   // Amount search score
   let amountScore = 1;
-  if (parseCurrency(word) !== undefined) {
-    amountScore = fuzzyAmountMatch({
-      searchWithin: String(donationObj.amount),
-      searchFor: word,
+  const targetAmount = parseCurrency(word);
+  if (targetAmount !== undefined) {
+    amountScore = closeness({
+      value: donationObj.amount,
+      target: targetAmount,
       tolerancePercent: 10,
     });
   }

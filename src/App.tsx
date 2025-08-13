@@ -120,7 +120,6 @@ const AppContent = () => {
   );
 
   const donationsData = storageState.data.data;
-  const isLoading = storageState.status.kind === "syncing";
 
   if (isSyncing && storageState.data.kind === "new") {
     return (

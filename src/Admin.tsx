@@ -3,7 +3,7 @@ import { tryCreateSampleData } from "./sampleData";
 import { type DonationsData } from "./donationsData";
 import { empty } from "./donationsData";
 import { useStorageMode } from "./useStorageMode";
-import { useSyncStatus } from "./useSyncStatus";
+import { useStorageState } from "./useStorageState";
 import type { JSX } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -13,7 +13,7 @@ interface AdminProps {
 
 const Admin = ({ storageProvider }: AdminProps) => {
   const { currentMode, toggleMode } = useStorageMode();
-  const { syncStatus, isSyncing } = useSyncStatus(storageProvider);
+  const { syncStatus, isSyncing } = useStorageState(storageProvider);
   const navigate = useNavigate();
 
   const confirmUseSampleData = async () => {

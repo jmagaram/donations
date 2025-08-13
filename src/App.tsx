@@ -84,17 +84,16 @@ const AppContent = () => {
     createOfflineStore(storageSelectorService.getCurrentMode()),
   );
 
-  const storageState = useStorageState(offlineStore);
-  const [syncError, setSyncError] = useState<SyncError | undefined>(undefined);
+  const { storageState, syncStatus, isSyncing, syncError } =
+    useStorageState(offlineStore);
+  const [dismissibleSyncError, setDismissibleSyncError] = useState<
+    SyncError | undefined
+  >(undefined);
 
   // Update UI error state when storage status changes
   useEffect(() => {
-    setSyncError(
-      storageState.status.kind === "error"
-        ? storageState.status.error
-        : undefined,
-    );
-  }, [storageState.status]);
+    setDismissibleSyncError(syncError);
+  }, [syncError]);
 
   // Recreate the offline store when storage mode changes
   useEffect(() => {
@@ -123,10 +122,10 @@ const AppContent = () => {
   const donationsData = storageState.data.data;
   const isLoading = storageState.status.kind === "syncing";
 
-  if (isLoading && storageState.data.kind === "new") {
+  if (isSyncing && storageState.data.kind === "new") {
     return (
       <>
-        <Header syncStatus={storageState.status} onSync={handleSync} />
+        <Header syncStatus={syncStatus} onSync={handleSync} />
         <StatusBox content="Loading donation data..." kind="info" />
       </>
     );
@@ -146,12 +145,12 @@ const AppContent = () => {
           </div>
         </header>
       )}
-      <Header syncStatus={storageState.status} onSync={handleSync} />
+      <Header syncStatus={syncStatus} onSync={handleSync} />
       <SyncStatusBox
-        syncError={syncError}
+        syncError={dismissibleSyncError}
         onPull={() => offlineStore.sync("pull")}
         onPush={() => offlineStore.sync("push")}
-        onDismissError={() => setSyncError(undefined)}
+        onDismissError={() => setDismissibleSyncError(undefined)}
       />
       <Routes>
         <Route path="/" element={<Home />} />

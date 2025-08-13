@@ -1,5 +1,17 @@
 import { useState, useEffect } from "react";
-import type { OfflineStore, StorageState } from "./offlineStore";
+import type {
+  OfflineStore,
+  StorageState,
+  SyncError,
+  SyncStatus,
+} from "./offlineStore";
+
+export interface StorageStateHookResult<T> {
+  storageState: StorageState<T>;
+  syncStatus: SyncStatus;
+  isSyncing: boolean;
+  syncError: SyncError | undefined;
+}
 
 /**
  * React hook for monitoring storage state from an OfflineStore.
@@ -14,7 +26,7 @@ import type { OfflineStore, StorageState } from "./offlineStore";
  */
 export function useStorageState<T>(
   offlineStore: OfflineStore<T>,
-): StorageState<T> {
+): StorageStateHookResult<T> {
   const [storageState, setStorageState] = useState<StorageState<T>>(() =>
     offlineStore.get(),
   );
@@ -27,5 +39,13 @@ export function useStorageState<T>(
     return unsubscribe;
   }, [offlineStore]);
 
-  return storageState;
+  return {
+    storageState,
+    syncStatus: storageState.status,
+    isSyncing: storageState.status.kind === "syncing",
+    syncError:
+      storageState.status.kind === "error"
+        ? storageState.status.error
+        : undefined,
+  };
 }

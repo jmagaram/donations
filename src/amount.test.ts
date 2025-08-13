@@ -24,6 +24,11 @@ describe("parseCurrency", () => {
   });
 
   test.each([
+    ["1 2", "Spaces inside"],
+    ["1 2 3", "Spaces inside"],
+    ["1 2 3", "Spaces inside"],
+    ["123. 4", "Spaces inside"],
+    ["-1 23", "Spaces inside"],
     ["abc", "Non-numeric text"],
     ["$abc", "Currency symbol with non-numeric text"],
     ["", "Empty string"],

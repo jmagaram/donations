@@ -10,8 +10,7 @@
  * Returns undefined if the string cannot be parsed as a number.
  */
 export const parseCurrency = (str: string): number | undefined => {
-  const trimmed = str.replace(/\s/g, ""); // Remove all spaces
-  if (trimmed === "") return undefined;
+  const trimmed = str.trim();
 
   // Regex for valid currency formats:
   // ^-? : optional minus at start
@@ -22,10 +21,8 @@ export const parseCurrency = (str: string): number | undefined => {
   const currencyRegex = /^-?\$?(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/;
 
   if (!currencyRegex.test(trimmed)) return undefined;
-
-  const cleanedNumber = trimmed.replace(/[$,]/g, "");
-  const num = parseFloat(cleanedNumber);
-
+  const withoutSymbols = trimmed.replace(/[$,]/g, "");
+  const num = parseFloat(withoutSymbols);
   return isFinite(num) ? num : undefined;
 };
 

@@ -12,7 +12,7 @@
 export const parseCurrency = (str: string): number | undefined => {
   const trimmed = str.replace(/\s/g, ""); // Remove all spaces
   if (trimmed === "") return undefined;
-  
+
   // Regex for valid currency formats:
   // ^-? : optional minus at start
   // \$? : optional dollar sign
@@ -20,12 +20,12 @@ export const parseCurrency = (str: string): number | undefined => {
   // (\.\d{1,2})? : optional decimal with 1-2 digits
   // $ : end of string
   const currencyRegex = /^-?\$?(\d{1,3}(,\d{3})*|\d+)(\.\d{1,2})?$/;
-  
+
   if (!currencyRegex.test(trimmed)) return undefined;
-  
-  const cleanedNumber = trimmed.replace(/[\$,]/g, "");
+
+  const cleanedNumber = trimmed.replace(/[$,]/g, "");
   const num = parseFloat(cleanedNumber);
-  
+
   return isFinite(num) ? num : undefined;
 };
 
@@ -53,7 +53,7 @@ export function fuzzyAmountMatch(params: {
 
 export const formatUSD = (
   amount: number,
-  pennies: "showPennies" | "hidePennies" = "showPennies"
+  pennies: "showPennies" | "hidePennies" = "showPennies",
 ): string =>
   new Intl.NumberFormat("en-US", {
     style: "currency",

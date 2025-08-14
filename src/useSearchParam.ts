@@ -14,18 +14,20 @@ export const useSearchParam = <T>(
   const urlValue = searchParams.get(paramName);
   const currentValue = param.parse(urlValue ?? undefined);
   const setValue = (value: T | undefined) => {
-    const newParams = new URLSearchParams(searchParams);
-    if (value !== undefined) {
-      const encoded = param.encode(value);
-      if (encoded !== undefined) {
-        newParams.set(paramName, encoded);
+    setSearchParams(prevParams => {
+      const newParams = new URLSearchParams(prevParams);
+      if (value !== undefined) {
+        const encoded = param.encode(value);
+        if (encoded !== undefined) {
+          newParams.set(paramName, encoded);
+        } else {
+          newParams.delete(paramName);
+        }
       } else {
         newParams.delete(paramName);
       }
-    } else {
-      newParams.delete(paramName);
-    }
-    setSearchParams(newParams);
+      return newParams;
+    });
   };
 
   return [currentValue, setValue];

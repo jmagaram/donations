@@ -8,7 +8,6 @@ import { useSearchParams } from "react-router-dom";
 import {
   matchesYearFilter,
   matchesAmountFilter,
-  getOrgName,
   getOrgNameFromMap,
   donationTextMatchFuzzyTyped,
 } from "./donationsData";

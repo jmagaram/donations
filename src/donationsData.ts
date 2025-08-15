@@ -638,8 +638,10 @@ export const donationTextMatchFuzzyTyped = (
   });
 
   // Create O(1) lookup map for donations by ID
-  const donationMap = new Map(searchableDonations.map(d => [d.id, d.original]));
-  
+  const donationMap = new Map(
+    searchableDonations.map((d) => [d.id, d.original]),
+  );
+
   // Create final results sorted by best score
   const donationFinalScores = Array.from(bestDonationScores.entries())
     .map(([donationId, finalScore]) => {

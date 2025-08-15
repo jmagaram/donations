@@ -29,7 +29,7 @@ export const parseDateComponent = (input: string): number | undefined => {
  */
 export const parseDigits = (
   input: string,
-  parseDigitFn: (part: string) => number | undefined = parseDateComponent
+  parseDigitFn: (part: string) => number | undefined = parseDateComponent,
 ): number[] | undefined => {
   if (typeof input !== "string") return undefined;
   const trimmed = input.trim();
@@ -87,14 +87,14 @@ type DateValidators = {
 
 const create_YYYY = (
   year: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isYear(year) ? { kind: "y", year: year } : undefined;
 
 const create_MM_YYYY = (
   month: number,
   year: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isMonth(month) && v.isYear(year)
     ? { kind: "ym", year: year, month: month }
@@ -103,14 +103,14 @@ const create_MM_YYYY = (
 const create_YYYY_MM = (
   year: number,
   month: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isYear(year) && v.isMonth(month) ? { kind: "ym", year, month } : undefined;
 
 const create_MM_YY = (
   month: number,
   abbrevYear: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isMonth(month) && v.isYearAbbrev(abbrevYear)
     ? { kind: "ym", year: v.convertYearAbbrev(abbrevYear), month }
@@ -119,7 +119,7 @@ const create_MM_YY = (
 const create_MM_DD = (
   month: number,
   day: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isMonth(month) && v.isDay(day) ? { kind: "md", month, day } : undefined;
 
@@ -127,7 +127,7 @@ const create_MM_DD_YYYY = (
   month: number,
   day: number,
   year: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isMonth(month) && v.isDay(day) && v.isYear(year)
     ? { kind: "ymd", year, month, day }
@@ -137,7 +137,7 @@ const create_MM_DD_YY = (
   month: number,
   day: number,
   abbrevYear: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isMonth(month) && v.isDay(day) && v.isYearAbbrev(abbrevYear)
     ? { kind: "ymd", year: v.convertYearAbbrev(abbrevYear), month, day }
@@ -147,7 +147,7 @@ const create_YYYY_MM_DD = (
   year: number,
   month: number,
   day: number,
-  v: DateValidators
+  v: DateValidators,
 ): DatePattern | undefined =>
   v.isYear(year) && v.isMonth(month) && v.isDay(day)
     ? { kind: "ymd", year, month, day }
@@ -161,7 +161,7 @@ export const convertDigitsToDatePatterns = (
     isMonth?: (n: number) => boolean;
     isDay?: (n: number) => boolean;
     convertYearAbbrev?: (n: number) => number;
-  }
+  },
 ): DatePattern[] => {
   const v: DateValidators = {
     isYear: validators?.isYear ?? isYear,
@@ -174,7 +174,7 @@ export const convertDigitsToDatePatterns = (
   if (nums.length === 1) {
     const [x] = nums;
     return [create_YYYY(x, v)].filter(
-      (part): part is DatePattern => part !== undefined
+      (part): part is DatePattern => part !== undefined,
     );
   }
 
@@ -200,9 +200,20 @@ export const convertDigitsToDatePatterns = (
   return [];
 };
 
-type DateRange = {
+export type DateRange = {
   start: Date;
   end: Date;
+};
+
+export type YearRange = { minYear: number; maxYear: number };
+
+export const intersectYearRange = (
+  a: YearRange,
+  b: YearRange,
+): YearRange | undefined => {
+  const minYear = Math.max(a.minYear, b.minYear);
+  const maxYear = Math.min(a.maxYear, b.maxYear);
+  return minYear <= maxYear ? { minYear, maxYear } : undefined;
 };
 
 export const getDateRange = (params: {
@@ -232,7 +243,7 @@ export const getDateRange = (params: {
           end: dateFromYMD(
             p.year,
             p.month,
-            getLastDayOfMonth({ year: p.year, month: p.month })
+            getLastDayOfMonth({ year: p.year, month: p.month }),
           ),
         },
       ];
@@ -278,16 +289,21 @@ export const padDateRange = (range: DateRange, paddingDays: number) => {
 
 export const parseStringToDayRanges = (params: {
   input: string;
-  minYear: number;
-  maxYear: number;
+  yearRange: YearRange;
 }): DateRange[] => {
-  const { input, minYear, maxYear } = params;
+  const { input, yearRange } = params;
   const digits = parseDigits(input);
   if (digits === undefined) return [];
   const parts = convertDigitsToDatePatterns(digits);
   if (parts.length === 0) return [];
   return parts
-    .map((p) => getDateRange({ pattern: p, minYear, maxYear }))
+    .map((p) =>
+      getDateRange({
+        pattern: p,
+        minYear: yearRange.minYear,
+        maxYear: yearRange.maxYear,
+      }),
+    )
     .flatMap((i) => i);
 };
 
@@ -309,18 +325,14 @@ export const overlapPrecision = (r1: DateRange, r2: DateRange): number => {
   return Math.min(rangePrecision(r1), rangePrecision(r2));
 };
 
-export const fuzzyDateSearchFromRanges = (params: {
-  searchForRanges: DateRange[];
+export const fuzzyDateSearchRange = (params: {
+  searchRange: DateRange;
   target: Date;
   paddingDays: number;
 }) => {
-  if (params.searchForRanges.length === 0) return 1.0; // No ranges = worst score (Fuse.js scale)
   const targetRange = { start: params.target, end: params.target };
   const paddedTargetRange = padDateRange(targetRange, params.paddingDays);
-  const results = params.searchForRanges.map((r) =>
-    overlapPrecision(r, paddedTargetRange)
-  );
-  return Math.min(...results); // Best (lowest) score wins
+  return overlapPrecision(params.searchRange, paddedTargetRange);
 };
 
 // Schema for YYYY-MM-DD date strings where year starts with 19 or 20
@@ -328,7 +340,7 @@ export const DateIsoSchema = z
   .string()
   .regex(
     /^(19|20)\d{2}-(0\d|1\d)-(0\d|1\d|2\d|3\d)$/,
-    "Date must be in format YYYY-MM-DD (e.g., 2024-06-01)"
+    "Date must be in format YYYY-MM-DD (e.g., 2024-06-01)",
   );
 
 // Get current date in local timezone as YYYY-MM-DD

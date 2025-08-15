@@ -1,5 +1,5 @@
 import { getCurrentYear, compareDatesDesc } from "./date";
-import { useMemo } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { getDonationYearRange } from "./donationsData";
 import { type Donation } from "./donation";
 import { type DonationsData } from "./donationsData";
@@ -9,13 +9,8 @@ import {
   matchesYearFilter,
   matchesAmountFilter,
   getOrgName,
-  createSearchableDonations,
-  createFuseConfig,
-  scoreDonationAgainstWords,
-  filterAndSortDonations,
-  type SearchableDonation,
+  donationTextMatchFuzzyTyped,
 } from "./donationsData";
-import Fuse, { type FuseResult } from "fuse.js";
 import { getYearRange, yearFilterSearchParam } from "./yearFilter";
 import { amountFilterSearchParam } from "./amountFilter";
 import { useSearchParam } from "./useSearchParam";
@@ -35,7 +30,7 @@ import {
   type KindFilterParam,
 } from "./kindFilter";
 import { formatUSD } from "./amount";
-import { searchFilterParam, type SearchFilter } from "./searchFilter";
+import { type SearchFilter } from "./searchFilter";
 
 interface DonationsContainerProps {
   donationsData: DonationsData;
@@ -53,9 +48,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     "year",
     yearFilterSearchParam,
   );
-  const [searchFilter, setSearchFilter] = useSearchParam(
-    "search",
-    searchFilterParam,
+  const [searchFilter, setSearchFilter] = useState<SearchFilter | undefined>(
+    undefined,
   );
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
@@ -76,54 +70,13 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     [donationsData],
   );
 
-  const { searchableDonations, fuseInstance } = useMemo(() => {
-    const orgMap = new Map(donationsData.orgs.map((org) => [org.id, org]));
-    const { searchableDonations: searchable } = createSearchableDonations(
-      donationsData.donations,
-      orgMap,
-    );
-    const fuse = new Fuse(searchable, createFuseConfig());
-    return {
-      searchableDonations: searchable,
-      fuseInstance: fuse,
-    };
-  }, [donationsData.donations, donationsData.orgs]);
-
   const performFuzzySearch = (donations: Donation[], search: string) => {
     if (!search || search.trim() === "" || donations.length === 0) {
       return donations;
     }
 
-    const yearRange = getDonationYearRange(donationsData.donations);
-    const minYear = yearRange?.minYear;
-    const maxYear = yearRange?.maxYear;
-
-    const words = search.trim().split(/\s+/);
-
-    // Pre-compute search results for all words to avoid redundant searches
-    const wordSearchResults = new Map<
-      string,
-      FuseResult<SearchableDonation>[]
-    >();
-    words.forEach((word) => {
-      wordSearchResults.set(word, fuseInstance.search(word));
-    });
-
-    const donationScores = searchableDonations
-      .filter((searchable: SearchableDonation) =>
-        donations.some((d) => d.id === searchable.id),
-      )
-      .map((donationObj: SearchableDonation) =>
-        scoreDonationAgainstWords(
-          donationObj,
-          words,
-          fuseInstance,
-          minYear,
-          maxYear,
-          wordSearchResults,
-        ),
-      );
-    return filterAndSortDonations(donationScores);
+    // Use the new typed combinatorial search with sophisticated scoring
+    return donationTextMatchFuzzyTyped(donations, donationsData.orgs, search.trim());
   };
 
   const [yearFrom, yearTo] = yearFilter
@@ -148,11 +101,18 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         matchesPaymentKindFilter(d.kind, paymentKindFilter))
     );
   });
+
   if (searchFilter !== undefined && searchFilter.trim() !== "") {
     filteredDonations = performFuzzySearch(filteredDonations, searchFilter);
   }
+
   const donations: DonationDisplay[] = filteredDonations
-    .sort((a, b) => compareDatesDesc(a.date, b.date))
+    .sort((a, b) => 
+      // When searching, preserve search relevance order; otherwise sort by date
+      (searchFilter !== undefined && searchFilter.trim() !== "") 
+        ? 0 
+        : compareDatesDesc(a.date, b.date)
+    )
     .map((donation) => {
       return {
         id: donation.id,
@@ -166,12 +126,6 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       };
     });
 
-  const updateSearchFilter = (value: SearchFilter) => {
-    // const trimmed = value.trim();
-    const trimmed = value;
-    setSearchFilter(trimmed === "" ? undefined : trimmed);
-  };
-
   const updateTaxStatusFilter = (value: TaxStatusFilter | undefined) => {
     setTaxFilter(value);
   };
@@ -181,8 +135,14 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   };
 
   const handleClearFilters = () => {
+    setSearchFilter(undefined);
     setSearchParams(new URLSearchParams());
   };
+
+  const handleTextFilterChange = useCallback((value: SearchFilter) => {
+    const trimmed = value;
+    setSearchFilter(trimmed === "" ? undefined : trimmed);
+  }, []);
 
   const hasActiveFilters =
     searchFilter !== undefined ||
@@ -196,7 +156,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     <DonationsView
       donations={donations}
       currentFilter={searchFilter ?? ""}
-      textFilterChanged={updateSearchFilter}
+      textFilterChanged={handleTextFilterChange}
       yearFilter={yearFilter}
       minYear={minYear}
       maxYear={maxYear}

@@ -1,11 +1,19 @@
 import { z } from "zod";
-import { extractYear, MAX_PARSE_YYYY, MIN_PARSE_YYYY } from "./date";
+import {
+  extractYear,
+  intersectYearRange,
+  MAX_PARSE_YYYY,
+  MIN_PARSE_YYYY,
+  type DateRange,
+  type YearRange,
+} from "./date";
 import { type AmountFilter } from "./amountFilter";
 import { OrgSchema, type Org } from "./organization";
 import { DonationSchema, type Donation } from "./donation";
-import Fuse, { type FuseResult, type IFuseOptions } from "fuse.js";
+import Fuse, { type IFuseOptions } from "fuse.js";
 import { closeness, parseCurrency } from "./amount";
-import { fuzzyDateSearchFromRanges, parseStringToDayRanges } from "./date";
+import { fuzzyDateSearchRange, parseStringToDayRanges } from "./date";
+import { generatePermutations } from "./utility";
 
 export const DonationsDataSchema = z.object({
   orgs: z.array(OrgSchema),
@@ -16,7 +24,7 @@ export type DonationsData = z.infer<typeof DonationsDataSchema>;
 
 export function getDonationYearRange(
   donations: Pick<Donation, "date">[],
-): { minYear: number; maxYear: number } | undefined {
+): YearRange | undefined {
   if (donations.length === 0) return undefined;
   const years = donations.map((d) => extractYear(d.date));
   const minYear = Math.min(...years);
@@ -312,23 +320,24 @@ export interface SearchableDonation {
   donationNotes: string;
   kind: string;
   paymentMethod: string;
-  amount: number;
   original: Donation;
-}
-
-interface DonationSearchResult {
-  donation: Donation;
-  totalScore: number;
 }
 
 export const createSearchableDonations = (
   donations: Donation[],
-  orgMap: Map<string, Org>,
+  orgs: Org[],
 ): {
   searchableDonations: SearchableDonation[];
-  minYear: number | undefined;
-  maxYear: number | undefined;
+  yearRange: YearRange | undefined;
 } => {
+  const orgMap = new Map(orgs.map((org) => [org.id, org]));
+  if (donations.length === 0) {
+    return {
+      searchableDonations: [],
+      yearRange: undefined,
+    };
+  }
+
   return donations.reduce(
     (acc, donation) => {
       const org = orgMap.get(donation.orgId);
@@ -339,80 +348,239 @@ export const createSearchableDonations = (
         donationNotes: donation.notes || "",
         kind: donation.kind || "",
         paymentMethod: donation.paymentMethod || "",
-        amount: donation.amount,
         original: donation,
       };
       const year = extractYear(donation.date);
       return {
         searchableDonations: [...acc.searchableDonations, searchable],
-        minYear: acc.minYear === undefined ? year : Math.min(acc.minYear, year),
-        maxYear: acc.maxYear === undefined ? year : Math.max(acc.maxYear, year),
+        yearRange: acc.yearRange
+          ? {
+              minYear: Math.min(acc.yearRange.minYear, year),
+              maxYear: Math.max(acc.yearRange.maxYear, year),
+            }
+          : { minYear: year, maxYear: year },
       };
     },
     {
       searchableDonations: [] as SearchableDonation[],
-      minYear: undefined as number | undefined,
-      maxYear: undefined as number | undefined,
+      yearRange: undefined as YearRange | undefined,
     },
   );
 };
 
-const calculateWordScore = (
-  word: string,
-  donationObj: SearchableDonation,
+type SearchInterpretation = {
+  text: string | undefined;
+  amount: number | undefined;
+  dateRange: DateRange | undefined;
+};
+
+const isValidInterpretation = (
+  interpretation: SearchInterpretation,
+): boolean => {
+  return (
+    interpretation.text !== undefined ||
+    interpretation.amount !== undefined ||
+    interpretation.dateRange !== undefined
+  );
+};
+
+type WordCapabilities = {
+  amountIndexes: Map<number, number>;
+  dateIndexes: Map<number, Array<DateRange>>;
+};
+
+type ChoiceCombination = {
+  amountIndex: number | null;
+  dateIndex: number | null;
+};
+
+const parseWordCapabilities = (
+  words: string[],
+  yearRange: YearRange | undefined,
+): WordCapabilities => {
+  const amountIndexes = new Map<number, number>();
+  const dateIndexes = new Map<number, Array<DateRange>>();
+
+  const relevantYears = yearRange
+    ? intersectYearRange(yearRange, {
+        minYear: MIN_PARSE_YYYY,
+        maxYear: MAX_PARSE_YYYY,
+      })
+    : undefined;
+
+  words.forEach((word, index) => {
+    const amount = parseCurrency(word);
+    if (amount !== undefined) {
+      amountIndexes.set(index, amount);
+    }
+    if (relevantYears) {
+      const dateRanges = parseStringToDayRanges({
+        input: word,
+        yearRange: relevantYears,
+      });
+      if (dateRanges.length > 0) {
+        dateIndexes.set(index, dateRanges);
+      }
+    }
+  });
+
+  return { amountIndexes, dateIndexes };
+};
+
+const generateChoiceCombinations = (
+  capabilities: WordCapabilities,
+): ChoiceCombination[] => {
+  const { amountIndexes, dateIndexes } = capabilities;
+  const amountChoices: (number | null)[] = [null, ...amountIndexes.keys()];
+  const dateChoices: (number | null)[] = [null, ...dateIndexes.keys()];
+
+  return amountChoices.flatMap((amountIndex) =>
+    dateChoices
+      .filter(
+        (dateIndex) => !(amountIndex === dateIndex && amountIndex !== null),
+      )
+      .map((dateIndex) => ({ amountIndex, dateIndex })),
+  );
+};
+
+const createTextPermutations = (
+  words: string[],
+  usedIndexes: (number | null)[],
+): (string | undefined)[] => {
+  const textIndexes = words
+    .map((_, i) => i)
+    .filter((i) => !usedIndexes.includes(i));
+  const textWords = textIndexes.map((i) => words[i]);
+
+  return textWords.length > 0
+    ? generatePermutations(textWords).map((perm) => perm.join(" "))
+    : [undefined];
+};
+
+const buildInterpretations = (
+  combinations: ChoiceCombination[],
+  words: string[],
+  capabilities: WordCapabilities,
+): SearchInterpretation[] => {
+  const { amountIndexes, dateIndexes } = capabilities;
+
+  return combinations.flatMap(({ amountIndex, dateIndex }) => {
+    const textPermutations = createTextPermutations(words, [
+      amountIndex,
+      dateIndex,
+    ]);
+
+    return textPermutations.flatMap((textString): SearchInterpretation[] => {
+      if (dateIndex !== null) {
+        return dateIndexes.get(dateIndex)!.map(
+          (range): SearchInterpretation => ({
+            text: textString,
+            amount:
+              amountIndex !== null
+                ? amountIndexes.get(amountIndex)!
+                : undefined,
+            dateRange: range,
+          }),
+        );
+      } else {
+        return [
+          {
+            text: textString,
+            amount:
+              amountIndex !== null
+                ? amountIndexes.get(amountIndex)!
+                : undefined,
+            dateRange: undefined,
+          },
+        ];
+      }
+    });
+  });
+};
+
+const generateAllInterpretations = (
+  search: string,
+  yearRange: YearRange | undefined,
+): SearchInterpretation[] => {
+  const words = search.trim().split(/\s+/);
+  if (words.length === 0) return [];
+  const capabilities = parseWordCapabilities(words, yearRange);
+  const combinations = generateChoiceCombinations(capabilities);
+  const interpretations = buildInterpretations(
+    combinations,
+    words,
+    capabilities,
+  );
+  return interpretations.filter(isValidInterpretation);
+};
+
+const scoreInterpretation = (
+  interpretation: SearchInterpretation,
+  searchableDonations: SearchableDonation[],
   fuse: Fuse<SearchableDonation>,
-  minYear: number | undefined,
-  maxYear: number | undefined,
-  wordSearchResults?: Map<string, FuseResult<SearchableDonation>[]>,
-): number => {
-  // Text search score (Fuse)
-  let textScore = 1;
+): Map<string, number> => {
+  const donationScores = new Map<string, number>();
 
-  // Use cached results if available, otherwise search
-  let searchResults: FuseResult<SearchableDonation>[];
-  if (wordSearchResults?.has(word)) {
-    searchResults = wordSearchResults.get(word)!;
-  } else {
-    searchResults = fuse.search(word);
-  }
-
-  const fuseResults = searchResults.find((r) => r.item.id === donationObj.id);
-  if (fuseResults) textScore = fuseResults.score ?? 1;
-
-  // Amount search score
-  let amountScore = 1;
-  const targetAmount = parseCurrency(word);
-  if (targetAmount !== undefined) {
-    amountScore = closeness({
-      value: donationObj.amount,
-      target: targetAmount,
-      tolerancePercent: 10,
+  // Pre-compute text scores into a Map for O(1) lookup
+  const textScoreMap = new Map<string, number>();
+  if (interpretation.text !== undefined) {
+    const textResults = fuse.search(interpretation.text);
+    textResults.forEach((result) => {
+      const score = result.score;
+      if (score !== undefined) {
+        textScoreMap.set((result.item as SearchableDonation).id, score);
+      }
     });
   }
 
-  // Date search score
-  let dateScore = 1;
-  if (minYear !== undefined && maxYear !== undefined) {
-    const dateRanges = parseStringToDayRanges({
-      input: word,
-      minYear: Math.max(MIN_PARSE_YYYY, minYear),
-      maxYear: Math.min(MAX_PARSE_YYYY, maxYear),
-    });
-    if (dateRanges.length > 0) {
-      dateScore = fuzzyDateSearchFromRanges({
-        searchForRanges: dateRanges,
-        target: new Date(donationObj.original.date),
+  // For each donation, calculate scores for this interpretation
+  searchableDonations.forEach((donation) => {
+    let textScore: number | undefined;
+    let amountScore: number | undefined;
+    let dateScore: number | undefined;
+
+    // Text score - assign 1 (worst) if no match found
+    if (interpretation.text !== undefined) {
+      textScore = textScoreMap.get(donation.id) ?? 1;
+    }
+
+    // Amount score - rescale to 0.0-0.1 range to make amount matches clearly better than text matches
+    if (interpretation.amount !== undefined) {
+      amountScore =
+        closeness({
+          value: donation.original.amount,
+          target: interpretation.amount,
+          tolerancePercent: 10,
+        }) * 0.1;
+    }
+
+    // Date score
+    if (interpretation.dateRange !== undefined) {
+      dateScore = fuzzyDateSearchRange({
+        searchRange: interpretation.dateRange,
+        target: new Date(donation.original.date),
         paddingDays: 5,
       });
     }
-  }
 
-  return Math.min(textScore, amountScore, dateScore);
+    // AND logic: ALL components must be good (Math.max in fuzzy scoring where lower = better)
+    const componentScores = [textScore, amountScore, dateScore].filter(
+      (score): score is number => score !== undefined,
+    );
+
+    if (componentScores.length > 0) {
+      const finalScore = Math.max(...componentScores); // Worst component determines final score
+
+      donationScores.set(donation.id, finalScore);
+    }
+  });
+
+  return donationScores;
 };
 
-export const createFuseConfig = (): IFuseOptions<SearchableDonation> => ({
+export const fuseConfigForDonations = (): IFuseOptions<SearchableDonation> => ({
   keys: [
-    { name: "orgName", weight: 4 },
+    { name: "orgName", weight: 8 },
     { name: "orgNotes", weight: 2 },
     { name: "donationNotes", weight: 2 },
     { name: "kind", weight: 1 },
@@ -420,48 +588,11 @@ export const createFuseConfig = (): IFuseOptions<SearchableDonation> => ({
   ],
   includeScore: true,
   threshold: 0.4,
-  shouldSort: true,
-  useExtendedSearch: true,
+  shouldSort: false,
+  useExtendedSearch: false,
 });
 
-export const scoreDonationAgainstWords = (
-  donationObj: SearchableDonation,
-  words: string[],
-  fuse: Fuse<SearchableDonation>,
-  minYear: number | undefined,
-  maxYear: number | undefined,
-  wordSearchResults?: Map<string, FuseResult<SearchableDonation>[]>,
-): { donation: Donation; scores: number[] } => {
-  const scores = words.map((word) =>
-    calculateWordScore(
-      word,
-      donationObj,
-      fuse,
-      minYear,
-      maxYear,
-      wordSearchResults,
-    ),
-  );
-  return {
-    donation: donationObj.original,
-    scores,
-  };
-};
-
-export const filterAndSortDonations = (
-  donationScores: Array<{ donation: Donation; scores: number[] }>,
-): Donation[] => {
-  const matchingDonations: DonationSearchResult[] = donationScores
-    .filter((entry) => entry.scores.every((score) => score < 1))
-    .map((entry) => ({
-      donation: entry.donation,
-      totalScore: entry.scores.reduce((a, b) => a + b, 0),
-    }));
-  matchingDonations.sort((a, b) => a.totalScore - b.totalScore);
-  return matchingDonations.map((entry) => entry.donation);
-};
-
-export const donationTextMatchFuzzy = (
+export const donationTextMatchFuzzyTyped = (
   donations: Donation[],
   orgs: Org[],
   search: string,
@@ -469,29 +600,45 @@ export const donationTextMatchFuzzy = (
   if (!search || search.trim() === "" || donations.length === 0) {
     return donations;
   }
-  const orgMap = new Map(orgs.map((org) => [org.id, org]));
-  const { searchableDonations, minYear, maxYear } = createSearchableDonations(
-    donations,
-    orgMap,
-  );
-  const fuse = new Fuse(searchableDonations, createFuseConfig());
-  const words = search.trim().split(/\s+/);
 
-  // Pre-compute search results for all words to avoid redundant searches
-  const wordSearchResults = new Map<string, FuseResult<SearchableDonation>[]>();
-  words.forEach((word) => {
-    wordSearchResults.set(word, fuse.search(word));
+  const { searchableDonations, yearRange } = createSearchableDonations(
+    donations,
+    orgs,
+  );
+
+  const fuse = new Fuse(searchableDonations, fuseConfigForDonations());
+
+  // Generate all possible interpretations of the search query
+  const interpretations = generateAllInterpretations(search, yearRange);
+
+  // Track best score per donation across all interpretations
+  const bestDonationScores = new Map<string, number>();
+
+  // Score each interpretation and keep the best score per donation
+  interpretations.forEach((interpretation) => {
+    const interpretationScores = scoreInterpretation(
+      interpretation,
+      searchableDonations,
+      fuse,
+    );
+
+    interpretationScores.forEach((score, donationId) => {
+      const currentBest = bestDonationScores.get(donationId) ?? 1;
+      const newBest = Math.min(currentBest, score);
+      bestDonationScores.set(donationId, newBest);
+    });
   });
 
-  const donationScores = searchableDonations.map((donationObj) =>
-    scoreDonationAgainstWords(
-      donationObj,
-      words,
-      fuse,
-      minYear,
-      maxYear,
-      wordSearchResults,
-    ),
-  );
-  return filterAndSortDonations(donationScores);
+  // Create final results sorted by best score
+  const donationFinalScores = Array.from(bestDonationScores.entries())
+    .map(([donationId, finalScore]) => {
+      const donation = searchableDonations.find(
+        (d) => d.id === donationId,
+      )?.original;
+      return { donation, finalScore };
+    })
+    .filter((entry) => entry.donation && entry.finalScore < 1) // Only include good matches
+    .sort((a, b) => a.finalScore - b.finalScore); // Lower scores are better
+
+  return donationFinalScores.map((entry) => entry.donation!);
 };

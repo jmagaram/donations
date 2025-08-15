@@ -18,7 +18,7 @@ const SearchFilterBox = ({
   placeholder = "Search",
 }: SearchFilterBoxProps) => {
   const [inputValue, setInputValue] = useState(value);
-  const debouncedInputValue = useDebounce(inputValue, 300);
+  const debouncedInputValue = useDebounce(inputValue, 1000);
 
   // Use ref to avoid onChange dependency in useEffect, which would cause
   // infinite loops if onChange gets recreated on every parent render

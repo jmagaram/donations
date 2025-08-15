@@ -431,21 +431,24 @@ export const sampleData = (): DonationsData | undefined => {
 
     result = dataWithOrg;
 
-    const MAX_DONATIONS_PER_ORG = 12;
-    const numDonationForOrg = randomInt(0, MAX_DONATIONS_PER_ORG);
-    for (let i = 0; i < numDonationForOrg; i++) {
-      const newDonation = {
-        id: makeId(),
-        orgId: newOrg.id,
-        date: randomDate(),
-        amount: randomAmount(),
-        kind: randomKind(),
-        notes: randomNotes(),
-        paymentMethod: randomPaymentMethod(),
-      };
-      const donationResult = donationAdd(result, newDonation);
-      if (!donationResult) return undefined;
-      result = donationResult;
+    const MAX_DONATIONS_PER_ORG = 15;
+    const ORGS_WITH_DONATIONS_PCT = 40;
+    if (randomInt(0, 100) <= ORGS_WITH_DONATIONS_PCT) {
+      const numDonationForOrg = randomInt(0, MAX_DONATIONS_PER_ORG);
+      for (let i = 0; i < numDonationForOrg; i++) {
+        const newDonation = {
+          id: makeId(),
+          orgId: newOrg.id,
+          date: randomDate(),
+          amount: randomAmount(),
+          kind: randomKind(),
+          notes: randomNotes(),
+          paymentMethod: randomPaymentMethod(),
+        };
+        const donationResult = donationAdd(result, newDonation);
+        if (!donationResult) return undefined;
+        result = donationResult;
+      }
     }
   }
 

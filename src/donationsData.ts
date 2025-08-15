@@ -219,6 +219,14 @@ export const getOrgName = (
   return org?.name || "Unknown organization";
 };
 
+export const getOrgNameFromMap = (
+  orgMap: Map<string, Org>,
+  orgId: string,
+): string => {
+  const org = orgMap.get(orgId);
+  return org?.name || "Unknown organization";
+};
+
 export const donationTextMatch = (
   filter: string,
   donation: Donation,
@@ -629,15 +637,16 @@ export const donationTextMatchFuzzyTyped = (
     });
   });
 
+  // Create O(1) lookup map for donations by ID
+  const donationMap = new Map(searchableDonations.map(d => [d.id, d.original]));
+  
   // Create final results sorted by best score
   const donationFinalScores = Array.from(bestDonationScores.entries())
     .map(([donationId, finalScore]) => {
-      const donation = searchableDonations.find(
-        (d) => d.id === donationId,
-      )?.original;
+      const donation = donationMap.get(donationId);
       return { donation, finalScore };
     })
-    .filter((entry) => entry.donation && entry.finalScore < 1) // Only include good matches
+    .filter((entry) => entry.donation && entry.finalScore < 0.3) // Only include good matches
     .sort((a, b) => a.finalScore - b.finalScore); // Lower scores are better
 
   return donationFinalScores.map((entry) => entry.donation!);

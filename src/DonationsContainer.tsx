@@ -9,6 +9,7 @@ import {
   matchesYearFilter,
   matchesAmountFilter,
   getOrgName,
+  getOrgNameFromMap,
   donationTextMatchFuzzyTyped,
 } from "./donationsData";
 import { getYearRange, yearFilterSearchParam } from "./yearFilter";
@@ -75,8 +76,11 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       return donations;
     }
 
-    // Use the new typed combinatorial search with sophisticated scoring
-    return donationTextMatchFuzzyTyped(donations, donationsData.orgs, search.trim());
+    return donationTextMatchFuzzyTyped(
+      donations,
+      donationsData.orgs,
+      search.trim(),
+    );
   };
 
   const [yearFrom, yearTo] = yearFilter
@@ -88,8 +92,13 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       })
     : [minYear, maxYear];
 
+  const orgMap = useMemo(
+    () => new Map(donationsData.orgs.map((org) => [org.id, org])),
+    [donationsData.orgs],
+  );
+
   let filteredDonations = [...donationsData.donations].filter((d) => {
-    const org = donationsData.orgs.find((o) => o.id === d.orgId);
+    const org = orgMap.get(d.orgId);
     return (
       matchesYearFilter(d, yearFrom, yearTo) &&
       (amountFilter === undefined || matchesAmountFilter(d, amountFilter)) &&
@@ -107,11 +116,11 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   }
 
   const donations: DonationDisplay[] = filteredDonations
-    .sort((a, b) => 
+    .sort((a, b) =>
       // When searching, preserve search relevance order; otherwise sort by date
-      (searchFilter !== undefined && searchFilter.trim() !== "") 
-        ? 0 
-        : compareDatesDesc(a.date, b.date)
+      searchFilter !== undefined && searchFilter.trim() !== ""
+        ? 0
+        : compareDatesDesc(a.date, b.date),
     )
     .map((donation) => {
       return {
@@ -119,7 +128,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
         date: donation.date,
         amount: formatUSD(donation.amount, "hidePennies"),
         orgId: donation.orgId,
-        orgName: getOrgName(donationsData, donation.orgId),
+        orgName: getOrgNameFromMap(orgMap, donation.orgId),
         kind: donation.kind,
         notes: donation.notes,
         paymentMethod: donation.paymentMethod,

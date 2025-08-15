@@ -14,9 +14,9 @@ const validValues: KindFilterParam[] = [
   "all",
   "paid",
   "pledge",
+  "idea",
   "paidAndPledge",
   "unknown",
-  "idea",
 ];
 
 const parse = (value: string | undefined): KindFilterParam => {
@@ -59,7 +59,7 @@ export const paymentKindParam: SearchParam<KindFilterParam> = {
 
 export const matchesPaymentKindFilter = (
   donationKind: string,
-  filter: KindFilterParam | undefined
+  filter: KindFilterParam | undefined,
 ): boolean => {
   if (!filter || filter === "all") return true;
 

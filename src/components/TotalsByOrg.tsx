@@ -121,6 +121,9 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
       .filter((org) => orgYearTotals[org.id])
       .sort((a, b) => a.name.localeCompare(b.name));
 
+    // Filter out years with no donations
+    years = years.filter(year => yearTotals[year] > 0);
+
     return {
       years,
       sortedOrgs,

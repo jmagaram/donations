@@ -124,6 +124,9 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
       return a.localeCompare(b);
     });
 
+    // Filter out years with no donations
+    years = years.filter(year => yearTotals[year] > 0);
+
     return {
       years,
       sortedCategories,

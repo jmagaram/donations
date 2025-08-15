@@ -1,4 +1,4 @@
-import { getCurrentYear, compareDatesDesc } from "./date";
+import { getCurrentYear } from "./date";
 import { useState, useCallback, useMemo } from "react";
 import { getDonationYearRange } from "./donationsData";
 import { type Donation } from "./donation";
@@ -9,7 +9,7 @@ import {
   matchesYearFilter,
   matchesAmountFilter,
   getOrgNameFromMap,
-  donationTextMatchFuzzyTyped,
+  fuzzyDonationSearch,
 } from "./donationsData";
 import { getYearRange, yearFilterSearchParam } from "./yearFilter";
 import { amountFilterSearchParam } from "./amountFilter";
@@ -75,7 +75,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       return donations;
     }
 
-    return donationTextMatchFuzzyTyped(
+    return fuzzyDonationSearch(
       donations,
       donationsData.orgs,
       search.trim(),
@@ -114,12 +114,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     filteredDonations = performFuzzySearch(filteredDonations, searchFilter);
   }
 
-  // Only sort when NOT searching to avoid unnecessary iteration
-  const sortedDonations = searchFilter !== undefined && searchFilter.trim() !== ""
-    ? filteredDonations  // Preserve search relevance order
-    : filteredDonations.sort((a, b) => compareDatesDesc(a.date, b.date));
-
-  const donations: DonationDisplay[] = sortedDonations.map((donation) => {
+  const donations: DonationDisplay[] = filteredDonations.map((donation) => {
     return {
       id: donation.id,
       date: donation.date,

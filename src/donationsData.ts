@@ -600,6 +600,170 @@ export const fuseConfigForDonations = (): IFuseOptions<SearchableDonation> => ({
   useExtendedSearch: false,
 });
 
+export type SearchConfig = {
+  amountTolerance?: number;
+  amountScoreCutoff?: number;
+  dateScoreCutoff?: number;
+  textScoreCutoff?: number;
+  datePaddingDays?: number;
+};
+
+const defaultSearchConfig = {
+  amountTolerance: 10,
+  amountScoreCutoff: 1,
+  dateScoreCutoff: 0.5,
+  textScoreCutoff: 0.4, // Default Fuse.js threshold
+  datePaddingDays: 5,
+};
+
+/**
+ * Performs a text search on the donations using Fuse.js.
+ * @param searchableDonations - The donations to search.
+ * @param search - The search string.
+ * @param textScoreCutoff - The score cutoff for the search.
+ * @returns An array of donation IDs that match the search.
+ */
+const searchByText = (
+  searchableDonations: SearchableDonation[],
+  search: string,
+  textScoreCutoff: number,
+): string[] => {
+  const fuse = new Fuse(searchableDonations, fuseConfigForDonations());
+  const results = fuse.search(search.trim());
+  return results
+    .filter((result) => (result.score ?? 1) < textScoreCutoff)
+    .map((result) => result.item.id);
+};
+
+/**
+ * Performs an amount search on the donations.
+ * @param donations - The donations to search.
+ * @param search - The search string.
+ * @param amountTolerance - The tolerance for the amount search.
+ * @param amountScoreCutoff - The score cutoff for the amount search.
+ * @returns An array of donation IDs that match the search.
+ */
+const searchByAmount = (
+  donations: Donation[],
+  search: string,
+  amountTolerance: number,
+  amountScoreCutoff: number,
+): string[] => {
+  const amount = parseCurrency(search);
+  if (amount === undefined) {
+    return [];
+  }
+
+  return donations
+    .filter((donation) => {
+      const score = closeness({
+        value: donation.amount,
+        target: amount,
+        tolerancePercent: amountTolerance,
+      });
+      return score < amountScoreCutoff;
+    })
+    .map((donation) => donation.id);
+};
+
+/**
+ * Performs a date search on the donations.
+ * @param donations - The donations to search.
+ * @param search - The search string.
+ * @param yearRange - The year range of the donations.
+ * @param dateScoreCutoff - The score cutoff for the date search.
+ * @returns An array of donation IDs that match the search.
+ */
+const searchByDate = (
+  donations: Donation[],
+  search: string,
+  yearRange: YearRange | undefined,
+  dateScoreCutoff: number,
+  datePaddingDays: number,
+): string[] => {
+  if (!yearRange) {
+    return [];
+  }
+  const dateRanges = parseStringToDayRanges({
+    input: search,
+    yearRange,
+  });
+  if (dateRanges.length === 0) {
+    return [];
+  }
+
+  const matchingDonationIds = new Set<string>();
+
+  for (const donation of donations) {
+    for (const range of dateRanges) {
+      const score = fuzzyDateSearchRange({
+        searchRange: range,
+        target: new Date(donation.date),
+        paddingDays: datePaddingDays,
+      });
+      if (score < dateScoreCutoff) {
+        matchingDonationIds.add(donation.id);
+        break; // Move to the next donation once a match is found
+      }
+    }
+  }
+
+  return Array.from(matchingDonationIds);
+};
+
+export const fuzzyDonationSearch = (
+  donations: Donation[],
+  orgs: Org[],
+  search: string,
+  config: SearchConfig = {},
+): Donation[] => {
+  const finalConfig = { ...defaultSearchConfig, ...config };
+
+  if (!search || search.trim() === "" || donations.length === 0) {
+    return donations.sort((a, b) => b.date.localeCompare(a.date));
+  }
+
+  const { searchableDonations, yearRange } = createSearchableDonations(
+    donations,
+    orgs,
+  );
+
+  const textMatchIds = searchByText(
+    searchableDonations,
+    search,
+    finalConfig.textScoreCutoff,
+  );
+
+  const amountMatchIds = searchByAmount(
+    donations,
+    search,
+    finalConfig.amountTolerance,
+    finalConfig.amountScoreCutoff,
+  );
+
+  const dateMatchIds = searchByDate(
+    donations,
+    search,
+    yearRange,
+    finalConfig.dateScoreCutoff,
+    finalConfig.datePaddingDays,
+  );
+
+  const allIds = new Set([
+    ...textMatchIds,
+    ...amountMatchIds,
+    ...dateMatchIds,
+  ]);
+
+  const donationMap = new Map(donations.map((d) => [d.id, d]));
+
+  const matchedDonations = Array.from(allIds)
+    .map((id) => donationMap.get(id))
+    .filter((d): d is Donation => d !== undefined);
+
+  return matchedDonations.sort((a, b) => b.date.localeCompare(a.date));
+};
+
 export const donationTextMatchFuzzyTyped = (
   donations: Donation[],
   orgs: Org[],

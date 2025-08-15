@@ -4,7 +4,13 @@ const SignOut = () => {
   const { hasApiKey, clearApiKey } = useApiKey();
 
   const handleSignOut = () => {
-    clearApiKey();
+    if (
+      window.confirm(
+        "Are you sure you want to sign out? You'll need to enter the password again to access your data."
+      )
+    ) {
+      clearApiKey();
+    }
   };
 
   if (!hasApiKey) {

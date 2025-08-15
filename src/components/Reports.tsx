@@ -7,12 +7,12 @@ const Reports = () => {
       <nav>
         <ul className="nav-list">
           <li>
-            <Link to="/reports/yearlytotals?year=last5&type=paid">
+            <Link to="/reports/yearlytotals?year=recent&type=paid">
               Organization totals
             </Link>
           </li>
           <li>
-            <Link to="/reports/yearlytotalsbycategory?year=last5&type=paid">
+            <Link to="/reports/yearlytotalsbycategory?year=recent&type=paid">
               Category totals
             </Link>
           </li>

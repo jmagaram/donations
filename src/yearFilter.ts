@@ -4,6 +4,7 @@ export type YearFilter =
   | { kind: "all" }
   | { kind: "current" }
   | { kind: "previous" }
+  | { kind: "recent" }
   | { kind: "last"; count: number }
   | { kind: "other"; value: number };
 
@@ -17,6 +18,8 @@ const parseYearFilter = (value: string | undefined): YearFilter | undefined => {
       return { kind: "current" };
     case "previous":
       return { kind: "previous" };
+    case "recent":
+      return { kind: "recent" };
     case "last2":
       return { kind: "last", count: 2 };
     case "last3":
@@ -47,6 +50,8 @@ const encode = (filter: YearFilter): string | undefined => {
       return "current";
     case "previous":
       return "previous";
+    case "recent":
+      return "recent";
     case "last":
       return `last${filter.count}`;
     case "other":
@@ -72,8 +77,10 @@ export const getYearRange = ({
       return [currentYear, currentYear];
     case "previous":
       return [currentYear - 1, currentYear - 1];
+    case "recent":
+      return [currentYear - 2, currentYear + 1];
     case "last":
-      return [currentYear - yearFilter.count + 1, currentYear];
+      return [currentYear - yearFilter.count + 1, currentYear + 1];
     case "other":
       return [yearFilter.value, yearFilter.value];
   }
@@ -95,6 +102,8 @@ export const getYearDisplayLabel = (
       return "Current year";
     case "previous":
       return "Previous year";
+    case "recent":
+      return "Recent";
     case "last":
       return `Last ${yearFilter.count} years`;
     case "other":

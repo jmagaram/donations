@@ -41,7 +41,11 @@ const YearFilterPicker = ({
   };
 
   const getYearOptions = (): YearFilter[] => {
-    const options: YearFilter[] = [{ kind: "current" }, { kind: "previous" }];
+    const options: YearFilter[] = [
+      { kind: "current" },
+      { kind: "previous" },
+      { kind: "recent" },
+    ];
 
     // Collect all "last N" counts to include
     const lastCounts = new Set<number>();

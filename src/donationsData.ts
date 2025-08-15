@@ -648,7 +648,7 @@ export const donationTextMatchFuzzyTyped = (
       const donation = donationMap.get(donationId);
       return { donation, finalScore };
     })
-    .filter((entry) => entry.donation && entry.finalScore < 0.3) // Only include good matches
+    .filter((entry) => entry.donation && entry.finalScore < 0.5) // Only include good matches
     .sort((a, b) => a.finalScore - b.finalScore); // Lower scores are better
 
   return donationFinalScores.map((entry) => entry.donation!);

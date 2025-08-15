@@ -114,25 +114,23 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     filteredDonations = performFuzzySearch(filteredDonations, searchFilter);
   }
 
-  const donations: DonationDisplay[] = filteredDonations
-    .sort((a, b) =>
-      // When searching, preserve search relevance order; otherwise sort by date
-      searchFilter !== undefined && searchFilter.trim() !== ""
-        ? 0
-        : compareDatesDesc(a.date, b.date),
-    )
-    .map((donation) => {
-      return {
-        id: donation.id,
-        date: donation.date,
-        amount: formatUSD(donation.amount, "hidePennies"),
-        orgId: donation.orgId,
-        orgName: getOrgNameFromMap(orgMap, donation.orgId),
-        kind: donation.kind,
-        notes: donation.notes,
-        paymentMethod: donation.paymentMethod,
-      };
-    });
+  // Only sort when NOT searching to avoid unnecessary iteration
+  const sortedDonations = searchFilter !== undefined && searchFilter.trim() !== ""
+    ? filteredDonations  // Preserve search relevance order
+    : filteredDonations.sort((a, b) => compareDatesDesc(a.date, b.date));
+
+  const donations: DonationDisplay[] = sortedDonations.map((donation) => {
+    return {
+      id: donation.id,
+      date: donation.date,
+      amount: formatUSD(donation.amount, "hidePennies"),
+      orgId: donation.orgId,
+      orgName: getOrgNameFromMap(orgMap, donation.orgId),
+      kind: donation.kind,
+      notes: donation.notes,
+      paymentMethod: donation.paymentMethod,
+    };
+  });
 
   const updateTaxStatusFilter = (value: TaxStatusFilter | undefined) => {
     setTaxFilter(value);

@@ -431,7 +431,7 @@ export const sampleData = (): DonationsData | undefined => {
 
     result = dataWithOrg;
 
-    const MAX_DONATIONS_PER_ORG = 100;
+    const MAX_DONATIONS_PER_ORG = 12;
     const numDonationForOrg = randomInt(0, MAX_DONATIONS_PER_ORG);
     for (let i = 0; i < numDonationForOrg; i++) {
       const newDonation = {

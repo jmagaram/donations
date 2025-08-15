@@ -485,7 +485,7 @@ nav a {
 /* Totals by Year Report Styles */
 .filters {
     display: flex;
-    gap: 1.25rem;
+    gap: 0.5rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
 }

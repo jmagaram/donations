@@ -371,9 +371,6 @@ const DonationUpsertForm = ({
         </div>
         <div className="toolbar">
           <button type="submit">Save</button>
-          <button type="button" onClick={() => navigate(-1)}>
-            Cancel
-          </button>
           {onDelete && mode === "edit" && (
             <button
               type="button"
@@ -390,6 +387,9 @@ const DonationUpsertForm = ({
               Delete
             </button>
           )}
+          <button type="button" onClick={() => navigate(-1)}>
+            Cancel
+          </button>
         </div>
       </form>
     </div>

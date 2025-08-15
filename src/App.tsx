@@ -174,7 +174,12 @@ const AppContent = () => {
         />
         <Route
           path="/donations/:donationId"
-          element={<DonationDetailsContainer donationsData={donationsData} />}
+          element={
+            <DonationDetailsContainer
+              setDonationsData={setDonationsData}
+              donationsData={donationsData}
+            />
+          }
         />
         <Route
           path="/donations/:donationId/edit"

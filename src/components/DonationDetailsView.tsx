@@ -6,11 +6,13 @@ import type { Org } from "../organization";
 interface DonationDetailsViewProps {
   donation: Donation;
   organization: Org;
+  onDelete: () => void;
 }
 
 const DonationDetailsView = ({
   donation,
   organization,
+  onDelete,
 }: DonationDetailsViewProps) => {
   const navigate = useNavigate();
 
@@ -20,6 +22,12 @@ const DonationDetailsView = ({
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  const handleDelete = () => {
+    if (window.confirm("Are you sure you want to delete this donation?")) {
+      onDelete();
+    }
   };
 
   const showNotes = donation.notes.trim() != "";
@@ -63,6 +71,9 @@ const DonationDetailsView = ({
       <div className="toolbar">
         <button type="button" onClick={handleEdit}>
           Edit donation
+        </button>
+        <button type="button" onClick={handleDelete}>
+          Delete
         </button>
         <button type="button" onClick={handleBack}>
           Done

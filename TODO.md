@@ -1,4 +1,0 @@
-- More sample donations and organizations (see branch)
-- Reorganization donationsData. put some things in fuzzy.ts, maybe, YearRange elsewhere, etc.
-- Look at time to recreate the fuse index; maybe create when donations data is changed?
-- Time slicing the search, debounce, necessary?

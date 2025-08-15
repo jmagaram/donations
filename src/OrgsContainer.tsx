@@ -1,5 +1,5 @@
 import { type DonationsData } from "./donationsData";
-import { fuzzyOrgSearch } from "./donationsData";
+import { fuzzyOrgSearch } from "./fuzzy";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
 import { useSearchParam } from "./useSearchParam";

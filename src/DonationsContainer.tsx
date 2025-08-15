@@ -1,16 +1,15 @@
 import { getCurrentYear } from "./date";
 import { useState, useCallback, useMemo } from "react";
 import { getDonationYearRange } from "./donationsData";
-import { type Donation } from "./donation";
+import {
+  matchesAmountFilter,
+  matchesYearFilter,
+  type Donation,
+} from "./donation";
 import { type DonationsData } from "./donationsData";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
 import { useSearchParams } from "react-router-dom";
-import {
-  matchesYearFilter,
-  matchesAmountFilter,
-  getOrgNameFromMap,
-  fuzzyDonationSearch,
-} from "./donationsData";
+import { fuzzyDonationSearch } from "./fuzzy";
 import { getYearRange, yearFilterSearchParam } from "./yearFilter";
 import { amountFilterSearchParam } from "./amountFilter";
 import { useSearchParam } from "./useSearchParam";
@@ -132,7 +131,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       date: donation.date,
       amount: formatUSD(donation.amount, "hidePennies"),
       orgId: donation.orgId,
-      orgName: getOrgNameFromMap(orgMap, donation.orgId),
+      orgName: orgMap.get(donation.orgId)?.name || "Unknown organization",
       kind: donation.kind,
       notes: donation.notes,
       paymentMethod: donation.paymentMethod,

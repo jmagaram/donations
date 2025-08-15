@@ -3,7 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import { fuzzyOrgSearch } from "./donationsData";
+import { fuzzyOrgSearch } from "./fuzzy";
 import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";

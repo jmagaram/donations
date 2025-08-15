@@ -16,3 +16,13 @@ export const timeFunction = (title: string, f: () => void): void => {
   const ms = Math.round(end - start);
   console.log(`${indent}END ${title} ${ms}ms`);
 };
+
+export const replaceItemAtIndex = <T>(
+  array: T[],
+  index: number,
+  item: T,
+): T[] => {
+  const newArray = [...array];
+  newArray[index] = item;
+  return newArray;
+};

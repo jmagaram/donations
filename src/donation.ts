@@ -1,7 +1,8 @@
 import { z } from "zod";
-import { DateIsoSchema, getCurrentDateIso } from "./date";
+import { DateIsoSchema, extractYear, getCurrentDateIso } from "./date";
 import { IdSchema } from "./nanoId";
 import { OrgIdSchema } from "./organization";
+import type { AmountFilter } from "./amountFilter";
 
 export const DonationAmountSchema = z.number();
 export const DonationKindSchema = z.enum(["idea", "pledge", "paid", "unknown"]);
@@ -40,4 +41,30 @@ export const defaultFields: DonationUpsertFields = {
   kind: "paid",
   notes: "",
   paymentMethod: "",
+};
+
+export const matchesYearFilter = (
+  donation: Donation,
+  yearFrom: number,
+  yearTo: number,
+): boolean => {
+  const year = extractYear(donation.date);
+  return year >= yearFrom && year <= yearTo;
+};
+
+export const matchesAmountFilter = (
+  donation: Donation,
+  amountFilter: AmountFilter,
+): boolean => {
+  const amt = donation.amount;
+  switch (amountFilter.kind) {
+    case "all":
+      return true;
+    case "moreThan":
+      return amt >= amountFilter.min;
+    case "lessThan":
+      return amt <= amountFilter.max;
+    case "between":
+      return amt >= amountFilter.min && amt <= amountFilter.max;
+  }
 };

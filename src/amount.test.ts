@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { parseCurrency, formatUSD, closeness } from "./amount";
+import { parseCurrency, formatUSD, isAmountWithinTolerancePercent } from "./amount";
 
 describe("parseCurrency", () => {
   test.each([
@@ -76,23 +76,24 @@ describe("formatUSD", () => {
   );
 });
 
-describe("closeness", () => {
+describe("isAmountWithinTolerancePercent", () => {
   test.each([
-    [100, 10, 100, 0, "value === target; perfect match"],
-    [100, 20, 105, 0.25, "1/4 of tolerance above target"],
-    [100, 20, 110, 0.5, "1/2 of tolerance above target"],
-    [100, 20, 115, 0.75, "3/4 of tolerance above target"],
-    [100, 20, 120, 1.0, "at max tolerance"],
-    [100, 20, 130, 1.0, "exceed max tolerance"],
-    [100, 20, 95, 0.25, "1/4 of tolerance below target"],
-    [-100, 20, -95, 0.25, "1/4 of tolerance above target (negative numbers)"],
-    [-100, 20, -105, 0.25, "1/4 of tolerance below target (negative numbers)"],
+    [100, 10, 100, true, "value === target; perfect match"],
+    [100, 20, 105, true, "1/4 of tolerance above target"],
+    [100, 20, 110, true, "1/2 of tolerance above target"],
+    [100, 20, 115, true, "3/4 of tolerance above target"],
+    [100, 20, 120, true, "at max tolerance"],
+    [100, 20, 130, false, "exceed max tolerance"],
+    [100, 20, 95, true, "1/4 of tolerance below target"],
+    [-100, 20, -95, true, "1/4 of tolerance above target (negative numbers)"],
+    [-100, 20, -105, true, "1/4 of tolerance below target (negative numbers)"],
+    [100, 20, 80, true, "at min tolerance"],
+    [100, 20, 79, false, "below min tolerance"],
+    [100, 20, 121, false, "above max tolerance"],
   ])(
-    "closeness(%s, %s, %s) = %s (%s)",
+    "isAmountWithinTolerancePercent(target: %s, tolerancePercent: %s, value: %s) = %s (%s)",
     (target, tolerancePercent, value, expected) => {
-      expect(closeness({ value, target, tolerancePercent })).toBeCloseTo(
-        expected,
-      );
+      expect(isAmountWithinTolerancePercent({ target, value, tolerancePercent })).toBe(expected);
     },
   );
 });

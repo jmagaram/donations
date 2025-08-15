@@ -27,28 +27,8 @@ export const parseCurrency = (str: string): number | undefined => {
 };
 
 /**
- * Calculates how close a number is to a particular target.
- *
- * @param value - The first number to compare.
- * @param target - The target number to compare against.
- * @param tolerancePercent - The allowed percent difference (e.g., 10 for ±10%).
- * @returns A score between 0 (perfect match) and 1 (no match). Returns 1 if numbers are too far apart.
- */
-export const closeness = (params: {
-  value: number;
-  target: number;
-  tolerancePercent: number;
-}): number => {
-  const { value, target, tolerancePercent } = params;
-  const diff = Math.abs(value - target);
-  const tolerance = (tolerancePercent / 100) * Math.abs(target);
-  if (diff > tolerance) return 1;
-  return diff / tolerance;
-};
-
-/**
  * Checks if a value is within a specified percentage tolerance of a target.
- * 
+ *
  * @param target - The target amount to compare against.
  * @param value - The value to check.
  * @param tolerancePercent - The allowed percent difference (e.g., 10 for ±10%).

@@ -1,7 +1,6 @@
 import {
   parseDigits,
   parseDateComponent,
-  rangesOverlap,
   convertDigitsToDatePatterns,
   addDays,
   fullDaysInRange,
@@ -169,58 +168,6 @@ describe("convertDigitsToDatePatterns", () => {
         expect(result).toContainEqual(expectedPattern);
       });
     }
-  });
-});
-
-describe("rangesOverlap", () => {
-  const makeRange = (start: string, end: string) => ({
-    start: new Date(start),
-    end: new Date(end),
-  });
-
-  const testCases = [
-    {
-      range1: ["2025-03-10", "2025-03-20"],
-      range2: ["2025-03-15", "2025-03-25"],
-      expected: true,
-      description: "overlapping ranges",
-    },
-    {
-      range1: ["2025-03-10", "2025-03-15"],
-      range2: ["2025-03-15", "2025-03-20"],
-      expected: true,
-      description: "touching ranges",
-    },
-    {
-      range1: ["2025-03-10", "2025-03-15"],
-      range2: ["2025-03-20", "2025-03-25"],
-      expected: false,
-      description: "non-overlapping ranges",
-    },
-    {
-      range1: ["2025-03-10", "2025-03-30"],
-      range2: ["2025-03-15", "2025-03-20"],
-      expected: true,
-      description: "one range completely inside another",
-    },
-    {
-      range1: ["2025-03-15", "2025-03-20"],
-      range2: ["2025-03-15", "2025-03-20"],
-      expected: true,
-      description: "identical ranges",
-    },
-  ];
-
-  test.each(testCases)("$description", ({ range1, range2, expected }) => {
-    const r1 = makeRange(range1[0], range1[1]);
-    const r2 = makeRange(range2[0], range2[1]);
-    expect(rangesOverlap(r1, r2)).toBe(expected);
-  });
-
-  test.each(testCases)("symmetry $description", ({ range1, range2 }) => {
-    const r1 = makeRange(range1[0], range1[1]);
-    const r2 = makeRange(range2[0], range2[1]);
-    expect(rangesOverlap(r1, r2)).toBe(rangesOverlap(r2, r1));
   });
 });
 

@@ -207,15 +207,6 @@ export type DateRange = {
 
 export type YearRange = { minYear: number; maxYear: number };
 
-export const intersectYearRange = (
-  a: YearRange,
-  b: YearRange,
-): YearRange | undefined => {
-  const minYear = Math.max(a.minYear, b.minYear);
-  const maxYear = Math.min(a.maxYear, b.maxYear);
-  return minYear <= maxYear ? { minYear, maxYear } : undefined;
-};
-
 export const getDateRange = (params: {
   pattern: DatePattern;
   minYear?: number;
@@ -265,10 +256,6 @@ export const getDateRange = (params: {
   }
 };
 
-export const rangesOverlap = (r1: DateRange, r2: DateRange): boolean => {
-  return r1.start <= r2.end && r2.start <= r1.end;
-};
-
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
 export const addDays = (date: Date, days: number): Date => {
@@ -309,34 +296,6 @@ export const parseStringToDateRanges = (params: {
       }),
     )
     .flatMap((i) => i);
-};
-
-// Returns precision score using Fuse.js scale
-// 0 = perfect match, 1 = worst
-// Smaller date ranges get better scores for fuzzy matching
-export const rangePrecision = (range: DateRange): number => {
-  const days = fullDaysInRange(range);
-  if (days <= 1) return 0.0; // perfect match, high precision
-  if (days <= 6) return 0.2;
-  if (days <= 29) return 0.4;
-  if (days <= 45) return 0.6;
-  if (days <= 365) return 0.8;
-  return 1.0;
-};
-
-export const overlapPrecision = (r1: DateRange, r2: DateRange): number => {
-  if (!rangesOverlap(r1, r2)) return 1.0; // No overlap - worst score
-  return Math.min(rangePrecision(r1), rangePrecision(r2));
-};
-
-export const fuzzyDateSearchRange = (params: {
-  searchRange: DateRange;
-  target: Date;
-  paddingDays: number;
-}) => {
-  const targetRange = { start: params.target, end: params.target };
-  const paddedTargetRange = padDateRange(targetRange, params.paddingDays);
-  return overlapPrecision(params.searchRange, paddedTargetRange);
 };
 
 // Schema for YYYY-MM-DD date strings where year starts with 19 or 20

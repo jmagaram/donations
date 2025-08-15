@@ -262,8 +262,8 @@ export const createSearchableOrgs = (orgs: Org[]): SearchableOrg[] => {
 export const fuseConfigForOrgs = (): IFuseOptions<SearchableOrg> => ({
   keys: [
     { name: "name", weight: 5 },
-    { name: "category", weight: 3 },
-    { name: "notes", weight: 1 },
+    { name: "category", weight: 1 },
+    { name: "notes", weight: 2 },
   ],
   includeScore: true,
   threshold: 0.4,
@@ -311,7 +311,7 @@ export const performOrgSearch = (
   return matchingOrgs.map((entry) => entry.org);
 };
 
-export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
+export const fuzzyOrgSearch = (orgs: Org[], search: string): Org[] => {
   if (!search || search.trim() === "") return orgs;
   const searchableOrgs = createSearchableOrgs(orgs);
   const fuse = new Fuse(searchableOrgs, fuseConfigForOrgs());

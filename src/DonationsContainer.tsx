@@ -48,39 +48,27 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     "year",
     yearFilterSearchParam,
   );
+
   const [searchFilter, setSearchFilter] = useState<SearchFilter | undefined>(
     undefined,
   );
+
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
     categoryFilterSearchParam,
   );
+
   const [amountFilter, setAmountFilter] = useSearchParam(
     "amount",
     amountFilterSearchParam,
   );
+
   const [taxFilter, setTaxFilter] = useSearchParam("tax", taxStatusParam);
+
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
     paymentKindParam,
   );
-
-  const availableCategories = useMemo(
-    () => getAvailableCategories(donationsData),
-    [donationsData],
-  );
-
-  const performFuzzySearch = (donations: Donation[], search: string) => {
-    if (!search || search.trim() === "" || donations.length === 0) {
-      return donations;
-    }
-
-    return fuzzyDonationSearch(
-      donations,
-      donationsData.orgs,
-      search.trim(),
-    );
-  };
 
   const [yearFrom, yearTo] = yearFilter
     ? getYearRange({
@@ -91,12 +79,34 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       })
     : [minYear, maxYear];
 
+  const availableCategories = useMemo(
+    () => getAvailableCategories(donationsData),
+    [donationsData],
+  );
+
+  const performFuzzySearch = (
+    donations: Donation[],
+    search: string,
+  ): Donation[] => {
+    if (!search || search.trim() === "" || donations.length === 0) {
+      return donations;
+    }
+
+    return fuzzyDonationSearch(donations, donationsData.orgs, search.trim(), {
+      amountTolerancePercent: 10,
+      dateScoreCutoff: 0.5,
+      textScoreCutoff: 0.4,
+      dateSearchToleranceDays: 5,
+      maxSearchRangeDays: 42,
+    });
+  };
+
   const orgMap = useMemo(
     () => new Map(donationsData.orgs.map((org) => [org.id, org])),
     [donationsData.orgs],
   );
 
-  let filteredDonations = [...donationsData.donations].filter((d) => {
+  let filteredDonations = donationsData.donations.filter((d) => {
     const org = orgMap.get(d.orgId);
     return (
       matchesYearFilter(d, yearFrom, yearTo) &&
@@ -113,6 +123,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   if (searchFilter !== undefined && searchFilter.trim() !== "") {
     filteredDonations = performFuzzySearch(filteredDonations, searchFilter);
   }
+
+  filteredDonations.sort((a, b) => b.date.localeCompare(a.date));
 
   const donations: DonationDisplay[] = filteredDonations.map((donation) => {
     return {

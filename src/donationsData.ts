@@ -11,8 +11,14 @@ import { type AmountFilter } from "./amountFilter";
 import { OrgSchema, type Org } from "./organization";
 import { DonationSchema, type Donation } from "./donation";
 import Fuse, { type IFuseOptions } from "fuse.js";
-import { closeness, parseCurrency } from "./amount";
-import { fuzzyDateSearchRange, parseStringToDayRanges } from "./date";
+import { parseCurrency, isAmountWithinTolerancePercent, closeness } from "./amount";
+import {
+  parseStringToDateRanges,
+  fullDaysInRange,
+  padDateRange,
+  isDateInRange,
+  fuzzyDateSearchRange,
+} from "./date";
 import { generatePermutations } from "./utility";
 
 export const DonationsDataSchema = z.object({
@@ -422,7 +428,7 @@ const parseWordCapabilities = (
       amountIndexes.set(index, amount);
     }
     if (relevantYears) {
-      const dateRanges = parseStringToDayRanges({
+      const dateRanges = parseStringToDateRanges({
         input: word,
         yearRange: relevantYears,
       });
@@ -601,19 +607,11 @@ export const fuseConfigForDonations = (): IFuseOptions<SearchableDonation> => ({
 });
 
 export type SearchConfig = {
-  amountTolerance?: number;
-  amountScoreCutoff?: number;
-  dateScoreCutoff?: number;
-  textScoreCutoff?: number;
-  datePaddingDays?: number;
-};
-
-const defaultSearchConfig = {
-  amountTolerance: 10,
-  amountScoreCutoff: 1,
-  dateScoreCutoff: 0.5,
-  textScoreCutoff: 0.4, // Default Fuse.js threshold
-  datePaddingDays: 5,
+  amountTolerancePercent: number;
+  dateScoreCutoff: number;
+  textScoreCutoff: number;
+  dateSearchToleranceDays: number;
+  maxSearchRangeDays: number;
 };
 
 /**
@@ -647,22 +645,19 @@ const searchByAmount = (
   donations: Donation[],
   search: string,
   amountTolerance: number,
-  amountScoreCutoff: number,
 ): string[] => {
   const amount = parseCurrency(search);
   if (amount === undefined) {
     return [];
   }
-
   return donations
-    .filter((donation) => {
-      const score = closeness({
-        value: donation.amount,
+    .filter((donation) => 
+      isAmountWithinTolerancePercent({
         target: amount,
+        value: donation.amount,
         tolerancePercent: amountTolerance,
-      });
-      return score < amountScoreCutoff;
-    })
+      })
+    )
     .map((donation) => donation.id);
 };
 
@@ -670,21 +665,21 @@ const searchByAmount = (
  * Performs a date search on the donations.
  * @param donations - The donations to search.
  * @param search - The search string.
- * @param yearRange - The year range of the donations.
- * @param dateScoreCutoff - The score cutoff for the date search.
+ * @param dateSearchToleranceDays - Number of days to pad each search range for tolerance.
+ * @param maxSearchRangeDays - Maximum allowed days in a padded range.
  * @returns An array of donation IDs that match the search.
  */
 const searchByDate = (
   donations: Donation[],
   search: string,
-  yearRange: YearRange | undefined,
-  dateScoreCutoff: number,
-  datePaddingDays: number,
+  dateSearchToleranceDays: number,
+  maxSearchRangeDays: number,
 ): string[] => {
+  const yearRange = getDonationYearRange(donations);
   if (!yearRange) {
     return [];
   }
-  const dateRanges = parseStringToDayRanges({
+  const dateRanges = parseStringToDateRanges({
     input: search,
     yearRange,
   });
@@ -692,22 +687,22 @@ const searchByDate = (
     return [];
   }
 
-  const matchingDonationIds = new Set<string>();
+  const paddedRanges = dateRanges
+    .map((range) => padDateRange(range, dateSearchToleranceDays))
+    .filter(
+      (paddedRange) => fullDaysInRange(paddedRange) <= maxSearchRangeDays,
+    );
 
+  const matchingDonationIds = new Set<string>();
   for (const donation of donations) {
-    for (const range of dateRanges) {
-      const score = fuzzyDateSearchRange({
-        searchRange: range,
-        target: new Date(donation.date),
-        paddingDays: datePaddingDays,
-      });
-      if (score < dateScoreCutoff) {
+    const donationDate = new Date(donation.date);
+    for (const paddedRange of paddedRanges) {
+      if (isDateInRange(donationDate, paddedRange)) {
         matchingDonationIds.add(donation.id);
         break; // Move to the next donation once a match is found
       }
     }
   }
-
   return Array.from(matchingDonationIds);
 };
 
@@ -715,45 +710,34 @@ export const fuzzyDonationSearch = (
   donations: Donation[],
   orgs: Org[],
   search: string,
-  config: SearchConfig = {},
+  config: SearchConfig,
 ): Donation[] => {
-  const finalConfig = { ...defaultSearchConfig, ...config };
-
   if (!search || search.trim() === "" || donations.length === 0) {
-    return donations.sort((a, b) => b.date.localeCompare(a.date));
+    return donations;
   }
 
-  const { searchableDonations, yearRange } = createSearchableDonations(
-    donations,
-    orgs,
-  );
+  const { searchableDonations } = createSearchableDonations(donations, orgs);
 
   const textMatchIds = searchByText(
     searchableDonations,
     search,
-    finalConfig.textScoreCutoff,
+    config.textScoreCutoff,
   );
 
   const amountMatchIds = searchByAmount(
     donations,
     search,
-    finalConfig.amountTolerance,
-    finalConfig.amountScoreCutoff,
+    config.amountTolerancePercent,
   );
 
   const dateMatchIds = searchByDate(
     donations,
     search,
-    yearRange,
-    finalConfig.dateScoreCutoff,
-    finalConfig.datePaddingDays,
+    config.dateSearchToleranceDays,
+    config.maxSearchRangeDays,
   );
 
-  const allIds = new Set([
-    ...textMatchIds,
-    ...amountMatchIds,
-    ...dateMatchIds,
-  ]);
+  const allIds = new Set([...textMatchIds, ...amountMatchIds, ...dateMatchIds]);
 
   const donationMap = new Map(donations.map((d) => [d.id, d]));
 
@@ -761,7 +745,7 @@ export const fuzzyDonationSearch = (
     .map((id) => donationMap.get(id))
     .filter((d): d is Donation => d !== undefined);
 
-  return matchedDonations.sort((a, b) => b.date.localeCompare(a.date));
+  return matchedDonations;
 };
 
 export const donationTextMatchFuzzyTyped = (

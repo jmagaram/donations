@@ -280,6 +280,10 @@ export const fullDaysInRange = (range: DateRange): number => {
   return Math.floor((range.end.getTime() - range.start.getTime()) / MS_PER_DAY);
 };
 
+export const isDateInRange = (date: Date, range: DateRange): boolean => {
+  return date >= range.start && date <= range.end;
+};
+
 export const padDateRange = (range: DateRange, paddingDays: number) => {
   return {
     start: addDays(range.start, -paddingDays),
@@ -287,7 +291,7 @@ export const padDateRange = (range: DateRange, paddingDays: number) => {
   };
 };
 
-export const parseStringToDayRanges = (params: {
+export const parseStringToDateRanges = (params: {
   input: string;
   yearRange: YearRange;
 }): DateRange[] => {

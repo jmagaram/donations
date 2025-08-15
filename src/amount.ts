@@ -46,6 +46,25 @@ export const closeness = (params: {
   return diff / tolerance;
 };
 
+/**
+ * Checks if a value is within a specified percentage tolerance of a target.
+ * 
+ * @param target - The target amount to compare against.
+ * @param value - The value to check.
+ * @param tolerancePercent - The allowed percent difference (e.g., 10 for ±10%).
+ * @returns true if the value is within tolerance, false otherwise.
+ */
+export const isAmountWithinTolerancePercent = (params: {
+  target: number;
+  value: number;
+  tolerancePercent: number;
+}): boolean => {
+  const { value, target, tolerancePercent } = params;
+  const diff = Math.abs(value - target);
+  const tolerance = (tolerancePercent / 100) * Math.abs(target);
+  return diff <= tolerance;
+};
+
 // Converts a number to USD currency format like $1,234.56
 export const formatUSD = (
   amount: number,

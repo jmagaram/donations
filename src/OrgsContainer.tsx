@@ -1,8 +1,8 @@
 import { type DonationsData } from "./donationsData";
-import { 
-  createSearchableOrgs, 
-  createOrgFuseConfig, 
-  performOrgSearch
+import {
+  createSearchableOrgs,
+  fuseConfigForOrgs,
+  performOrgSearch,
 } from "./donationsData";
 import Fuse from "fuse.js";
 import OrgsView from "./OrgsView";
@@ -32,24 +32,24 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   const [searchFilter, setSearchFilter] = useSearchParam(
     "search",
-    searchFilterParam
+    searchFilterParam,
   );
   const [categoryFilter, setCategoryFilter] = useSearchParam(
     "category",
-    categoryFilterSearchParam
+    categoryFilterSearchParam,
   );
   const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
     "tax",
-    taxStatusParam
+    taxStatusParam,
   );
   const availableCategories = useMemo(
     () => getAvailableCategories(donationsData),
-    [donationsData]
+    [donationsData],
   );
 
   const { searchableOrgs, orgFuseInstance } = useMemo(() => {
     const searchable = createSearchableOrgs(donationsData.orgs);
-    const fuse = new Fuse(searchable, createOrgFuseConfig());
+    const fuse = new Fuse(searchable, fuseConfigForOrgs());
     return {
       searchableOrgs: searchable,
       orgFuseInstance: fuse,
@@ -60,16 +60,21 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
 
   if (categoryFilter !== undefined) {
     filteredOrgs = filteredOrgs.filter((org) =>
-      matchesCategoryFilter(categoryFilter, org.category)
+      matchesCategoryFilter(categoryFilter, org.category),
     );
   }
   if (taxStatusFilter !== undefined) {
     filteredOrgs = filteredOrgs.filter((org) =>
-      matchesTaxStatusFilter(taxStatusFilter, org.taxDeductible ?? false)
+      matchesTaxStatusFilter(taxStatusFilter, org.taxDeductible ?? false),
     );
   }
   if (searchFilter !== undefined && searchFilter.trim() !== "") {
-    filteredOrgs = performOrgSearch(filteredOrgs, searchableOrgs, orgFuseInstance, searchFilter);
+    filteredOrgs = performOrgSearch(
+      filteredOrgs,
+      searchableOrgs,
+      orgFuseInstance,
+      searchFilter,
+    );
   }
 
   const handleClearFilters = () => {

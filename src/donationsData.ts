@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  extractYear,
-  type YearRange,
-} from "./date";
+import { extractYear, type YearRange } from "./date";
 import { type AmountFilter } from "./amountFilter";
 import { OrgSchema, type Org } from "./organization";
 import { DonationSchema, type Donation } from "./donation";
@@ -262,7 +259,7 @@ export const createSearchableOrgs = (orgs: Org[]): SearchableOrg[] => {
   }));
 };
 
-export const createOrgFuseConfig = (): IFuseOptions<SearchableOrg> => ({
+export const fuseConfigForOrgs = (): IFuseOptions<SearchableOrg> => ({
   keys: [
     { name: "name", weight: 5 },
     { name: "category", weight: 3 },
@@ -271,7 +268,7 @@ export const createOrgFuseConfig = (): IFuseOptions<SearchableOrg> => ({
   includeScore: true,
   threshold: 0.4,
   shouldSort: true,
-  useExtendedSearch: true,
+  useExtendedSearch: false,
 });
 
 export const performOrgSearch = (
@@ -317,7 +314,7 @@ export const performOrgSearch = (
 export const orgTextMatchFuzzy = (orgs: Org[], search: string): Org[] => {
   if (!search || search.trim() === "") return orgs;
   const searchableOrgs = createSearchableOrgs(orgs);
-  const fuse = new Fuse(searchableOrgs, createOrgFuseConfig());
+  const fuse = new Fuse(searchableOrgs, fuseConfigForOrgs());
   return performOrgSearch(orgs, searchableOrgs, fuse, search);
 };
 
@@ -435,12 +432,12 @@ const searchByAmount = (
     return [];
   }
   return donations
-    .filter((donation) => 
+    .filter((donation) =>
       isAmountWithinTolerancePercent({
         target: amount,
         value: donation.amount,
         tolerancePercent: amountTolerance,
-      })
+      }),
     )
     .map((donation) => donation.id);
 };

@@ -5,7 +5,7 @@ import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import {
   createSearchableOrgs,
-  createOrgFuseConfig,
+  fuseConfigForOrgs,
   performOrgSearch,
 } from "./donationsData";
 import Fuse from "fuse.js";
@@ -102,7 +102,7 @@ const DonationUpsertForm = ({
       return { searchableOrgs: [], orgFuseInstance: null };
     }
     const searchable = createSearchableOrgs(donationsData.orgs);
-    const fuse = new Fuse(searchable, createOrgFuseConfig());
+    const fuse = new Fuse(searchable, fuseConfigForOrgs());
     return {
       searchableOrgs: searchable,
       orgFuseInstance: fuse,

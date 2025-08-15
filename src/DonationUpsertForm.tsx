@@ -3,12 +3,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
-import {
-  createSearchableOrgs,
-  fuseConfigForOrgs,
-  performOrgSearch,
-} from "./donationsData";
-import Fuse from "fuse.js";
+import { fuzzyOrgSearch } from "./donationsData";
 import StatusBox from "./StatusBox";
 import { DonationUpsertFieldsSchema, defaultFields } from "./donation";
 import type { DonationUpsertFields } from "./donation";
@@ -97,28 +92,12 @@ const DonationUpsertForm = ({
     };
   };
 
-  const { searchableOrgs, orgFuseInstance } = React.useMemo(() => {
-    if (!donationsData?.orgs) {
-      return { searchableOrgs: [], orgFuseInstance: null };
-    }
-    const searchable = createSearchableOrgs(donationsData.orgs);
-    const fuse = new Fuse(searchable, fuseConfigForOrgs());
-    return {
-      searchableOrgs: searchable,
-      orgFuseInstance: fuse,
-    };
-  }, [donationsData?.orgs]);
 
   const orgOptions: OrgOption[] = React.useMemo(() => {
-    if (!donationsData?.orgs || !orgFuseInstance) return [];
+    if (!donationsData?.orgs) return [];
 
     const orgsToUse = orgSearchInput.trim()
-      ? performOrgSearch(
-          donationsData.orgs,
-          searchableOrgs,
-          orgFuseInstance,
-          orgSearchInput,
-        )
+      ? fuzzyOrgSearch(donationsData.orgs, orgSearchInput)
       : donationsData.orgs;
 
     return orgsToUse
@@ -137,7 +116,7 @@ const DonationUpsertForm = ({
       .sort((a, b) =>
         orgSearchInput.trim() ? 0 : a.label.localeCompare(b.label),
       );
-  }, [donationsData?.orgs, orgSearchInput, searchableOrgs, orgFuseInstance]);
+  }, [donationsData?.orgs, orgSearchInput]);
 
   const currentOrgId = watch("orgId");
   const currentPaymentMethod = watch("paymentMethod");

@@ -1,10 +1,5 @@
 import { type DonationsData } from "./donationsData";
-import {
-  createSearchableOrgs,
-  fuseConfigForOrgs,
-  performOrgSearch,
-} from "./donationsData";
-import Fuse from "fuse.js";
+import { fuzzyOrgSearch } from "./donationsData";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
 import { useSearchParam } from "./useSearchParam";
@@ -47,14 +42,6 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     [donationsData],
   );
 
-  const { searchableOrgs, orgFuseInstance } = useMemo(() => {
-    const searchable = createSearchableOrgs(donationsData.orgs);
-    const fuse = new Fuse(searchable, fuseConfigForOrgs());
-    return {
-      searchableOrgs: searchable,
-      orgFuseInstance: fuse,
-    };
-  }, [donationsData.orgs]);
 
   let filteredOrgs = donationsData.orgs;
 
@@ -69,12 +56,7 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     );
   }
   if (searchFilter !== undefined && searchFilter.trim() !== "") {
-    filteredOrgs = performOrgSearch(
-      filteredOrgs,
-      searchableOrgs,
-      orgFuseInstance,
-      searchFilter,
-    );
+    filteredOrgs = fuzzyOrgSearch(filteredOrgs, searchFilter);
   }
 
   const handleClearFilters = () => {

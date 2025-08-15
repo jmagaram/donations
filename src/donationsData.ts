@@ -266,56 +266,18 @@ export const fuseConfigForOrgs = (): IFuseOptions<SearchableOrg> => ({
     { name: "notes", weight: 2 },
   ],
   includeScore: true,
-  threshold: 0.4,
+  threshold: 0.6,
   shouldSort: true,
   useExtendedSearch: false,
 });
-
-export const performOrgSearch = (
-  orgs: Org[],
-  _searchableOrgs: SearchableOrg[],
-  fuseInstance: Fuse<SearchableOrg>,
-  search: string,
-): Org[] => {
-  if (!search || search.trim() === "" || orgs.length === 0) {
-    return orgs;
-  }
-
-  const words = search.trim().split(/\s+/);
-  const resultsPerWord = words.map((word) => fuseInstance.search(word));
-  const orgScoreMap = new Map<string, { org: Org; scores: number[] }>();
-
-  resultsPerWord.forEach((results, wordIdx) => {
-    results.forEach((res) => {
-      const key = res.item.original.id;
-      if (!orgScoreMap.has(key)) {
-        orgScoreMap.set(key, {
-          org: res.item.original,
-          scores: Array(words.length).fill(undefined),
-        });
-      }
-      orgScoreMap.get(key)!.scores[wordIdx] = res.score ?? 1;
-    });
-  });
-
-  // Only include orgs that match all words and are in the filtered list
-  const orgIds = new Set(orgs.map((o) => o.id));
-  const matchingOrgs = Array.from(orgScoreMap.values())
-    .filter((entry) => entry.scores.every((score) => score !== undefined))
-    .filter((entry) => orgIds.has(entry.org.id))
-    .map((entry) => ({
-      org: entry.org,
-      totalScore: entry.scores.reduce((a, b) => a + (b ?? 1), 0),
-    }));
-  matchingOrgs.sort((a, b) => a.totalScore - b.totalScore);
-  return matchingOrgs.map((entry) => entry.org);
-};
 
 export const fuzzyOrgSearch = (orgs: Org[], search: string): Org[] => {
   if (!search || search.trim() === "") return orgs;
   const searchableOrgs = createSearchableOrgs(orgs);
   const fuse = new Fuse(searchableOrgs, fuseConfigForOrgs());
-  return performOrgSearch(orgs, searchableOrgs, fuse, search);
+
+  const results = fuse.search(search.trim());
+  return results.map((result) => result.item.original);
 };
 
 export interface SearchableDonation {

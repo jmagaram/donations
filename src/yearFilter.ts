@@ -1,4 +1,4 @@
-import type { SearchParam } from "./useSearchParam";
+import type { SearchParam } from "./hooks/useSearchParam";
 
 export type YearFilter =
   | { kind: "all" }
@@ -85,7 +85,7 @@ export const yearFilterSearchParam: SearchParam<YearFilter> = {
 };
 
 export const getYearDisplayLabel = (
-  yearFilter: YearFilter | undefined,
+  yearFilter: YearFilter | undefined
 ): string => {
   if (yearFilter === undefined) return "All years";
   switch (yearFilter.kind) {

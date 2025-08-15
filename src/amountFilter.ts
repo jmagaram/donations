@@ -1,4 +1,4 @@
-import type { SearchParam } from "./useSearchParam";
+import type { SearchParam } from "./hooks/useSearchParam";
 
 export type AmountFilter =
   | { kind: "all" }

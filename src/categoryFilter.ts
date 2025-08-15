@@ -1,4 +1,4 @@
-import type { SearchParam } from "./useSearchParam";
+import type { SearchParam } from "./hooks/useSearchParam";
 import type { DonationsData } from "./donationsData";
 import { getUniqueOrgCategories } from "./donationsData";
 
@@ -15,7 +15,7 @@ export const categoryFilterSearchParam: SearchParam<CategoryFilter> = {
 
 export const matchesCategoryFilter = (
   filter: CategoryFilter,
-  category: string | null | undefined,
+  category: string | null | undefined
 ): boolean => {
   const categoryNormalized = category?.trim().toLocaleLowerCase() ?? "";
   const filterNormalized = filter.trim().toLocaleLowerCase();
@@ -23,7 +23,7 @@ export const matchesCategoryFilter = (
 };
 
 export const getAvailableCategories = (
-  donationsData: DonationsData,
+  donationsData: DonationsData
 ): CategoryFilter[] => {
   const uniqueCategories = new Set(getUniqueOrgCategories(donationsData));
   const missingCategory = categoryFilterSearchParam.encode("");

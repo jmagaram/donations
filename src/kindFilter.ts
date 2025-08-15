@@ -1,4 +1,4 @@
-import type { SearchParam } from "./useSearchParam";
+import type { SearchParam } from "./hooks/useSearchParam";
 
 export type KindFilterParam =
   | "all"
@@ -59,7 +59,7 @@ export const paymentKindParam: SearchParam<KindFilterParam> = {
 
 export const matchesPaymentKindFilter = (
   donationKind: string,
-  filter: KindFilterParam | undefined,
+  filter: KindFilterParam | undefined
 ): boolean => {
   if (!filter || filter === "all") return true;
 

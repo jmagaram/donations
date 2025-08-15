@@ -1,4 +1,4 @@
-import type { SearchParam } from "./useSearchParam";
+import type { SearchParam } from "./hooks/useSearchParam";
 
 export type TaxStatusFilter = "all" | "charity" | "notTaxDeductible";
 
@@ -56,7 +56,7 @@ export const taxStatusParam: SearchParam<TaxStatusFilter> = {
 
 export const matchesTaxStatusFilter = (
   filter: TaxStatusFilter | undefined,
-  taxDeductible: boolean,
+  taxDeductible: boolean
 ): boolean => {
   if (filter === undefined) return true;
   switch (filter) {

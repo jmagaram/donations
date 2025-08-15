@@ -5,38 +5,38 @@ import {
   Link,
   useLocation,
 } from "react-router-dom";
-import Header from "./Header";
-import Home from "./Home";
-import SetPassword from "./SetPassword";
-import OrgsContainer from "./OrgsContainer";
-import DonationsContainer from "./DonationsContainer";
-import OrgDetailsContainer from "./OrgDetailsContainer";
-import OrgUpsertContainer from "./OrgUpsertContainer";
-import DonationUpsertContainer from "./DonationUpsertContainer";
-import DonationDetailsContainer from "./DonationDetailsContainer";
-import Importer from "./Importer";
-import Exporter from "./Exporter";
-import Reports from "./Reports";
-import TotalsByOrg from "./TotalsByOrg";
-import TotalsByCategory from "./TotalsByCategory";
-import SyncStatusBox from "./SyncStatusBox";
-import Admin from "./Admin";
+import Header from "./components/Header";
+import Home from "./components/Home";
+import SetPassword from "./components/SetPassword";
+import OrgsContainer from "./components/OrgsContainer";
+import DonationsContainer from "./components/DonationsContainer";
+import OrgDetailsContainer from "./components/OrgDetailsContainer";
+import OrgUpsertContainer from "./components/OrgUpsertContainer";
+import DonationUpsertContainer from "./components/DonationUpsertContainer";
+import DonationDetailsContainer from "./components/DonationDetailsContainer";
+import Importer from "./components/Importer";
+import Exporter from "./components/Exporter";
+import Reports from "./components/Reports";
+import TotalsByOrg from "./components/TotalsByOrg";
+import TotalsByCategory from "./components/TotalsByCategory";
+import SyncStatusBox from "./components/SyncStatusBox";
+import Admin from "./components/Admin";
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
 import { type DonationsData, DonationsDataSchema } from "./donationsData";
-import { OfflineStoreImpl, type SyncError } from "./offlineStore";
-import { BrowserStore } from "./browserStore";
-import { WebApiStore } from "./webApi";
+import { OfflineStoreImpl, type SyncError } from "./store/offlineStore";
+import { BrowserStore } from "./store/browserStore";
+import { WebApiStore } from "./store/webApi";
 import { empty, isEmpty } from "./donationsData";
-import type { RemoteStore } from "./remoteStore";
-import StatusBox from "./StatusBox";
+import type { RemoteStore } from "./store/remoteStore";
+import StatusBox from "./components/StatusBox";
 import { sampleData } from "./sampleData";
 import {
   storageSelectorService,
   type StorageMode,
-} from "./storageSelectorService";
-import { useStorageMode } from "./useStorageMode";
-import { useStorageState } from "./useStorageState";
+} from "./store/storageSelectorService";
+import { useStorageMode } from "./hooks/useStorageMode";
+import { useStorageState } from "./hooks/useStorageState";
 
 // Creates the underlying storage implementation - local browser storage for
 // testing, or internet server storage for real applicaiton usage.
@@ -81,7 +81,7 @@ const AppContent = () => {
 
   // Creates the initial offline store based on the current storage mode preference.
   const [offlineStore, setOfflineStore] = useState(() =>
-    createOfflineStore(storageSelectorService.getCurrentMode()),
+    createOfflineStore(storageSelectorService.getCurrentMode())
   );
 
   const { storageState, syncStatus, isSyncing, syncError } =
@@ -107,7 +107,7 @@ const AppContent = () => {
     (data: DonationsData) => {
       offlineStore.save(data);
     },
-    [offlineStore],
+    [offlineStore]
   );
 
   // useCallback ensures child components don't re-render when offlineStore changes
@@ -116,7 +116,7 @@ const AppContent = () => {
     (option: "pull" | "push" | "pushForce") => {
       return offlineStore.sync(option);
     },
-    [offlineStore],
+    [offlineStore]
   );
 
   const donationsData = storageState.data.data;
@@ -281,7 +281,7 @@ function App() {
         return () => {
           document.removeEventListener(
             "visibilitychange",
-            handleVisibilityChange,
+            handleVisibilityChange
           );
         };
       });

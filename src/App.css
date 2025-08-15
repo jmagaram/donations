@@ -746,3 +746,71 @@ dl {
     padding-bottom: 0.25em;
     font-variant: small-caps;
 }
+
+@keyframes shakeX {
+    from,
+    to {
+        transform: translate3d(0, 0, 0);
+    }
+
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translate3d(-10px, 0, 0);
+    }
+
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translate3d(10px, 0, 0);
+    }
+}
+
+.shake-repeating {
+    animation: shakeRepeating 10s ease-in-out infinite;
+}
+
+@keyframes shakeRepeating {
+    /* Shake for the first 1/11th of the animation (about 1 second) */
+    0% {
+        transform: translate3d(0, 0, 0);
+    }
+    0.9% {
+        transform: translate3d(-10px, 0, 0);
+    }
+    1.8% {
+        transform: translate3d(10px, 0, 0);
+    }
+    2.7% {
+        transform: translate3d(-10px, 0, 0);
+    }
+    3.6% {
+        transform: translate3d(10px, 0, 0);
+    }
+    4.5% {
+        transform: translate3d(-10px, 0, 0);
+    }
+    5.4% {
+        transform: translate3d(10px, 0, 0);
+    }
+    6.3% {
+        transform: translate3d(-10px, 0, 0);
+    }
+    7.2% {
+        transform: translate3d(10px, 0, 0);
+    }
+    8.1% {
+        transform: translate3d(-10px, 0, 0);
+    }
+    9.1% {
+        transform: translate3d(0, 0, 0);
+    }
+    /* Stay still for the remaining 10/11ths of the animation (about 10 seconds) */
+    9.1%,
+    100% {
+        transform: translate3d(0, 0, 0);
+    }
+}

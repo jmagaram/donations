@@ -292,7 +292,9 @@ function App() {
     <Router>
       {updateAvailable && (
         <div className="update-notification">
-          A new version is available. Restart now.
+          <span className="shake-repeating">
+            A new version is available. Restart now.
+          </span>
         </div>
       )}
       <AppContent />

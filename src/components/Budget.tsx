@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useMemo } from "react";
-import { formatUSD } from "../amount";
+import AmountView from "./AmountView";
 import {
   extractYear,
   getCurrentDateIso,
@@ -34,124 +34,121 @@ const Budget = ({ donationsData }: BudgetProps) => {
   const currentYear = getCurrentYear();
   const currentDate = getCurrentDateIso();
 
-  const { activeOrgs, inactiveOrgs, yearTotals, budgetTotal, displayYears } =
-    useMemo(() => {
-      const displayYears = [currentYear - 2, currentYear - 1, currentYear];
-      const { orgs, donations } = donationsData;
+  const { activeOrgs, inactiveOrgs, displayYears } = useMemo(() => {
+    const displayYears = [currentYear - 2, currentYear - 1, currentYear];
+    const { orgs, donations } = donationsData;
 
-      // Create org data with year totals and budget items
-      const orgDataMap = new Map<string, OrgBudgetData>();
+    // Create org data with year totals and budget items
+    const orgDataMap = new Map<string, OrgBudgetData>();
 
-      // Initialize all orgs
-      orgs.forEach((org) => {
-        orgDataMap.set(org.id, {
-          org,
-          years: {},
-          unresolvedItems: [],
-        });
+    // Initialize all orgs
+    orgs.forEach((org) => {
+      orgDataMap.set(org.id, {
+        org,
+        years: {},
+        unresolvedItems: [],
       });
+    });
 
-      // Process donations
-      donations.forEach((donation) => {
-        const orgData = orgDataMap.get(donation.orgId);
-        if (!orgData) return; // Skip donations for missing orgs
+    // Process donations
+    donations.forEach((donation) => {
+      const orgData = orgDataMap.get(donation.orgId);
+      if (!orgData) return; // Skip donations for missing orgs
 
-        const isFuture = compareDatesDesc(donation.date, currentDate) < 0;
-        const year = extractYear(donation.date);
+      const isFuture = compareDatesDesc(donation.date, currentDate) < 0;
+      const year = extractYear(donation.date);
 
-        if (
-          donation.kind === "idea" ||
-          donation.kind === "pledge" ||
-          (donation.kind === "paid" && isFuture)
-        ) {
-          // Unresolved items: ideas (any date), pledges (any date), future paid (errors)
-          orgData.unresolvedItems.push(donation);
-        } else if (
-          donation.kind === "paid" &&
-          !isFuture &&
-          displayYears.includes(year)
-        ) {
-          // Historical paid donations - add to year totals
-          if (!orgData.years[year]) {
-            orgData.years[year] = {
-              amount: 0,
-              hasPledged: false,
-              hasUnknown: false,
-              pledgedAmount: 0,
-              paidAmount: 0,
-            };
-          }
-
-          const yearData = orgData.years[year];
-          yearData.amount += donation.amount;
-          yearData.paidAmount += donation.amount;
+      if (
+        donation.kind === "idea" ||
+        donation.kind === "pledge" ||
+        (donation.kind === "paid" && isFuture)
+      ) {
+        // Unresolved items: ideas (any date), pledges (any date), future paid (errors)
+        orgData.unresolvedItems.push(donation);
+      } else if (
+        donation.kind === "paid" &&
+        !isFuture &&
+        displayYears.includes(year)
+      ) {
+        // Historical paid donations - add to year totals
+        if (!orgData.years[year]) {
+          orgData.years[year] = {
+            amount: 0,
+            hasPledged: false,
+            hasUnknown: false,
+            pledgedAmount: 0,
+            paidAmount: 0,
+          };
         }
-      });
 
-      // Sort unresolved items by date (newest first)
-      orgDataMap.forEach((orgData) => {
-        orgData.unresolvedItems.sort((a, b) =>
-          compareDatesDesc(a.date, b.date),
-        );
-      });
+        const yearData = orgData.years[year];
+        yearData.amount += donation.amount;
+        yearData.paidAmount += donation.amount;
+      }
+    });
 
-      // Convert to array and sort organizations
-      const orgDataArray = Array.from(orgDataMap.values());
+    // Sort unresolved items by date (newest first)
+    orgDataMap.forEach((orgData) => {
+      orgData.unresolvedItems.sort((a, b) => compareDatesDesc(a.date, b.date));
+    });
 
-      // Separate active and inactive orgs
-      const activeOrgs: OrgBudgetData[] = [];
-      const inactiveOrgs: OrgBudgetData[] = [];
+    // Convert to array and sort organizations
+    const orgDataArray = Array.from(orgDataMap.values());
 
-      orgDataArray.forEach((orgData) => {
-        const hasRecentActivity =
-          Object.keys(orgData.years).length > 0 ||
-          orgData.unresolvedItems.length > 0;
+    // Separate active and inactive orgs
+    const activeOrgs: OrgBudgetData[] = [];
+    const inactiveOrgs: OrgBudgetData[] = [];
 
-        if (hasRecentActivity) {
-          activeOrgs.push(orgData);
-        } else {
-          inactiveOrgs.push(orgData);
-        }
-      });
+    orgDataArray.forEach((orgData) => {
+      const hasRecentActivity =
+        Object.keys(orgData.years).length > 0 ||
+        orgData.unresolvedItems.length > 0;
 
-      // Sort each group alphabetically
-      const sortByName = (a: OrgBudgetData, b: OrgBudgetData) =>
-        a.org.name.localeCompare(b.org.name);
+      if (hasRecentActivity) {
+        activeOrgs.push(orgData);
+      } else {
+        inactiveOrgs.push(orgData);
+      }
+    });
 
-      activeOrgs.sort(sortByName);
-      inactiveOrgs.sort(sortByName);
+    // Sort each group alphabetically
+    const sortByName = (a: OrgBudgetData, b: OrgBudgetData) =>
+      a.org.name.localeCompare(b.org.name);
 
-      // Calculate totals for active orgs only
-      const yearTotals: Record<number, number> = {};
-      let budgetTotal = 0;
+    activeOrgs.sort(sortByName);
+    inactiveOrgs.sort(sortByName);
 
+    // Calculate totals for active orgs only
+    const yearTotals: Record<number, number> = {};
+    let budgetTotal = 0;
+
+    displayYears.forEach((year) => {
+      yearTotals[year] = 0;
+    });
+
+    activeOrgs.forEach((orgData) => {
+      // Sum year amounts
       displayYears.forEach((year) => {
-        yearTotals[year] = 0;
+        const yearData = orgData.years[year];
+        if (yearData) {
+          yearTotals[year] += yearData.amount;
+        }
       });
 
-      activeOrgs.forEach((orgData) => {
-        // Sum year amounts
-        displayYears.forEach((year) => {
-          const yearData = orgData.years[year];
-          if (yearData) {
-            yearTotals[year] += yearData.amount;
-          }
-        });
-
-        // Sum budget amounts
-        orgData.unresolvedItems.forEach((donation) => {
-          budgetTotal += donation.amount;
-        });
+      // Sum budget amounts
+      orgData.unresolvedItems.forEach((donation) => {
+        budgetTotal += donation.amount;
       });
+    });
 
-      return {
-        activeOrgs,
-        inactiveOrgs,
-        yearTotals,
-        budgetTotal,
-        displayYears,
-      };
-    }, [donationsData, currentDate, currentYear]);
+    return {
+      activeOrgs,
+      inactiveOrgs,
+      yearTotals,
+      budgetTotal,
+      displayYears,
+    };
+  }, [donationsData, currentDate, currentYear]);
 
   return (
     <div className="budget-container">
@@ -165,7 +162,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
                 {year}
               </div>
             ))}
-            <div className="budget-header">Budget</div>
+            <div className="budget-header">Plans</div>
           </div>
 
           {/* Active Organization Rows */}
@@ -183,7 +180,13 @@ const Budget = ({ donationsData }: BudgetProps) => {
                 return (
                   <div key={year}>
                     <div className={`year-cell amount${isZero ? " zero" : ""}`}>
-                      {formatUSD(amount, "hidePennies")}
+                      <AmountView
+                        type="single"
+                        amount={amount}
+                        showPennies={false}
+                        showWarning={false}
+                        badge={"paid"}
+                      />
                     </div>
                   </div>
                 );
@@ -197,27 +200,6 @@ const Budget = ({ donationsData }: BudgetProps) => {
               </div>
             </div>
           ))}
-
-          {/* Total Row */}
-          <div className="row total-row">
-            <div></div>
-            {displayYears.map((year) => {
-              const total = yearTotals[year];
-              const isZero = total === 0;
-              return (
-                <div key={year}>
-                  <div className={`year-cell amount${isZero ? " zero" : ""}`}>
-                    <strong>{formatUSD(total, "hidePennies")}</strong>
-                  </div>
-                </div>
-              );
-            })}
-            <div>
-              <div className="budget-total">
-                <strong>{formatUSD(budgetTotal, "hidePennies")}</strong>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
@@ -225,7 +207,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
         <div className="budget-grid-simple">
           <div className="header">
             <div className="org-name-header">Other organizations</div>
-            <div>Budget</div>
+            <div>Plans</div>
           </div>
 
           {/* Inactive Organization Rows */}

@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
-import { formatUSD } from "../amount";
-import { getCurrentDateIso } from "../date";
+import AmountView from "./AmountView";
+import { getCurrentDateIso, isOlderThanDays, isFutureDate } from "../date";
 import type { Donation } from "../donation";
-import KindBadge from "./KindBadge";
 
 interface BudgetDonationListProps {
   orgId: string;
@@ -40,21 +39,33 @@ const BudgetDonationList = ({ orgId, donations }: BudgetDonationListProps) => {
   return (
     <div className="budget-donations">
       {donations.map((donation) => {
-        // Determine badge type - future paid donations show as ideas (since they're likely errors)
-        // const isFuturePaid =
-        //   donation.kind === "paid" && donation.date > currentDate;
-        // const badgeKind = isFuturePaid ? "idea" : donation.kind;
+        const now = currentDate;
+        const other = donation.date;
+        const isOldPledge =
+          donation.kind === "pledge" &&
+          isOlderThanDays({ now, other, toleranceDays: 180 });
+        const isOldIdea =
+          donation.kind === "idea" &&
+          isOlderThanDays({ now, other, toleranceDays: 180 });
+        const isFuturePaid =
+          donation.kind === "paid" && isFutureDate({ now, other });
+        const showWarning = isOldPledge || isOldIdea || isFuturePaid;
         const badgeKind = donation.kind;
 
         return (
           <div key={donation.id} className="budget-donation-row">
             <div className="budget-donation-amount">
-              <KindBadge kind={badgeKind} />
               <Link
                 to={`/donations/${donation.id}/edit`}
                 className="budget-amount-link"
               >
-                {formatUSD(donation.amount)}
+                <AmountView
+                  type="single"
+                  amount={donation.amount}
+                  showPennies={false}
+                  showWarning={showWarning}
+                  badge={badgeKind}
+                />
               </Link>
             </div>
             <div className="budget-donation-date">{donation.date}</div>

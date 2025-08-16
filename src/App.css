@@ -873,8 +873,7 @@ dl {
 }
 
 .donations-grid > .row.future > div {
-    opacity: 0.75;
-    font-size:0.75em;
+    opacity: 0.5;
 }
 
 .sync-status-button.idle.needs-sync {

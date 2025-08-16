@@ -317,3 +317,29 @@ export const extractYear = (dateIso: string): number =>
 
 export const compareDatesDesc = (a: string, b: string): number =>
   b.localeCompare(a);
+
+export const isFutureDate = (params: {
+  now: string;
+  other: string;
+}): boolean => {
+  return params.other > params.now;
+};
+
+export const isOlderThanDays = (params: {
+  now: string;
+  other: string;
+  toleranceDays: number;
+}): boolean => {
+  try {
+    const nowDate = new Date(params.now);
+    const otherDate = new Date(params.other);
+    if (isNaN(nowDate.getTime()) || isNaN(otherDate.getTime())) {
+      return false;
+    }
+    const diffMs = nowDate.getTime() - otherDate.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    return diffDays > params.toleranceDays;
+  } catch {
+    return false;
+  }
+};

@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
-import { formatUSD } from "../amount";
 import type { Donation } from "../donation";
 import type { Org } from "../organization";
+import AmountView from "./AmountView";
 
 interface DonationDetailsViewProps {
   donation: Donation;
@@ -52,7 +52,15 @@ const DonationDetailsView = ({
         <dt>Date</dt>
         <dd>{donation.date}</dd>
         <dt>Amount</dt>
-        <dd>{formatUSD(donation.amount)}</dd>
+        <dd>
+          <AmountView
+            type="single"
+            amount={donation.amount}
+            showPennies={true}
+            showWarning={false}
+            badge={donation.kind}
+          />
+        </dd>
         <dt>Type</dt>
         <dd className="kind">{donation.kind}</dd>
         {showPaymentMethod && (

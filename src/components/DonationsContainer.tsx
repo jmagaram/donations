@@ -28,7 +28,6 @@ import {
   matchesPaymentKindFilter,
   type KindFilterParam,
 } from "../kindFilter";
-import { formatUSD } from "../amount";
 import { type SearchFilter } from "../searchFilter";
 
 interface DonationsContainerProps {
@@ -129,7 +128,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     return {
       id: donation.id,
       date: donation.date,
-      amount: formatUSD(donation.amount, "hidePennies"),
+      amount: donation.amount,
       orgId: donation.orgId,
       orgName: orgMap.get(donation.orgId)?.name || "Unknown organization",
       kind: donation.kind,

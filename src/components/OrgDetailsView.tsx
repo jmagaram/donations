@@ -1,6 +1,5 @@
 import type { DonationsData } from "../donationsData";
 import { compareDatesDesc } from "../date";
-import { formatUSD as formatAmount } from "../amount";
 import { type DonationDisplay } from "./DonationsView";
 import DonationsGrid from "./DonationsGrid";
 
@@ -49,7 +48,7 @@ const OrgDetailsView = ({
   const donationsForDisplay: DonationDisplay[] = donations.map((d) => ({
     id: d.id,
     date: d.date,
-    amount: formatAmount(d.amount),
+    amount: d.amount,
     orgId: d.orgId,
     orgName: organization.name,
     kind: d.kind,

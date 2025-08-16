@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { type DonationDisplay } from "./DonationsView";
-import KindBadge from "./KindBadge";
-import { getCurrentDateIso, compareDatesDesc } from "../date";
+import {
+  getCurrentDateIso,
+  compareDatesDesc,
+  isOlderThanDays,
+  isFutureDate,
+} from "../date";
+import AmountView from "./AmountView";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -11,6 +16,20 @@ interface DonationsGridProps {
 const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
   const isFutureDonation = (donationDate: string): boolean => {
     return compareDatesDesc(donationDate, getCurrentDateIso()) < 0;
+  };
+
+  const requiresWarning = (donation: DonationDisplay): boolean => {
+    const now = getCurrentDateIso();
+    const other = donation.date;
+    const isOldPledge =
+      donation.kind === "pledge" &&
+      isOlderThanDays({ now, other, toleranceDays: 180 });
+    const isOldIdea =
+      donation.kind === "idea" &&
+      isOlderThanDays({ now, other, toleranceDays: 180 });
+    const isFuturePaid =
+      donation.kind === "paid" && isFutureDate({ now, other });
+    return isOldPledge || isOldIdea || isFuturePaid;
   };
 
   return (
@@ -34,8 +53,15 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
         >
           <div>{donation.date}</div>
           <div className="amount">
-            <KindBadge kind={donation.kind} />
-            <Link to={`/donations/${donation.id}`}>{donation.amount}</Link>
+            <Link to={`/donations/${donation.id}`}>
+              <AmountView
+                type="single"
+                amount={donation.amount}
+                showPennies={false}
+                showWarning={requiresWarning(donation)}
+                badge={donation.kind}
+              />
+            </Link>
           </div>
           {showOrgName && (
             <div>

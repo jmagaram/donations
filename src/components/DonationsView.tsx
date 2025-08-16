@@ -18,7 +18,7 @@ import type { DonationKind } from "../donation";
 export interface DonationDisplay {
   id: string;
   date: string;
-  amount: string;
+  amount: number;
   orgId: string;
   orgName: string;
   kind: DonationKind;

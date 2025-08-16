@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { type DonationsData } from "../donationsData";
 import { extractYear, getCurrentYear } from "../date";
-import { formatUSD as formatAmount } from "../amount";
+import AmountView from "./AmountView";
 import { useSearchParam } from "../hooks/useSearchParam";
 import {
   yearFilterSearchParam,
@@ -122,7 +122,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
       .sort((a, b) => a.name.localeCompare(b.name));
 
     // Filter out years with no donations
-    years = years.filter(year => yearTotals[year] > 0);
+    years = years.filter((year) => yearTotals[year] > 0);
 
     return {
       years,
@@ -231,7 +231,13 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                         "interior-value"
                       )}
                     >
-                      {formatAmount(amount, "hidePennies")}
+                      <AmountView
+                        type="single"
+                        amount={amount}
+                        showPennies={false}
+                        showWarning={false}
+                        badge={undefined}
+                      />
                     </div>
                   );
                 })}
@@ -243,7 +249,13 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                     "row-total"
                   )}
                 >
-                  {formatAmount(orgTotal, "hidePennies")}
+                  <AmountView
+                    type="single"
+                    amount={orgTotal}
+                    showPennies={false}
+                    showWarning={false}
+                    badge={undefined}
+                  />
                 </div>
               </>
             );
@@ -262,7 +274,13 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                   "column-total"
                 )}
               >
-                {formatAmount(amount, "hidePennies")}
+                <AmountView
+                  type="single"
+                  amount={amount}
+                  showPennies={false}
+                  showWarning={false}
+                  badge={undefined}
+                />
               </div>
             );
           })}
@@ -273,7 +291,13 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
               "grand-total"
             )}
           >
-            {formatAmount(processedData.grandTotal, "hidePennies")}
+            <AmountView
+              type="single"
+              amount={processedData.grandTotal}
+              showPennies={false}
+              showWarning={false}
+              badge={undefined}
+            />
           </div>
         </div>
       )}

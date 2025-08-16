@@ -27,7 +27,7 @@ button {
     margin-right:0.25em;
 }
 
-.amount-view.zero {
+.amount-view .zero {
     opacity: 0.5;
 }
 
@@ -362,7 +362,6 @@ nav a {
 
 .kind-badge-paid {
     color: black;
-    display: none;
 }
 
 .kind-badge-pledge {

@@ -1,33 +1,47 @@
 import React from "react";
 import { formatUSD } from "../amount";
 import KindBadge from "./KindBadge";
+import type { DonationKind } from "../donation";
 
-interface AmountViewProps {
-  amount: number;
-  showPennies: boolean;
-  isPledge?: boolean;
-  isIdea?: boolean;
-  isWarning?: boolean;
-}
+type AmountViewProps =
+  | {
+      type: "single";
+      amount: number;
+      showPennies: boolean;
+      showWarning: boolean;
+      badge: DonationKind | undefined;
+    }
+  | {
+      type: "aggregate";
+      amount: number;
+      showPennies: boolean;
+      showWarning: boolean;
+      paidBadge: boolean;
+      pledgeBadge: boolean;
+      ideaBadge: boolean;
+    };
 
-const AmountView: React.FC<AmountViewProps> = ({
-  amount,
-  showPennies,
-  isPledge,
-  isIdea,
-  isWarning,
-}) => {
-  const badges: Array<"pledge" | "idea" | "warning"> = [];
-  if (isPledge) badges.push("pledge");
-  if (isIdea) badges.push("idea");
-  if (isWarning) badges.push("warning");
+const AmountView: React.FC<AmountViewProps> = (props) => {
+  const amount = props.amount;
+  const showPennies = props.showPennies;
   const isZero = Math.abs(amount) < 0.005;
+  const badges: Array<DonationKind | "warning"> = [];
+  if (props.showWarning) badges.push("warning");
+  if (!isZero) {
+    if (props.type === "single") {
+      if (props.badge) badges.push(props.badge);
+    } else if (props.type === "aggregate") {
+      if (props.paidBadge) badges.push("paid");
+      if (props.pledgeBadge) badges.push("pledge");
+      if (props.ideaBadge) badges.push("idea");
+    }
+  }
   return (
-    <span className={`amount-view${isZero ? " zero" : ""}`}>
+    <span className={"amount-view"}>
       {badges.map((kind, idx) => (
         <KindBadge key={idx} kind={kind} />
       ))}
-      <span>
+      <span className={`${isZero ? " zero" : ""}`}>
         {formatUSD(amount, showPennies ? "showPennies" : "hidePennies")}
       </span>
     </span>

@@ -22,6 +22,9 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>
           <Link to="/orgs">Orgs</Link>
+          <Link className="large-screen" to="/budget">
+            Budget
+          </Link>
           <Link className="medium-screen" to="/reports">
             Reports
           </Link>

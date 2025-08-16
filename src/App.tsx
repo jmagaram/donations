@@ -19,6 +19,7 @@ import Exporter from "./components/Exporter";
 import Reports from "./components/Reports";
 import TotalsByOrg from "./components/TotalsByOrg";
 import TotalsByCategory from "./components/TotalsByCategory";
+import Budget from "./components/Budget";
 import SyncStatusBox from "./components/SyncStatusBox";
 import Admin from "./components/Admin";
 import "./App.css";
@@ -233,6 +234,14 @@ const AppContent = () => {
         <Route
           path="/export"
           element={<Exporter donationsData={donationsData} />}
+        />
+        <Route
+          path="/budget"
+          element={
+            <Budget
+              donationsData={donationsData}
+            />
+          }
         />
         <Route path="/reports" element={<Reports />} />
         <Route

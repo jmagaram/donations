@@ -46,8 +46,19 @@ const DonationUpsertForm = ({
   const dateInputRef = React.useRef<HTMLInputElement>(null);
   const orgId =
     mode === "edit" ? defaultValues.orgId : searchParams.get("org") || "";
+  
+  // Get URL parameters for pre-filling form in add mode
+  const urlParams = mode === "add" ? {
+    date: searchParams.get("date") || defaultValues.date,
+    kind: (searchParams.get("kind") as any) || defaultValues.kind,
+    amount: searchParams.get("amount") ? parseFloat(searchParams.get("amount")!) : defaultValues.amount,
+    notes: searchParams.get("notes") || defaultValues.notes,
+    paymentMethod: searchParams.get("paymentMethod") || defaultValues.paymentMethod,
+  } : {};
+  
   const formDefaultValues = {
     ...defaultValues,
+    ...urlParams,
     orgId,
   };
 

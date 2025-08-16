@@ -361,7 +361,7 @@ nav a {
 }
 
 .kind-badge-paid {
-    color:darkgray;
+    color:black;
 }
 
 .kind-badge-pledge {
@@ -873,7 +873,8 @@ dl {
 }
 
 .donations-grid > .row.future > div {
-    opacity: 0.5;
+    opacity: 0.75;
+    font-size:0.75em;
 }
 
 .sync-status-button.idle.needs-sync {

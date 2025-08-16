@@ -7,7 +7,7 @@ interface KindBadgeProps {
 const getKindSymbol = (kind: DonationKind | "warning") => {
   switch (kind) {
     case "paid":
-      return { symbol: "■", className: "kind-badge-paid" };
+      return { symbol: "•", className: "kind-badge-paid" };
     case "pledge":
       return { symbol: "□", className: "kind-badge-pledge" };
     case "idea":

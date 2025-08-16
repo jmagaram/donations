@@ -13,7 +13,7 @@ const getKindSymbol = (kind: DonationKind | "warning") => {
     case "idea":
       return { symbol: "☆", className: "kind-badge-idea" };
     case "warning":
-      return { symbol: "➤", className: "kind-badge-warning" };
+      return { symbol: "◆", className: "kind-badge-warning" };
   }
 };
 

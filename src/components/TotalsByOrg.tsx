@@ -193,7 +193,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
         <div
           className="totals-by-year-grid"
           style={{
-            gridTemplateColumns: `auto ${processedData.years
+            gridTemplateColumns: `max-content ${processedData.years
               .map(() => "max-content")
               .join(" ")} max-content`,
           }}

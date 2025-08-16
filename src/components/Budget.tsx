@@ -159,7 +159,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
       <section>
         <div className="budget-grid">
           <div className="header">
-            <div>Active organizations</div>
+            <div className="org-name-header">Active organizations</div>
             {displayYears.map((year) => (
               <div key={year} className="year-header">
                 {year}
@@ -171,7 +171,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
           {/* Active Organization Rows */}
           {activeOrgs.map((orgData) => (
             <div key={orgData.org.id} className="row">
-              <div>
+              <div className="org-name">
                 <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
               </div>
 
@@ -200,9 +200,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
 
           {/* Total Row */}
           <div className="row total-row">
-            <div>
-              <strong>Total</strong>
-            </div>
+            <div></div>
             {displayYears.map((year) => {
               const total = yearTotals[year];
               const isZero = total === 0;
@@ -226,14 +224,14 @@ const Budget = ({ donationsData }: BudgetProps) => {
       <section>
         <div className="budget-grid-simple">
           <div className="header">
-            <div>Other organizations</div>
+            <div className="org-name-header">Other organizations</div>
             <div>Budget</div>
           </div>
 
           {/* Inactive Organization Rows */}
           {inactiveOrgs.map((orgData) => (
             <div key={orgData.org.id} className="row">
-              <div>
+              <div className="org-name">
                 <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
               </div>
               <div>

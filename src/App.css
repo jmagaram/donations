@@ -515,7 +515,7 @@ nav a {
 .budget-grid-simple {
     display: grid;
     grid-template-columns: max-content max-content;
-    gap: 0rem 0.25rem;
+    gap: 0rem 1rem;
 }
 
 .budget-grid > .header,
@@ -542,14 +542,31 @@ nav a {
     border-bottom: 1px solid #eee;
 }
 
-.budget-grid .org-name {
-    padding: 0.25rem 0;
+.budget-grid .org-name-header,
+.budget-grid-simple .org-name-header {
+    text-align: right;
 }
 
 .budget-grid .amount {
     text-align: right;
     white-space: nowrap;
     padding: 0.25rem 0;
+}
+
+.budget-grid .org-name,
+.budget-grid-simple .org-name {
+    padding-top: 0.25rem;
+    text-align: right;
+}
+
+.budget-grid a,
+.budget-grid-simple a {
+    text-decoration: none;
+}
+
+.budget-grid a:hover,
+.budget-grid-simple a:hover {
+    text-decoration: underline;
 }
 
 .budget-grid .budget-cell {
@@ -584,13 +601,13 @@ nav a {
 .budget-total {
     text-align: center;
     font-weight: bold;
+    padding-top: 0.25rem;
 }
 
 /* Budget Donation List Styles */
 .budget-donations {
     display: flex;
     flex-direction: column;
-    /*gap: 0.25rem;*/
 }
 
 .budget-donation-row {
@@ -598,7 +615,6 @@ nav a {
     flex-direction: row;
     align-items: center;
     gap: 0.5rem;
-    /*outline: 1px solid green;*/
     padding: 0.25rem 0;
 }
 
@@ -607,20 +623,10 @@ nav a {
     align-items: center;
     justify-content: flex-end;
     min-width: 10ch;
-    /*gap: 0rem;*/
-}
-
-.budget-amount-link {
-    text-decoration: none;
-    color: #007bff;
 }
 
 .budget-grid .zero {
     opacity: 0.25;
-}
-
-.budget-amount-link:hover {
-    text-decoration: underline;
 }
 
 .budget-donations-empty {
@@ -630,47 +636,12 @@ nav a {
 }
 
 .budget-add-link {
-    color: #007bff;
-    text-decoration: none;
     opacity: 0.5;
 }
 
 .budget-add-link:hover {
     text-decoration: underline;
     opacity: 1;
-}
-
-/* Date Popover Test */
-.date-button {
-    background: none;
-    border: none;
-    color: #666;
-    cursor: pointer;
-    font-size: 0.875rem;
-    padding: 0;
-}
-
-.date-button:hover {
-    text-decoration: underline;
-}
-
-.date-popover {
-    background: white;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding: 1rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    max-width: 250px;
-}
-
-.date-popover h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1rem;
-}
-
-.date-popover p {
-    margin: 0.25rem 0;
-    font-size: 0.875rem;
 }
 
 .year-column {

@@ -19,8 +19,7 @@ const randomKind = (): DonationKind => {
   const rand = Math.random();
   if (rand < 0.8) return "paid";
   if (rand < 0.9) return "pledge";
-  if (rand < 0.95) return "idea";
-  return "unknown";
+  return "idea";
 };
 
 const randomPaymentMethod = (): string | undefined => {

@@ -5,7 +5,7 @@ import { OrgIdSchema } from "./organization";
 import type { AmountFilter } from "./amountFilter";
 
 export const DonationAmountSchema = z.number();
-export const DonationKindSchema = z.enum(["idea", "pledge", "paid", "unknown"]);
+export const DonationKindSchema = z.enum(["idea", "pledge", "paid"]);
 export const DonationNotesSchema = z.string();
 export const DonationPaymentMethodSchema = z.string().optional();
 

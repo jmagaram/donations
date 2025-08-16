@@ -5,7 +5,6 @@ export type KindFilterParam =
   | "paid"
   | "pledge"
   | "paidAndPledge"
-  | "unknown"
   | "idea";
 
 const NO_FILTER = "__all_payment_kind__";
@@ -16,7 +15,6 @@ const validValues: KindFilterParam[] = [
   "pledge",
   "idea",
   "paidAndPledge",
-  "unknown",
 ];
 
 const parse = (value: string | undefined): KindFilterParam => {
@@ -39,8 +37,6 @@ export const displayLabel = (value: KindFilterParam) => {
       return "Pledge";
     case "paidAndPledge":
       return "Paid and pledge";
-    case "unknown":
-      return "Unknown";
     case "idea":
       return "Idea";
   }
@@ -70,8 +66,6 @@ export const matchesPaymentKindFilter = (
       return donationKind === "pledge";
     case "paidAndPledge":
       return donationKind === "paid" || donationKind === "pledge";
-    case "unknown":
-      return donationKind === "unknown";
     case "idea":
       return donationKind === "idea";
     default:

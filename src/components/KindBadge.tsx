@@ -12,8 +12,6 @@ const getKindSymbol = (kind: DonationKind) => {
       return { symbol: "□", className: "kind-badge-pledge", title: "Pledge" };
     case "idea":
       return { symbol: "☆", className: "kind-badge-idea", title: "Idea" };
-    case "unknown":
-      return { symbol: "?", className: "kind-badge-unknown", title: "Unknown" };
   }
 };
 

@@ -21,7 +21,6 @@ const KIND_OPTIONS: KindOption[] = [
   { value: "idea", label: "Idea" },
   { value: "pledge", label: "Pledge" },
   { value: "paid", label: "Paid" },
-  { value: "unknown", label: "Unknown" },
 ];
 
 interface DonationUpsertFormProps {

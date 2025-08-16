@@ -356,7 +356,6 @@ nav a {
 
 .kind-badge-paid {
     color: black;
-    opacity: 0.2;
     display: none;
 }
 
@@ -366,6 +365,10 @@ nav a {
 
 .kind-badge-idea {
     color: #059669;
+}
+
+.kind-badge-warning {
+    color:darkorange;
 }
 
 .orgs-grid {

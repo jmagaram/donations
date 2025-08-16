@@ -23,6 +23,14 @@ button {
     min-width: 8ch;
 }
 
+.amount-view span:nth-last-child(2){
+    margin-right:0.25em;
+}
+
+.amount-view.zero {
+    opacity: 0.5;
+}
+
 #filter {
     max-width: 18ch;
 }
@@ -349,8 +357,6 @@ nav a {
 }
 
 .kind-badge {
-    display: inline-block;
-    margin-right: 3px;
     cursor: default;
 }
 
@@ -960,3 +966,5 @@ dl {
         transform: translate3d(0, 0, 0);
     }
 }
+
+

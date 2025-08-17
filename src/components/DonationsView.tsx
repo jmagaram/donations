@@ -144,6 +144,13 @@ const DonationsView = ({
         <Link to="/donations/add">Add donation</Link>
       </div>
       <div className="toolbar">
+        <SearchFilterBox
+          value={currentFilter}
+          onChange={textFilterChanged}
+          className="toolbar-item search-box"
+          id="filter"
+          placeholder="Search"
+        />
         <YearFilterPicker
           value={yearFilter}
           onChange={yearFilterChanged}
@@ -229,13 +236,6 @@ const DonationsView = ({
             />
           </>
         )}
-        <SearchFilterBox
-          value={currentFilter}
-          onChange={textFilterChanged}
-          className="toolbar-item"
-          id="filter"
-          placeholder="Search"
-        />
         {hasActiveFilters && (
           <div className="toolbar-item">
             <button type="button" onClick={onClearFilters}>

@@ -114,6 +114,14 @@ a:hover {
     row-gap: 2px;
 }
 
+.toolbar-item.search-box label {
+    display: none;
+}
+
+.toolbar-item label {
+    font-size: 0.75em;
+}
+
 .org-details > .section {
     margin-top: 1em;
 }

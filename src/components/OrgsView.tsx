@@ -44,7 +44,7 @@ const OrgsView = ({
         <SearchFilterBox
           value={currentTextFilter}
           onChange={textFilterChanged}
-          className="toolbar-item"
+          className="toolbar-item search-box"
           id="filter"
           placeholder="Search"
         />

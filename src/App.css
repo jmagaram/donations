@@ -23,6 +23,14 @@ button {
     min-width: 8ch;
 }
 
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
 .amount-view span:nth-last-child(2) {
     margin-right: 0.25em;
 }
@@ -136,10 +144,6 @@ button {
     border-bottom: 1px solid #eee;
 }
 
-.org-details .donation-grid a {
-    text-decoration: none;
-}
-
 .org-details .donation-grid .date {
     white-space: nowrap;
 }
@@ -200,10 +204,6 @@ header.test-mode a {
 
 .nav-right {
     display: flex;
-}
-
-nav a {
-    text-decoration: none;
 }
 
 .network-status {
@@ -324,10 +324,6 @@ nav a {
     font-weight: bold;
 }
 
-.donations-grid a {
-    text-decoration: none;
-}
-
 .donations-grid > .row {
     display: contents;
 }
@@ -379,10 +375,6 @@ nav a {
 .orgs-grid {
     display: grid;
     gap: 0.25rem 0.25rem;
-}
-
-.orgs-grid a {
-    text-decoration: none;
 }
 
 .orgs-grid > .header {
@@ -461,10 +453,6 @@ nav a {
     margin-bottom: 0.5em;
 }
 
-.export-section a:hover {
-    text-decoration: underline;
-}
-
 .export-section p {
     margin: 0;
 }
@@ -480,10 +468,6 @@ nav a {
 
 .nav-list li {
     margin: 0;
-}
-
-.nav-list a {
-    text-decoration: none;
 }
 
 /* Totals by Year Report Styles */
@@ -568,16 +552,6 @@ nav a {
     max-width: 25ch;
 }
 
-.budget-grid a,
-.budget-grid-simple a {
-    text-decoration: none;
-}
-
-.budget-grid a:hover,
-.budget-grid-simple a:hover {
-    text-decoration: underline;
-}
-
 .budget-grid .budget-cell {
     display: flex;
     flex-direction: column;
@@ -649,7 +623,6 @@ nav a {
 }
 
 .budget-add-link:hover {
-    text-decoration: underline;
     opacity: 1;
 }
 
@@ -692,10 +665,6 @@ nav a {
     border-bottom: 1px solid #eee;
     padding: 0.25rem 0;
     text-align: right;
-}
-
-.totals-by-year-grid a {
-    text-decoration: none;
 }
 
 .zero.interior-value {

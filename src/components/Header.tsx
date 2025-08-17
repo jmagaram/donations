@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SyncSpinner from "./SyncSpinner";
 import SignOut from "./SignOut";
 import {
@@ -15,10 +15,19 @@ interface HeaderProps {
 }
 
 const Header = ({ syncStatus, onSync }: HeaderProps) => {
+  const navigate = useNavigate();
+
+  const handleBack = () => {
+    navigate(-1);
+  };
+
   return (
     <header>
       <nav>
         <div className="nav-left">
+          <button onClick={handleBack} className="back-button">
+            ◀
+          </button>
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>
           <Link to="/orgs">Orgs</Link>

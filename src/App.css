@@ -935,3 +935,8 @@ dl {
         transform: translate3d(0, 0, 0);
     }
 }
+
+.back-button {
+    min-width: auto;
+    width: 4ch;
+}

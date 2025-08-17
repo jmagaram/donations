@@ -16,7 +16,7 @@ const Home = () => {
             <Link to="/reports">Reports</Link>
           </li>
           <li>
-            <Link to="/budget">Budget</Link>
+            <Link to="/budget">Plan</Link>
           </li>
           <li>
             <Link to="/import">Import</Link>

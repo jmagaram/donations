@@ -152,7 +152,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
 
   return (
     <div className="budget-container">
-      <h1>Budget</h1>
+      <h1>Plan</h1>
       <section>
         <div className="budget-grid">
           <div className="header">
@@ -162,7 +162,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
                 {year}
               </div>
             ))}
-            <div className="budget-header">Plans</div>
+            <div className="budget-header">Upcoming</div>
           </div>
 
           {/* Active Organization Rows */}
@@ -207,7 +207,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
         <div className="budget-grid-simple">
           <div className="header">
             <div className="org-name-header">Other organizations</div>
-            <div>Plans</div>
+            <div>Upcoming</div>
           </div>
 
           {/* Inactive Organization Rows */}

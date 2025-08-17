@@ -23,8 +23,8 @@ button {
     min-width: 8ch;
 }
 
-.amount-view span:nth-last-child(2){
-    margin-right:0.25em;
+.amount-view span:nth-last-child(2) {
+    margin-right: 0.25em;
 }
 
 .amount-view .zero {
@@ -361,7 +361,7 @@ nav a {
 }
 
 .kind-badge-paid {
-    color:black;
+    color: black;
 }
 
 .kind-badge-pledge {
@@ -373,7 +373,7 @@ nav a {
 }
 
 .kind-badge-warning {
-    color:darkorange;
+    color: darkorange;
 }
 
 .orgs-grid {
@@ -565,6 +565,7 @@ nav a {
 .budget-grid-simple .org-name {
     padding-top: 0.25rem;
     text-align: right;
+    max-width: 25ch;
 }
 
 .budget-grid a,
@@ -965,5 +966,3 @@ dl {
         transform: translate3d(0, 0, 0);
     }
 }
-
-

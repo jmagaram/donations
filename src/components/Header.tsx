@@ -17,7 +17,8 @@ interface HeaderProps {
 const Header = ({ syncStatus, onSync }: HeaderProps) => {
   const navigate = useNavigate();
 
-  const handleBack = () => {
+  const handleBack = (event: React.MouseEvent) => {
+    event.preventDefault();
     navigate(-1);
   };
 
@@ -25,9 +26,9 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
     <header>
       <nav>
         <div className="nav-left">
-          <button onClick={handleBack} className="back-button">
-            ◀
-          </button>
+          <a className="large-screen" onClick={handleBack} href="#">
+            ◁ Back
+          </a>
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>
           <Link to="/orgs">Orgs</Link>

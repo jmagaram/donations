@@ -200,10 +200,12 @@ header.test-mode a {
 .nav-left {
     display: flex;
     gap: 0.5rem;
+    align-items: center;
 }
 
 .nav-right {
     display: flex;
+    align-items: center;
 }
 
 .network-status {
@@ -934,16 +936,4 @@ dl {
     100% {
         transform: translate3d(0, 0, 0);
     }
-}
-
-.back-button {
-    display: flex;
-    align-items: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: inherit;
-    border-radius: 3px;
-    min-width: auto;
-    width: 3ch;
 }

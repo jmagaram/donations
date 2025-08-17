@@ -410,6 +410,10 @@ header.test-mode a {
     white-space: pre-line;
 }
 
+.orgs-grid .row .name {
+    max-width: 30ch;
+}
+
 .status-box {
     margin: 1em 0;
     padding: 0.5em;
@@ -559,7 +563,7 @@ header.test-mode a {
 .budget-grid-simple .org-name {
     padding-top: 0.25rem;
     text-align: right;
-    max-width: 25ch;
+    max-width: 30ch;
 }
 
 .budget-grid .budget-cell {

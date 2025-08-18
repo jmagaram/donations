@@ -9,7 +9,7 @@ import { useInterval } from "../hooks/useInterval";
 interface SyncSpinnerProps {
   status: SyncStatusType;
   sync: (
-    option: "pull" | "push" | "pushForce"
+    option: "pull" | "push" | "pushForce",
   ) => Promise<Result<void, SyncError>>;
   stalenessMinutes?: number;
 }
@@ -31,45 +31,55 @@ const SyncSpinner = ({
     return minutesElapsed >= stalenessMinutes;
   };
 
-  const getStatusInfo = (
-    status: SyncStatusType
-  ): { text: string; iconClass: string } => {
+  const getStatusData = (
+    status: SyncStatusType,
+  ): {
+    text: string;
+    buttonClasses: string;
+    isSpinning: boolean;
+    isComplete: boolean;
+  } => {
+    const baseClass = "sync-status";
+
     switch (status.kind) {
       case "syncing":
         return {
           text: "Sync...",
-          iconClass: "sync-spinning sync-black",
+          buttonClasses: `${baseClass} syncing`,
+          isSpinning: true,
+          isComplete: false,
         };
       case "idle": {
         const needsSync =
           status.requiresSync || isDataStale(status.lastSuccessfulPull);
         if (needsSync) {
-          return { text: "Needs sync", iconClass: "sync-red" };
+          return {
+            text: "Needs sync",
+            buttonClasses: `${baseClass} idle needs-sync`,
+            isSpinning: false,
+            isComplete: false,
+          };
         } else {
-          return { text: "Saved", iconClass: "sync-complete sync-green" };
+          return {
+            text: "Saved",
+            buttonClasses: `${baseClass} idle saved`,
+            isSpinning: false,
+            isComplete: true,
+          };
         }
       }
       case "error":
-        return { text: "Sync error", iconClass: "sync-error sync-red" };
+        return {
+          text: "Sync error",
+          buttonClasses: `${baseClass} error`,
+          isSpinning: false,
+          isComplete: false,
+        };
     }
   };
 
+  const statusData = getStatusData(status);
   const isDisabled = status.kind === "syncing";
-  const statusInfo = getStatusInfo(status);
-
-  const getButtonClassName = (): string => {
-    const baseClass = "sync-status";
-    const stateClass = status.kind;
-
-    if (status.kind === "idle") {
-      const needsSync =
-        status.requiresSync || isDataStale(status.lastSuccessfulPull);
-      const subStateClass = needsSync ? "needs-sync" : "saved";
-      return `${baseClass} ${stateClass} ${subStateClass}`;
-    }
-
-    return `${baseClass} ${stateClass}`;
-  };
 
   const handleClick = () => {
     if (!isDisabled) {
@@ -81,18 +91,18 @@ const SyncSpinner = ({
 
   return (
     <button
-      className={getButtonClassName()}
+      className={statusData.buttonClasses}
       onClick={handleClick}
       disabled={isDisabled}
     >
       <svg
-        className={`sync-status-icon ${statusInfo.iconClass}`}
+        className={`sync-status-icon ${statusData.isSpinning ? "spinning" : ""}`}
         width="16"
         height="16"
         viewBox="0 0 24 24"
         fill="none"
       >
-        {statusInfo.iconClass.includes("sync-complete") ? (
+        {statusData.isComplete ? (
           <path
             d={checkmarkPath}
             stroke="currentColor"
@@ -113,7 +123,7 @@ const SyncSpinner = ({
           />
         )}
       </svg>
-      <span className="sync-status-text">{statusInfo.text}</span>
+      <span className="sync-status-text">{statusData.text}</span>
     </button>
   );
 };

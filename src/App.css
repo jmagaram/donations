@@ -216,22 +216,24 @@ header > nav > div > button:hover:not(:disabled) {
     white-space: nowrap;
 }
 
-.sync-status .sync-spinning {
+.sync-status-icon.spinning {
     animation: sync-spin 1s linear infinite;
 }
 
-.sync-black path,
-.sync-black circle {
+.sync-status.syncing svg path,
+.sync-status.syncing svg circle {
     stroke: #000;
 }
 
-.sync-red path,
-.sync-red circle {
+.sync-status.error svg path,
+.sync-status.error svg circle,
+.sync-status.idle.needs-sync svg path,
+.sync-status.idle.needs-sync svg circle {
     stroke: #dc3545;
 }
 
-.sync-green path,
-.sync-green circle {
+.sync-status.idle.saved svg path,
+.sync-status.idle.saved svg circle {
     stroke: green;
 }
 

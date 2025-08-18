@@ -40,10 +40,6 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
           </Link>
         </div>
         <div>
-          <SyncSpinner status={{ kind: "syncing" }} sync={onSync} />
-          <SyncSpinner status={{ kind: "idle", requiresSync: false }} sync={onSync} />
-          <SyncSpinner status={{ kind: "idle", requiresSync: true }} sync={onSync} />
-          <SyncSpinner status={{ kind: "error", message: "Demo error" }} sync={onSync} />
           <SyncSpinner status={syncStatus} sync={onSync} />
           <SignOut />
         </div>

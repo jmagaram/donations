@@ -425,7 +425,7 @@ div.test-mode-banner a {
 }
 
 .kind-badge-warning {
-    color: darkorange;
+    color: red;
 }
 
 .orgs-grid {

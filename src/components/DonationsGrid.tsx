@@ -1,12 +1,8 @@
 import { Link } from "react-router-dom";
 import { type DonationDisplay } from "./DonationsView";
-import {
-  getCurrentDateIso,
-  compareDatesDesc,
-  isOlderThanDays,
-  isFutureDate,
-} from "../date";
+import { getCurrentDateIso, compareDatesDesc } from "../date";
 import AmountView from "./AmountView";
+import { requiresWarning } from "../donation";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -16,20 +12,6 @@ interface DonationsGridProps {
 const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
   const isFutureDonation = (donationDate: string): boolean => {
     return compareDatesDesc(donationDate, getCurrentDateIso()) < 0;
-  };
-
-  const requiresWarning = (donation: DonationDisplay): boolean => {
-    const now = getCurrentDateIso();
-    const other = donation.date;
-    const isOldPledge =
-      donation.kind === "pledge" &&
-      isOlderThanDays({ now, other, toleranceDays: 180 });
-    const isOldIdea =
-      donation.kind === "idea" &&
-      isOlderThanDays({ now, other, toleranceDays: 180 });
-    const isFuturePaid =
-      donation.kind === "paid" && isFutureDate({ now, other });
-    return isOldPledge || isOldIdea || isFuturePaid;
   };
 
   return (

@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
 import AmountView from "./AmountView";
-import { getCurrentDateIso, isOlderThanDays, isFutureDate } from "../date";
+import { getCurrentDateIso } from "../date";
 import type { Donation } from "../donation";
+import { requiresWarning } from "../donation";
 
 interface BudgetDonationListProps {
   orgId: string;
@@ -39,17 +40,7 @@ const BudgetDonationList = ({ orgId, donations }: BudgetDonationListProps) => {
   return (
     <div className="budget-donations">
       {donations.map((donation) => {
-        const now = currentDate;
-        const other = donation.date;
-        const isOldPledge =
-          donation.kind === "pledge" &&
-          isOlderThanDays({ now, other, toleranceDays: 180 });
-        const isOldIdea =
-          donation.kind === "idea" &&
-          isOlderThanDays({ now, other, toleranceDays: 180 });
-        const isFuturePaid =
-          donation.kind === "paid" && isFutureDate({ now, other });
-        const showWarning = isOldPledge || isOldIdea || isFuturePaid;
+        const showWarning = requiresWarning(donation);
         const badgeKind = donation.kind;
 
         return (

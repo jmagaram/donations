@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { DateIsoSchema, extractYear, getCurrentDateIso } from "./date";
+import {
+  DateIsoSchema,
+  extractYear,
+  getCurrentDateIso,
+  isOlderThanDays,
+  isFutureDate,
+} from "./date";
 import { IdSchema } from "./nanoId";
 import { OrgIdSchema } from "./organization";
 import type { AmountFilter } from "./amountFilter";
@@ -67,4 +73,19 @@ export const matchesAmountFilter = (
     case "between":
       return amt >= amountFilter.min && amt <= amountFilter.max;
   }
+};
+
+export const requiresWarning = (
+  donation: Pick<Donation, "kind" | "date">,
+): boolean => {
+  const now = getCurrentDateIso();
+  const other = donation.date;
+  const isOldPledge =
+    donation.kind === "pledge" &&
+    isOlderThanDays({ now, other, toleranceDays: 90 });
+  const isOldIdea =
+    donation.kind === "idea" &&
+    isOlderThanDays({ now, other, toleranceDays: 90 });
+  const isFuturePaid = donation.kind === "paid" && isFutureDate({ now, other });
+  return isOldPledge || isOldIdea || isFuturePaid;
 };

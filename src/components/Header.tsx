@@ -25,10 +25,10 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
   return (
     <header>
       <nav>
-        <div className="nav-left">
-          <a className="large-screen" onClick={handleBack} href="#">
+        <div>
+          <button type="button" className="large-screen" onClick={handleBack}>
             ◁ Back
-          </a>
+          </button>
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>
           <Link to="/orgs">Orgs</Link>
@@ -39,7 +39,11 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
             Reports
           </Link>
         </div>
-        <div className="nav-right">
+        <div>
+          <SyncSpinner status={{ kind: "syncing" }} sync={onSync} />
+          <SyncSpinner status={{ kind: "idle", requiresSync: false }} sync={onSync} />
+          <SyncSpinner status={{ kind: "idle", requiresSync: true }} sync={onSync} />
+          <SyncSpinner status={{ kind: "error", message: "Demo error" }} sync={onSync} />
           <SyncSpinner status={syncStatus} sync={onSync} />
           <SignOut />
         </div>

@@ -58,7 +58,7 @@ const SyncSpinner = ({
   const statusInfo = getStatusInfo(status);
 
   const getButtonClassName = (): string => {
-    const baseClass = "sync-status-button";
+    const baseClass = "sync-status";
     const stateClass = status.kind;
 
     if (status.kind === "idle") {

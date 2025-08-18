@@ -134,16 +134,14 @@ const AppContent = () => {
   return (
     <>
       {currentMode === "browser" && (
-        <header className="test-mode">
-          <div>
-            Test Environment
-            {location.pathname !== "/admin" && (
-              <>
-                &nbsp;<Link to="/admin">change</Link>
-              </>
-            )}
-          </div>
-        </header>
+        <div className="test-mode-banner">
+          Test Environment
+          {location.pathname !== "/admin" && (
+            <>
+              &nbsp;<Link to="/admin">change</Link>
+            </>
+          )}
+        </div>
       )}
       <Header syncStatus={syncStatus} onSync={handleSync} />
       <SyncStatusBox
@@ -237,11 +235,7 @@ const AppContent = () => {
         />
         <Route
           path="/budget"
-          element={
-            <Budget
-              donationsData={donationsData}
-            />
-          }
+          element={<Budget donationsData={donationsData} />}
         />
         <Route path="/reports" element={<Reports />} />
         <Route

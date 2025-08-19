@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { Fragment } from "react";
 import AmountView from "./AmountView";
 import { getCurrentDateIso } from "../date";
 import type { Donation } from "../donation";
@@ -24,7 +25,7 @@ const BudgetDonationList = ({ orgId, donations }: BudgetDonationListProps) => {
     });
 
     return (
-      <div className="budget-donations-empty">
+      <div>
         <div>
           <Link
             to={`/donations/add?${params.toString()}`}
@@ -38,14 +39,17 @@ const BudgetDonationList = ({ orgId, donations }: BudgetDonationListProps) => {
   }
 
   return (
-    <div className="budget-donations">
+    <div
+      className="grid budget-grid grid--no-borders"
+      style={{ gridTemplateColumns: "max-content 1fr" }}
+    >
       {donations.map((donation) => {
         const showWarning = requiresWarning(donation);
         const badgeKind = donation.kind;
 
         return (
-          <div key={donation.id} className="budget-donation-row">
-            <div className="budget-donation-amount">
+          <Fragment key={donation.id}>
+            <div className="grid__cell grid-col--align-right">
               <Link
                 to={`/donations/${donation.id}/edit`}
                 className="budget-amount-link"
@@ -59,8 +63,8 @@ const BudgetDonationList = ({ orgId, donations }: BudgetDonationListProps) => {
                 />
               </Link>
             </div>
-            <div className="budget-donation-date">{donation.date}</div>
-          </div>
+            <div className="grid__cell">{donation.date}</div>
+          </Fragment>
         );
       })}
     </div>

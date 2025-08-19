@@ -43,6 +43,11 @@ a:hover {
     justify-content: flex-end;
 }
 
+.grid--align-top .grid__cell,
+.grid--align-top .grid__header {
+    align-items: flex-start;
+}
+
 .grid__total-row {
     font-weight: bold;
     border-top: 2px solid #333;
@@ -56,6 +61,10 @@ a:hover {
 .grid--wide-columns .grid__header {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+}
+
+.grid--no-borders .grid__cell {
+    border-top: none;
 }
 
 .grid-col--show-medium,
@@ -512,126 +521,6 @@ div.test-mode-banner a {
 .budget-container h2 {
     margin-bottom: 1rem;
     font-size: 1.2rem;
-}
-
-.budget-grid {
-    display: grid;
-    grid-template-columns: max-content max-content max-content max-content max-content;
-    gap: 0rem 1rem;
-}
-
-.budget-grid-simple {
-    display: grid;
-    grid-template-columns: max-content max-content;
-    gap: 0rem 1rem;
-}
-
-.budget-grid > .header,
-.budget-grid-simple > .header {
-    display: contents;
-    font-weight: bold;
-}
-
-.budget-grid > .header > div,
-.budget-grid-simple > .header > div {
-    margin-bottom: 0.5rem;
-    font-weight: bold;
-    padding-bottom: 0.25rem;
-    border-bottom: 1px solid #333;
-}
-
-.budget-grid > .row,
-.budget-grid-simple > .row {
-    display: contents;
-}
-
-.budget-grid > .row > div,
-.budget-grid-simple > .row > div {
-    border-bottom: 1px solid #eee;
-}
-
-.budget-grid .org-name-header,
-.budget-grid-simple .org-name-header {
-    text-align: right;
-}
-
-.budget-grid .amount {
-    text-align: right;
-    white-space: nowrap;
-    padding: 0.25rem 0;
-}
-
-.budget-grid .org-name,
-.budget-grid-simple .org-name {
-    padding-top: 0.25rem;
-    text-align: right;
-    max-width: 30ch;
-}
-
-.budget-grid .budget-cell {
-    display: flex;
-    flex-direction: column;
-}
-
-.budget-grid .year-cell {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
-}
-
-.budget-grid .year-header {
-    text-align: right;
-}
-
-.budget-grid .budget-header {
-    text-align: center;
-}
-
-.budget-grid .total-row {
-    border-top: 1px solid #333;
-    margin-top: 0.25rem;
-    padding-top: 0.25rem;
-}
-
-.budget-grid .total-row > div {
-    border-bottom: none;
-}
-
-.budget-total {
-    text-align: center;
-    font-weight: bold;
-    padding-top: 0.25rem;
-}
-
-/* Budget Donation List Styles */
-.budget-donations {
-    display: flex;
-    flex-direction: column;
-}
-
-.budget-donation-row {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem 0;
-}
-
-.budget-donation-amount {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    min-width: 10ch;
-}
-
-.budget-grid .zero {
-    opacity: 0.25;
-}
-
-.budget-donations-empty {
-    display: flex;
-    justify-content: center;
-    padding: 0.25rem 0;
 }
 
 .budget-add-link {

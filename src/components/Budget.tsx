@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { useMemo } from "react";
+import { useMemo, Fragment } from "react";
 import AmountView from "./AmountView";
 import {
   extractYear,
@@ -154,75 +154,83 @@ const Budget = ({ donationsData }: BudgetProps) => {
     <div className="budget-container">
       <h1>Plan</h1>
       <section>
-        <div className="budget-grid">
-          <div className="header">
-            <div className="org-name-header">Active organizations</div>
-            {displayYears.map((year) => (
-              <div key={year} className="year-header">
-                {year}
-              </div>
-            ))}
-            <div className="budget-header">Upcoming</div>
-          </div>
+        <div
+          className="grid budget-grid"
+          style={{
+            gridTemplateColumns: `max-content repeat(${displayYears.length}, max-content) 1fr`,
+          }}
+        >
+          {/* Header row */}
+          <div className="grid__header">Active organizations</div>
+          {displayYears.map((year) => (
+            <div key={year} className="grid__header grid-col--align-right">
+              {year}
+            </div>
+          ))}
+          <div className="grid__header">Upcoming</div>
 
           {/* Active Organization Rows */}
           {activeOrgs.map((orgData) => (
-            <div key={orgData.org.id} className="row">
-              <div className="org-name">
+            <Fragment key={orgData.org.id}>
+              <div className="grid__cell">
                 <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
               </div>
 
               {displayYears.map((year) => {
                 const yearData = orgData.years[year];
                 const amount = yearData?.amount || 0;
-                const isZero = amount === 0;
 
                 return (
-                  <div key={year}>
-                    <div className={`year-cell amount${isZero ? " zero" : ""}`}>
-                      <AmountView
-                        type="single"
-                        amount={amount}
-                        showPennies={false}
-                        showWarning={false}
-                        badge={"paid"}
-                      />
-                    </div>
+                  <div
+                    key={year}
+                    className={"grid__cell grid-col--align-right"}
+                  >
+                    <AmountView
+                      type="single"
+                      amount={amount}
+                      showPennies={false}
+                      showWarning={false}
+                      badge={"paid"}
+                    />
                   </div>
                 );
               })}
 
-              <div>
+              <div className="grid__cell">
                 <BudgetDonationList
                   orgId={orgData.org.id}
                   donations={orgData.unresolvedItems}
                 />
               </div>
-            </div>
+            </Fragment>
           ))}
         </div>
       </section>
 
       <section>
-        <div className="budget-grid-simple">
-          <div className="header">
-            <div className="org-name-header">Other organizations</div>
-            <div>Upcoming</div>
-          </div>
+        <div
+          className="grid budget-grid-simple"
+          style={{
+            gridTemplateColumns: "max-content 1fr",
+          }}
+        >
+          {/* Header row */}
+          <div className="grid__header">Other organizations</div>
+          <div className="grid__header">Upcoming</div>
 
           {/* Inactive Organization Rows */}
           {inactiveOrgs.map((orgData) => (
-            <div key={orgData.org.id} className="row">
-              <div className="org-name">
+            <Fragment key={orgData.org.id}>
+              <div className="grid__cell">
                 <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
               </div>
-              <div>
+              <div className="grid__cell">
                 <BudgetDonationList
                   orgId={orgData.org.id}
                   donations={orgData.unresolvedItems}
                 />
               </div>
-            </div>
+            </Fragment>
           ))}
         </div>
       </section>

@@ -19,6 +19,88 @@ a:hover {
     text-decoration: underline;
 }
 
+.grid {
+    display: grid;
+}
+
+.grid__cell,
+.grid__header {
+    padding: 0.25rem 0.5rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.grid__cell {
+    border-top: 1px solid #eeeeee;
+}
+
+.grid__header {
+    font-weight: bold;
+}
+
+.grid-col--align-right {
+    justify-content: flex-end;
+}
+
+.grid-col--show-medium,
+.grid-col--show-large,
+.grid-col--hide {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .grid-col--show-medium {
+        display: block;
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-col--show-large {
+        display: block;
+    }
+}
+
+.donations-grid {
+    grid-template-columns: max-content max-content max-content;
+}
+
+.donations-grid--hide-org {
+    grid-template-columns: max-content max-content max-content;
+}
+
+.donations-grid .org-name {
+    max-width: 30ch;
+}
+
+.donations-grid .donation-kind {
+    text-transform: capitalize;
+}
+
+@media (min-width: 768px) {
+    .donations-grid {
+        grid-template-columns: repeat(4, max-content);
+    }
+
+    .donations-grid--hide-org {
+        grid-template-columns: repeat(3, max-content);
+    }
+}
+
+@media (min-width: 1024px) {
+    .donations-grid {
+        grid-template-columns: repeat(5, max-content) 1fr;
+    }
+
+    .donations-grid--hide-org {
+        grid-template-columns: repeat(4, max-content) 1fr;
+    }
+}
+
+.future {
+    opacity: 0.5;
+}
+
 .amount-view span:nth-last-child(2) {
     margin-right: 0.25em;
 }
@@ -131,42 +213,6 @@ a:hover {
 
 .org-details .header {
     font-weight: bold;
-}
-
-.org-details .donation-grid > .header {
-    font-weight: bold;
-}
-
-.org-details .donation-grid {
-    display: grid;
-    gap: 0.25rem 0.25rem;
-}
-
-.org-details .donation-grid > .row {
-    display: contents;
-}
-
-.org-details .donation-grid > .row > div {
-    border-bottom: 1px solid #eee;
-}
-
-.org-details .donation-grid .date {
-    white-space: nowrap;
-}
-
-.org-details .donation-grid .amount {
-    text-align: right;
-    white-space: nowrap;
-}
-
-.org-details .donation-grid .kind {
-    text-transform: capitalize;
-    white-space: nowrap;
-}
-
-.org-details .donation-grid .notes {
-    overflow-wrap: break-word;
-    white-space: pre-line;
 }
 
 header {
@@ -284,24 +330,9 @@ div.test-mode-banner a {
     display: none;
 }
 
-/* Small screens: ≤ 480px (phone portrait) */
 @media (max-width: 480px) {
-    .donations-grid {
-        display: grid;
-        grid-template-columns: max-content max-content auto;
-        gap: 0.25rem 0.25rem;
-    }
-
-    .donations-grid.hide-org-name {
-        grid-template-columns: max-content max-content auto;
-    }
-
     .orgs-grid {
         grid-template-columns: 1fr;
-    }
-
-    .org-details .donation-grid {
-        grid-template-columns: max-content max-content max-content;
     }
 
     .toolbar-item label {
@@ -309,7 +340,6 @@ div.test-mode-banner a {
     }
 }
 
-/* Medium screens: 481px - 768px (phone landscape, small tablet) */
 @media (min-width: 481px) and (max-width: 768px) {
     .small-screen {
         display: block;
@@ -329,26 +359,11 @@ div.test-mode-banner a {
         display: none;
     }
 
-    .donations-grid {
-        display: grid;
-        grid-template-columns: max-content max-content max-content max-content;
-        gap: 0.25rem 0.25rem;
-    }
-
-    .donations-grid.hide-org-name {
-        grid-template-columns: max-content max-content max-content;
-    }
-
     .orgs-grid {
         grid-template-columns: max-content max-content;
     }
-
-    .org-details .donation-grid {
-        grid-template-columns: max-content max-content max-content max-content;
-    }
 }
 
-/* Large screens: ≥ 769px (tablet landscape, desktop) */
 @media (min-width: 769px) {
     .small-screen,
     .medium-screen,
@@ -362,53 +377,9 @@ div.test-mode-banner a {
         align-items: flex-start;
     }
 
-    .donations-grid {
-        display: grid;
-        grid-template-columns: max-content max-content max-content max-content auto 1fr;
-        gap: 0.25rem 0.25rem;
-    }
-
-    .donations-grid.hide-org-name {
-        grid-template-columns: max-content max-content max-content auto 1fr;
-    }
-
     .orgs-grid {
         grid-template-columns: max-content max-content 1fr;
     }
-
-    .org-details .donation-grid {
-        grid-template-columns: max-content max-content max-content auto 1fr;
-    }
-}
-
-.donations-grid > .header {
-    display: contents;
-    font-weight: bold;
-}
-
-.donations-grid > .row {
-    display: contents;
-}
-
-.donations-grid > .row > div {
-    border-bottom: 1px solid #eee;
-}
-
-.donations-grid > .row > .amount {
-    display: flex;
-    justify-content: flex-end;
-}
-
-.donations-grid .header .amount {
-    text-align: right;
-}
-
-.donations-grid > .row > .kind {
-    text-transform: capitalize;
-}
-
-.donations-grid > .row > .notes {
-    white-space: pre-line;
 }
 
 .kind-badge {
@@ -826,9 +797,9 @@ dl {
     display: block;
 }
 
-.donations-grid > .row.future > div {
+/*.donations-grid > .row.future > div {
     opacity: 0.5;
-}
+}*/
 
 .update-notification {
     font-size: 0.7em;

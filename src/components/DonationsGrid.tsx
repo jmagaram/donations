@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
 import { type DonationDisplay } from "./DonationsView";
-import { getCurrentDateIso, compareDatesDesc } from "../date";
 import AmountView from "./AmountView";
 import { requiresWarning } from "../donation";
+import React from "react";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -10,55 +10,59 @@ interface DonationsGridProps {
 }
 
 const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
-  const isFutureDonation = (donationDate: string): boolean => {
-    return compareDatesDesc(donationDate, getCurrentDateIso()) < 0;
-  };
-
   return (
-    <div className={`donations-grid${showOrgName ? "" : " hide-org-name"}`}>
-      <div className="header">
-        <div>Date</div>
-        <div className="amount">Amount</div>
-        {showOrgName && <div>Organization</div>}
-        {showOrgName ? (
-          <div className="medium-screen">Kind</div>
-        ) : (
-          <div>Kind</div>
-        )}
-        <div className="large-screen">Paid by</div>
-        <div className="large-screen">Notes</div>
+    <div
+      className={`grid donations-grid ${!showOrgName ? "donations-grid--hide-org" : ""}`}
+    >
+      {/* Header */}
+      <div className="grid__header">Date</div>
+      <div className="grid__header grid-col--align-right">Amount</div>
+      {showOrgName && <div className="grid__header org-name">Organization</div>}
+      <div
+        className={`grid__header ${showOrgName ? "grid-col--show-medium" : ""}`}
+      >
+        Kind
       </div>
-      {donations.map((donation) => (
-        <div
-          key={donation.id}
-          className={`row${isFutureDonation(donation.date) ? " future" : ""}`}
-        >
-          <div>{donation.date}</div>
-          <div className="amount">
-            <Link to={`/donations/${donation.id}`}>
-              <AmountView
-                type="single"
-                amount={donation.amount}
-                showPennies={false}
-                showWarning={requiresWarning(donation)}
-                badge={donation.kind}
-              />
-            </Link>
-          </div>
-          {showOrgName && (
-            <div>
-              <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
+      <div className="grid__header grid-col--show-large">Paid by</div>
+      <div className="grid__header grid-col--show-large">Notes</div>
+
+      {/* Data Rows */}
+      {donations.map((donation) => {
+        return (
+          <React.Fragment key={donation.id}>
+            <div className={`grid__cell`}>{donation.date}</div>
+            <div className={`grid__cell grid-col--align-right`}>
+              <Link to={`/donations/${donation.id}`}>
+                <AmountView
+                  type="single"
+                  amount={donation.amount}
+                  showPennies={false}
+                  showWarning={requiresWarning(donation)}
+                  badge={donation.kind}
+                />
+              </Link>
             </div>
-          )}
-          <div className={`kind${showOrgName ? " medium-screen" : ""}`}>
-            {donation.kind}
-          </div>
-          <div className="payment-method large-screen">
-            {donation.paymentMethod || ""}
-          </div>
-          <div className="notes large-screen">{donation.notes}</div>
-        </div>
-      ))}
+            {showOrgName && (
+              <div className={`grid__cell org-name`}>
+                <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
+              </div>
+            )}
+            <div
+              className={`grid__cell donation-kind ${
+                showOrgName ? "grid-col--show-medium" : ""
+              }`}
+            >
+              {donation.kind}
+            </div>
+            <div className={`grid__cell grid-col--show-large`}>
+              {donation.paymentMethod || ""}
+            </div>
+            <div className={`grid__cell grid-col--show-large`}>
+              {donation.notes}
+            </div>
+          </React.Fragment>
+        );
+      })}
     </div>
   );
 };

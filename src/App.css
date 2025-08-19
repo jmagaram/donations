@@ -85,7 +85,9 @@ a:hover {
     }
 }
 
-.donations-grid .org-name {
+.donations-grid .org-name,
+.budget-grid .org-name,
+.budget-grid-simple .org-name {
     max-width: 30ch;
     word-wrap: break-word;
     overflow-wrap: break-word;

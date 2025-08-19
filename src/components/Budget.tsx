@@ -172,7 +172,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
           {/* Active Organization Rows */}
           {activeOrgs.map((orgData) => (
             <Fragment key={orgData.org.id}>
-              <div className="grid__cell">
+              <div className="grid__cell org-name">
                 <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
               </div>
 
@@ -221,7 +221,7 @@ const Budget = ({ donationsData }: BudgetProps) => {
           {/* Inactive Organization Rows */}
           {inactiveOrgs.map((orgData) => (
             <Fragment key={orgData.org.id}>
-              <div className="grid__cell">
+              <div className="grid__cell org-name">
                 <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
               </div>
               <div className="grid__cell">

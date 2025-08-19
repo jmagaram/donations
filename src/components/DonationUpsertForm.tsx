@@ -241,7 +241,7 @@ const DonationUpsertForm = ({
     <div>
       <h1>{mode === "edit" ? "Edit donation" : "New donation"}</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <div className="form-field">
+        <div className="form-field form-field--large">
           <label htmlFor="orgId">Organization</label>
           <Controller
             name="orgId"
@@ -277,7 +277,7 @@ const DonationUpsertForm = ({
             <span className="form-error">{errors.orgId.message}</span>
           )}
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--small">
           <label htmlFor="date">Date</label>
           <input
             id="date"
@@ -295,7 +295,7 @@ const DonationUpsertForm = ({
             <span className="form-error">{errors.date.message}</span>
           )}
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--small">
           <label htmlFor="amount">Amount</label>
           <input
             id="amount"
@@ -319,7 +319,7 @@ const DonationUpsertForm = ({
             <span className="form-error">{errors.amount.message}</span>
           )}
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--medium">
           <label htmlFor="kind">Type</label>
           <Controller
             name="kind"
@@ -347,7 +347,7 @@ const DonationUpsertForm = ({
             <span className="form-error">{errors.kind.message}</span>
           )}
         </div>
-        <div className="form-field payment-method">
+        <div className="form-field form-field--large">
           <label htmlFor="paymentMethod">Payment method</label>
           <Controller
             name="paymentMethod"
@@ -383,12 +383,12 @@ const DonationUpsertForm = ({
             <span className="form-error">{errors.paymentMethod.message}</span>
           )}
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--large">
           <label htmlFor="notes">Notes</label>
           <textarea
             id="notes"
             rows={5}
-            className="form-control readable-text"
+            className="form-control form-control--readable"
             {...register("notes")}
           />
         </div>

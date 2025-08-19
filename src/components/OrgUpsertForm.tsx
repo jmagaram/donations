@@ -61,19 +61,19 @@ const OrgUpsertForm = ({
     <div>
       <h1>{mode === "edit" ? "Edit organization" : "New organization"}</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <div className="form-field org-name">
+        <div className="form-field form-field--large">
           <label htmlFor="name">Name</label>
           <input
             id="name"
             type="text"
-            className="form-control org-name"
+            className="form-control"
             {...register("name")}
           />
           {errors.name && (
             <span className="form-error">{errors.name.message}</span>
           )}
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--medium">
           <label htmlFor="category">Category</label>
           <input
             id="category"
@@ -104,7 +104,7 @@ const OrgUpsertForm = ({
             ))}
           </datalist>
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--medium">
           <label htmlFor="taxDeductible">Tax status</label>
           <select
             id="taxDeductible"
@@ -116,7 +116,7 @@ const OrgUpsertForm = ({
             <option value="false">Not tax-deductible</option>
           </select>
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--large">
           <label htmlFor="webSite">Website</label>
           <input
             id="webSite"
@@ -133,12 +133,12 @@ const OrgUpsertForm = ({
             <span className="form-error">{errors.webSite.message}</span>
           )}
         </div>
-        <div className="form-field">
+        <div className="form-field form-field--large">
           <label htmlFor="notes">Notes</label>
           <textarea
             id="notes"
             rows={5}
-            className="form-control readable-text"
+            className="form-control form-control--readable"
             {...register("notes")}
           />
         </div>

@@ -45,14 +45,6 @@ a:hover {
     gap: 0.25em;
 }
 
-.react-select-kind__control {
-    width: fit-content;
-}
-
-.form-field.payment-method {
-    width: 40ch;
-}
-
 .form-row {
     display: flex;
     gap: 1em;
@@ -64,27 +56,27 @@ a:hover {
 }
 
 .form-control {
-    width: fit-content;
+    width: 100%;
 }
 
-.form-control.org-name {
+.form-control--readable {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-align: left;
+}
+
+.form-field--small {
+    width: 12ch;
+}
+
+.form-field--medium {
+    width: 20ch;
+}
+
+.form-field--large {
     width: 40ch;
-}
-
-input#webSite {
-    width: 40ch;
-}
-
-.form-control#amount {
-    width: 11ch;
-}
-
-.react-select-org__control {
-    max-width: 40ch;
-}
-
-.react-select-kind__control {
-    min-width: 14ch;
 }
 
 .form-row #password {
@@ -103,7 +95,6 @@ input#webSite {
     overflow-wrap: break-word;
     hyphens: auto;
     text-align: left;
-    line-height: 1.5;
 }
 
 .toolbar {
@@ -794,10 +785,6 @@ div.test-mode-banner a {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-}
-
-.react-select-payment__control {
-    min-width: 30ch;
 }
 
 dl {

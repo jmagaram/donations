@@ -1,5 +1,67 @@
 :root {
-    --red-shadow: hsl(12, 100%, 60%);
+    /* Grays & Neutrals */
+    --color-gray-light: #eeeeee;
+    --color-gray-medium: #cccccc;
+    --color-gray-dark: #333;
+    --color-background-light: #f5f5f5;
+    --color-black: black;
+    --color-white: white;
+
+    /* Status Colors - Error/Red */
+    --color-error: #dc3545;
+    --color-error-background: #ffeaea;
+    --color-error-border: red;
+    --color-dark-red: #8b0000;
+
+    /* Status Colors - Success/Green */
+    --color-success: green;
+    --color-success-text: #155724;
+    --color-success-border: #c3e6cb;
+    --color-success-background: #d4edda;
+    --color-idea-badge: #059669;
+
+    /* Status Colors - Warning/Orange */
+    --color-warning-text: #856404;
+    --color-warning-border: #fdbf47;
+    --color-warning-background: #fff3cd;
+    --color-test-banner: darkorange;
+
+    /* Badge Colors */
+    --color-pledge-badge: #6366f1;
+
+    /* Spacing Scale */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+
+    /* Spacing Scale (em units) */
+    --space-em-xs: 0.25em;
+    --space-em-sm: 0.5em;
+    --space-em-md: 1em;
+
+    /* Character Widths */
+    --width-8ch: 8ch;
+    --width-12ch: 12ch;
+    --width-20ch: 20ch;
+    --width-30ch: 30ch;
+    --width-40ch: 40ch;
+    --width-50ch: 50ch;
+    --width-60ch: 60ch;
+
+    /* Typography */
+    --font-size-xs: 0.7em;
+    --font-size-sm: 0.75em;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.2rem;
+
+    /* Border Radius */
+    --border-radius: 4px;
+
+    /* Opacity Values */
+    --opacity-half: 0.5;
+    --opacity-75: 0.75;
 }
 
 body {
@@ -8,7 +70,7 @@ body {
 
 button {
     width: fit-content;
-    min-width: 8ch;
+    min-width: var(--width-8ch);
 }
 
 a {
@@ -25,14 +87,14 @@ a:hover {
 
 .grid__cell,
 .grid__header {
-    padding: 0.25rem 0.25rem;
+    padding: var(--space-xs) var(--space-xs);
     display: flex;
     flex-direction: row;
     align-items: center;
 }
 
 .grid__cell {
-    border-top: 1px solid #eeeeee;
+    border-top: 1px solid var(--color-gray-light);
 }
 
 .grid__header {
@@ -50,7 +112,7 @@ a:hover {
 
 .grid__total-row {
     font-weight: bold;
-    border-top: 2px solid #333;
+    border-top: 2px solid var(--color-gray-dark);
 }
 
 .grid__total-col {
@@ -59,8 +121,8 @@ a:hover {
 
 .grid--wide-columns .grid__cell,
 .grid--wide-columns .grid__header {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
 }
 
 .grid--no-borders .grid__cell {
@@ -88,7 +150,7 @@ a:hover {
 .donations-grid .org-name,
 .budget-grid .org-name,
 .budget-grid-simple .org-name {
-    max-width: 30ch;
+    max-width: var(--width-30ch);
     word-wrap: break-word;
     overflow-wrap: break-word;
     hyphens: auto;
@@ -100,7 +162,7 @@ a:hover {
 
 /* Date, Amount, Org */
 .donations-grid {
-    grid-template-columns: max-content max-content minmax(0, 30ch);
+    grid-template-columns: max-content max-content minmax(0, var(--width-30ch));
 }
 
 /* Date, Amount */
@@ -111,7 +173,10 @@ a:hover {
 @media (min-width: 768px) {
     /* Date, Amount, Org */
     .donations-grid {
-        grid-template-columns: max-content max-content minmax(0, 30ch);
+        grid-template-columns: max-content max-content minmax(
+                0,
+                var(--width-30ch)
+            );
     }
 
     /* Date, Amount */
@@ -138,46 +203,46 @@ a:hover {
 
 @media (min-width: 768px) {
     .orgs-grid {
-        grid-template-columns: minmax(auto, 40ch) 1fr;
+        grid-template-columns: minmax(auto, var(--width-40ch)) 1fr;
     }
 }
 
 @media (min-width: 1024px) {
     .orgs-grid {
-        grid-template-columns: minmax(auto, 40ch) max-content 1fr;
+        grid-template-columns: minmax(auto, var(--width-40ch)) max-content 1fr;
     }
 }
 
 .amount-view span:nth-last-child(2) {
-    margin-right: 0.25em;
+    margin-right: var(--space-em-xs);
 }
 
 .amount-view .zero {
-    opacity: 0.5;
+    opacity: var(--opacity-half);
 }
 
 #filter {
-    max-width: 18ch;
+    max-width: var(--width-20ch);
 }
 
 .form {
     display: flex;
     flex-direction: column;
-    gap: 1em;
-    margin-top: 1em;
+    gap: var(--space-em-md);
+    margin-top: var(--space-em-md);
 }
 
 .form-field {
     display: flex;
     flex-direction: column;
-    margin-bottom: 1em;
-    gap: 0.25em;
+    margin-bottom: var(--space-em-md);
+    gap: var(--space-em-xs);
 }
 
 .form-row {
     display: flex;
-    gap: 1em;
-    margin-bottom: 1em;
+    gap: var(--space-em-md);
+    margin-bottom: var(--space-em-md);
 }
 
 .form-row .form-field {
@@ -197,28 +262,28 @@ a:hover {
 }
 
 .form-field--small {
-    width: 12ch;
+    width: var(--width-12ch);
 }
 
 .form-field--medium {
-    width: 20ch;
+    width: var(--width-20ch);
 }
 
 .form-field--large {
-    width: 40ch;
+    width: var(--width-40ch);
 }
 
 .form-row #password {
-    min-width: 27ch;
+    min-width: var(--width-30ch);
 }
 
 .form-row .form-field #amount {
-    min-width: 8ch;
-    max-width: 12ch;
+    min-width: var(--width-8ch);
+    max-width: var(--width-12ch);
 }
 
 .readable-text {
-    width: 60ch;
+    width: var(--width-60ch);
     white-space: pre-wrap;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -229,14 +294,14 @@ a:hover {
 .toolbar {
     display: flex;
     align-items: end;
-    gap: 0.5em;
-    margin-top: 1em;
-    margin-bottom: 1em;
+    gap: var(--space-em-sm);
+    margin-top: var(--space-em-md);
+    margin-bottom: var(--space-em-md);
     flex-wrap: wrap;
 }
 
 .page-header + .toolbar {
-    margin-top: 0rem;
+    margin-top: 0;
 }
 
 .toolbar-item {
@@ -251,11 +316,11 @@ a:hover {
 }
 
 .toolbar-item label {
-    font-size: 0.75em;
+    font-size: var(--font-size-sm);
 }
 
 .org-details > .section {
-    margin-top: 1em;
+    margin-top: var(--space-em-md);
 }
 
 .org-details .header {
@@ -263,9 +328,9 @@ a:hover {
 }
 
 header {
-    background-color: #eeeeee;
-    padding: 0.25em 0.5em;
-    border-radius: 4px;
+    background-color: var(--color-gray-light);
+    padding: var(--space-em-xs) var(--space-em-sm);
+    border-radius: var(--border-radius);
 }
 
 header > nav {
@@ -282,9 +347,9 @@ header > nav > div {
 
 header > nav > div > button,
 header > nav > div > a {
-    font-size: 1rem;
+    font-size: var(--font-size-base);
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     background: none;
 }
 
@@ -325,46 +390,46 @@ header > nav > div > button:hover:not(:disabled) {
 
 .sync-status.syncing svg path,
 .sync-status.syncing svg circle {
-    stroke: #000;
+    stroke: var(--color-black);
 }
 
 .sync-status.error svg path,
 .sync-status.error svg circle,
 .sync-status.idle.needs-sync svg path,
 .sync-status.idle.needs-sync svg circle {
-    stroke: #dc3545;
+    stroke: var(--color-error);
 }
 
 .sync-status.idle.saved svg path,
 .sync-status.idle.saved svg circle {
-    stroke: green;
+    stroke: var(--color-success);
 }
 
 .sync-status.idle.needs-sync {
     animation: glow 1000ms ease-in-out infinite alternate;
-    outline: 1px solid #8b0000;
+    outline: 1px solid var(--color-dark-red);
 }
 
 div.test-mode-banner {
-    font-size: 0.7em;
+    font-size: var(--font-size-xs);
     display: flex;
     justify-content: center;
     align-items: center;
     position: sticky;
     top: 0;
-    background-color: darkorange;
-    color: black;
+    background-color: var(--color-test-banner);
+    color: var(--color-black);
     z-index: 1000;
     margin: 0;
     margin-bottom: 2px;
     border-radius: 0px;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: var(--space-em-sm);
+    padding-bottom: var(--space-em-sm);
     font-variant: small-caps;
 }
 
 div.test-mode-banner a {
-    color: black;
+    color: var(--color-black);
     text-decoration: underline;
 }
 
@@ -422,67 +487,67 @@ div.test-mode-banner a {
 }
 
 .kind-badge-paid {
-    color: black;
+    color: var(--color-black);
 }
 
 .kind-badge-pledge {
-    color: #6366f1;
+    color: var(--color-pledge-badge);
 }
 
 .kind-badge-idea {
-    color: #059669;
+    color: var(--color-idea-badge);
 }
 
 .kind-badge-warning {
-    color: red;
+    color: var(--color-error-border);
 }
 
 .status-box {
-    margin: 1em 0;
-    padding: 0.5em;
-    border-radius: 4px;
+    margin: var(--space-em-md) 0;
+    padding: var(--space-em-sm);
+    border-radius: var(--border-radius);
     border: 1px solid;
 }
 
 .status-box.error {
-    color: red;
-    border-color: red;
-    background-color: #ffeaea;
+    color: var(--color-error-border);
+    border-color: var(--color-error-border);
+    background-color: var(--color-error-background);
 }
 
 .status-box.info {
-    color: #333;
-    border-color: #ccc;
-    background-color: #f5f5f5;
+    color: var(--color-gray-dark);
+    border-color: var(--color-gray-medium);
+    background-color: var(--color-background-light);
 }
 
 .status-box.success {
-    color: #155724;
-    border-color: #c3e6cb;
-    background-color: #d4edda;
+    color: var(--color-success-text);
+    border-color: var(--color-success-border);
+    background-color: var(--color-success-background);
 }
 
 .status-box.warning {
-    color: #856404;
-    border-color: #fdbf47;
-    background-color: #fff3cd;
+    color: var(--color-warning-text);
+    border-color: var(--color-warning-border);
+    background-color: var(--color-warning-background);
 }
 
 .status-box .buttons {
-    margin-top: 0.5rem;
+    margin-top: var(--space-sm);
     display: flex;
     flex-direction: row;
-    gap: 0.5em;
+    gap: var(--space-em-sm);
 }
 
 .export-section {
-    margin-bottom: 1.5em;
-    max-width: 50ch;
+    margin-bottom: var(--space-lg);
+    max-width: var(--width-50ch);
 }
 
 .export-section a {
     display: block;
-    margin-bottom: 0.5em;
+    margin-bottom: var(--space-em-sm);
 }
 
 .export-section p {
@@ -505,28 +570,28 @@ div.test-mode-banner a {
 /* Totals by Year Report Styles */
 .filters {
     display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
     flex-wrap: wrap;
 }
 
 .filters > div {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--space-xs);
 }
 
 .budget-container section {
-    margin-bottom: 1.5rem;
+    margin-bottom: var(--space-lg);
 }
 
 .budget-container h2 {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
+    margin-bottom: var(--space-md);
+    font-size: var(--font-size-lg);
 }
 
 .budget-add-link {
-    opacity: 0.5;
+    opacity: var(--opacity-half);
 }
 
 .budget-add-link:hover {
@@ -561,18 +626,18 @@ div.test-mode-banner a {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-md);
 }
 
 .exporter section {
-    margin-bottom: 1rem;
+    margin-bottom: var(--space-md);
 }
 
 .exporter section > div {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-md);
 }
 
 .exporter section p {
@@ -599,8 +664,8 @@ dl {
 .donation-details dl dt,
 .org-details dl dt {
     font-size: smaller;
-    opacity: 75%;
-    margin-bottom: 0.25rem;
+    opacity: var(--opacity-75);
+    margin-bottom: var(--space-xs);
 }
 
 .donation-details dl dd,
@@ -611,7 +676,7 @@ dl {
 
 .org-details dt:not(:first-of-type),
 .donation-details dt:not(:first-of-type) {
-    margin-top: 1em;
+    margin-top: var(--space-em-md);
 }
 
 .donation-details dd.kind {
@@ -620,34 +685,30 @@ dl {
 
 .org-details dd + dd,
 .donation-details dd + dd {
-    margin-top: 0.5rem;
+    margin-top: var(--space-sm);
 }
 
 .form-error {
     color: #dc3545;
-    font-size: 0.875em;
-    margin-top: 0.25rem;
+    font-size: var(--font-size-sm);
+    margin-top: var(--space-xs);
     display: block;
 }
 
-/*.donations-grid > .row.future > div {
-    opacity: 0.5;
-}*/
-
 .update-notification {
-    font-size: 0.7em;
+    font-size: var(--font-size-xs);
     display: flex;
     justify-content: center;
     align-items: center;
     top: 0;
-    background-color: darkred;
-    color: white;
+    background-color: var(--color-dark-red);
+    color: var(--color-white);
     z-index: 1000;
     margin: 0;
     margin-bottom: 2px;
     border-radius: 0px;
-    padding-top: 0.25em;
-    padding-bottom: 0.25em;
+    padding-top: var(--space-em-xs);
+    padding-bottom: var(--space-em-xs);
     font-variant: small-caps;
 }
 
@@ -721,6 +782,6 @@ dl {
 
 @keyframes glow {
     50% {
-        box-shadow: 0 0 40px var(--red-shadow);
+        box-shadow: 0 0 40px var(--color-error);
     }
 }

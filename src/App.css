@@ -25,7 +25,7 @@ a:hover {
 
 .grid__cell,
 .grid__header {
-    padding: 0.25rem 0.5rem;
+    padding: 0.25rem 0.25rem;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -61,9 +61,20 @@ a:hover {
     }
 }
 
+.donations-grid .org-name {
+    max-width: 30ch;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+}
+
+.donations-grid .donation-kind {
+    text-transform: capitalize;
+}
+
 /* Date, Amount, Org */
 .donations-grid {
-    grid-template-columns: repeat(3, max-content);
+    grid-template-columns: max-content max-content minmax(0, 30ch);
 }
 
 /* Date, Amount */
@@ -71,18 +82,10 @@ a:hover {
     grid-template-columns: repeat(2, max-content);
 }
 
-.donations-grid .org-name {
-    max-width: 30ch;
-}
-
-.donations-grid .donation-kind {
-    text-transform: capitalize;
-}
-
 @media (min-width: 768px) {
     /* Date, Amount, Org */
     .donations-grid {
-        grid-template-columns: repeat(3, max-content);
+        grid-template-columns: max-content max-content minmax(0, 30ch);
     }
 
     /* Date, Amount */

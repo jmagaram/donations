@@ -26,8 +26,8 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
       {donations.map((donation) => {
         return (
           <React.Fragment key={donation.id}>
-            <div className={`grid__cell`}>{donation.date}</div>
-            <div className={`grid__cell grid-col--align-right`}>
+            <div className="grid__cell">{donation.date}</div>
+            <div className="grid__cell grid-col--align-right">
               <Link to={`/donations/${donation.id}`}>
                 <AmountView
                   type="single"

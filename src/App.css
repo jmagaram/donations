@@ -43,6 +43,21 @@ a:hover {
     justify-content: flex-end;
 }
 
+.grid__total-row {
+    font-weight: bold;
+    border-top: 2px solid #333;
+}
+
+.grid__total-col {
+    font-weight: bold;
+}
+
+.grid--wide-columns .grid__cell,
+.grid--wide-columns .grid__header {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
 .grid-col--show-medium,
 .grid-col--show-large,
 .grid-col--hide {
@@ -490,11 +505,6 @@ div.test-mode-banner a {
     gap: 0.25rem;
 }
 
-.totals-by-year-grid {
-    display: grid;
-    column-gap: 1rem;
-}
-
 .budget-container section {
     margin-bottom: 1.5rem;
 }
@@ -630,51 +640,6 @@ div.test-mode-banner a {
 
 .budget-add-link:hover {
     opacity: 1;
-}
-
-.year-column {
-    justify-self: end;
-}
-
-.total-column {
-    justify-self: end;
-}
-
-.totals-by-year-header {
-    font-weight: bold;
-    border-bottom: 1px solid #333;
-    padding-bottom: 0.25rem;
-    text-align: right;
-}
-
-.totals-by-year-header:first-child {
-    text-align: right;
-}
-
-.totals-by-year-row {
-    border-bottom: 1px solid #eee;
-    padding: 0.25rem 0;
-    text-align: right;
-}
-
-.totals-by-year-row:first-child {
-    text-align: left;
-}
-
-.totals-by-year-total-col {
-    font-weight: bold;
-}
-
-.totals-by-year-total-row {
-    font-weight: bold;
-    border-top: 1px solid #333;
-    border-bottom: 1px solid #eee;
-    padding: 0.25rem 0;
-    text-align: right;
-}
-
-.zero.interior-value {
-    opacity: 0.25;
 }
 
 @keyframes sync-spin {

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { type DonationsData } from "../donationsData";
 import { extractYear, getCurrentYear } from "../date";
@@ -41,15 +41,15 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
 
   const [yearFilter, setYearFilter] = useSearchParam(
     "year",
-    yearFilterSearchParam
+    yearFilterSearchParam,
   );
   const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
     "tax",
-    taxStatusParam
+    taxStatusParam,
   );
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
-    paymentKindParam
+    paymentKindParam,
   );
 
   const processedData = useMemo(() => {
@@ -57,7 +57,7 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
 
     if (yearFilter === undefined || yearFilter.kind === "all") {
       years = Array.from(
-        new Set(donationsData.donations.map((d) => extractYear(d.date)))
+        new Set(donationsData.donations.map((d) => extractYear(d.date))),
       ).sort((a, b) => a - b);
     } else {
       const [yearFrom, yearTo] = getYearRange({
@@ -86,7 +86,7 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
     const filteredOrgs = donationsData.orgs.filter((org) => {
       return matchesTaxStatusFilter(
         taxStatusFilter,
-        org.taxDeductible ?? false
+        org.taxDeductible ?? false,
       );
     });
 
@@ -149,13 +149,13 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
   };
 
   const updateTaxStatusFilter = (
-    taxStatusFilter: TaxStatusFilter | undefined
+    taxStatusFilter: TaxStatusFilter | undefined,
   ) => {
     setTaxStatusFilter(taxStatusFilter);
   };
 
   const updatePaymentKindFilter = (
-    paymentKindFilter: KindFilterParam | undefined
+    paymentKindFilter: KindFilterParam | undefined,
   ) => {
     setPaymentKindFilter(paymentKindFilter);
   };
@@ -194,33 +194,31 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
         <p>No donations to show.</p>
       ) : (
         <div
-          className="totals-by-year-grid"
+          className={"grid totals-grid grid--wide-columns"}
           style={{
-            gridTemplateColumns: `max-content ${processedData.years
-              .map(() => "max-content")
-              .join(" ")} max-content`,
+            gridTemplateColumns: `max-content repeat(${processedData.years.length}, max-content) max-content`,
           }}
         >
           {/* Header row */}
-          <div className="totals-by-year-header">Category</div>
+          <div className="grid__header">Category</div>
           {processedData.years.map((year) => (
-            <div key={year} className="totals-by-year-header">
+            <div key={year} className="grid__header grid-col--align-right">
               {year}
             </div>
           ))}
-          <div className="totals-by-year-header">Total</div>
+          <div className="grid__header grid-col--align-right">Total</div>
 
           {/* Data rows */}
           {processedData.sortedCategories.map((category) => {
             const categoryTotal = processedData.years.reduce(
               (sum, year) =>
                 sum + (processedData.categoryYearTotals[category][year] || 0),
-              0
+              0,
             );
 
             return (
-              <>
-                <div key={category} className="totals-by-year-row">
+              <Fragment key={category}>
+                <div className="grid__cell">
                   {category === "(No category)" ? (
                     <Link to={`/donations?category=__no_category__`}>
                       {category}
@@ -241,8 +239,8 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
                       key={`${category}-${year}`}
                       className={getAmountClasses(
                         amount,
-                        "totals-by-year-row",
-                        "interior-value"
+                        "grid__cell",
+                        "grid-col--align-right",
                       )}
                     >
                       <AmountView
@@ -258,9 +256,9 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
                 <div
                   className={getAmountClasses(
                     categoryTotal,
-                    "totals-by-year-row",
-                    "totals-by-year-total-col",
-                    "row-total"
+                    "grid__cell",
+                    "grid__total-col",
+                    "grid-col--align-right",
                   )}
                 >
                   <AmountView
@@ -271,12 +269,12 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
                     badge={undefined}
                   />
                 </div>
-              </>
+              </Fragment>
             );
           })}
 
           {/* Totals row */}
-          <div className="totals-by-year-total-row">Total</div>
+          <div className="grid__cell grid__total-row">Total</div>
           {processedData.years.map((year) => {
             const amount = processedData.yearTotals[year] || 0;
             return (
@@ -284,8 +282,9 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
                 key={`total-${year}`}
                 className={getAmountClasses(
                   amount,
-                  "totals-by-year-total-row",
-                  "column-total"
+                  "grid__cell",
+                  "grid__total-row",
+                  "grid-col--align-right",
                 )}
               >
                 <AmountView
@@ -301,8 +300,9 @@ const TotalsByCategory = ({ donationsData }: TotalsByCategoryProps) => {
           <div
             className={getAmountClasses(
               processedData.grandTotal,
-              "totals-by-year-total-row",
-              "grand-total"
+              "grid__cell",
+              "grid__total-row",
+              "grid-col--align-right",
             )}
           >
             <AmountView

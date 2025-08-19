@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, Fragment } from "react";
 import { Link } from "react-router-dom";
 import { type DonationsData } from "../donationsData";
 import { extractYear, getCurrentYear } from "../date";
@@ -41,15 +41,15 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
 
   const [yearFilter, setYearFilter] = useSearchParam(
     "year",
-    yearFilterSearchParam
+    yearFilterSearchParam,
   );
   const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
     "tax",
-    taxStatusParam
+    taxStatusParam,
   );
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
-    paymentKindParam
+    paymentKindParam,
   );
 
   const processedData = useMemo(() => {
@@ -57,7 +57,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
 
     if (yearFilter === undefined || yearFilter.kind === "all") {
       years = Array.from(
-        new Set(donationsData.donations.map((d) => extractYear(d.date)))
+        new Set(donationsData.donations.map((d) => extractYear(d.date))),
       ).sort((a, b) => a - b);
     } else {
       const [yearFrom, yearTo] = getYearRange({
@@ -86,7 +86,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
     const filteredOrgs = donationsData.orgs.filter((org) => {
       return matchesTaxStatusFilter(
         taxStatusFilter,
-        org.taxDeductible ?? false
+        org.taxDeductible ?? false,
       );
     });
 
@@ -146,13 +146,13 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
   };
 
   const updateTaxStatusFilter = (
-    taxStatusFilter: TaxStatusFilter | undefined
+    taxStatusFilter: TaxStatusFilter | undefined,
   ) => {
     setTaxStatusFilter(taxStatusFilter);
   };
 
   const updatePaymentKindFilter = (
-    paymentKindFilter: KindFilterParam | undefined
+    paymentKindFilter: KindFilterParam | undefined,
   ) => {
     setPaymentKindFilter(paymentKindFilter);
   };
@@ -191,33 +191,31 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
         <p>No donations to show.</p>
       ) : (
         <div
-          className="totals-by-year-grid"
+          className={"grid totals-grid grid--wide-columns"}
           style={{
-            gridTemplateColumns: `max-content ${processedData.years
-              .map(() => "max-content")
-              .join(" ")} max-content`,
+            gridTemplateColumns: `max-content repeat(${processedData.years.length}, max-content) max-content`,
           }}
         >
           {/* Header row */}
-          <div className="totals-by-year-header">Organization</div>
+          <div className="grid__header">Organization</div>
           {processedData.years.map((year) => (
-            <div key={year} className="totals-by-year-header">
+            <div key={year} className="grid__header grid-col--align-right">
               {year}
             </div>
           ))}
-          <div className="totals-by-year-header">Total</div>
+          <div className="grid__header grid-col--align-right">Total</div>
 
           {/* Data rows */}
           {processedData.sortedOrgs.map((org) => {
             const orgTotal = processedData.years.reduce(
               (sum, year) =>
                 sum + (processedData.orgYearTotals[org.id][year] || 0),
-              0
+              0,
             );
 
             return (
-              <>
-                <div key={org.id} className="totals-by-year-row">
+              <Fragment key={org.id}>
+                <div className="grid__cell">
                   <Link to={`/orgs/${org.id}`}>{org.name}</Link>
                 </div>
                 {processedData.years.map((year) => {
@@ -227,8 +225,8 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                       key={`${org.id}-${year}`}
                       className={getAmountClasses(
                         amount,
-                        "totals-by-year-row",
-                        "interior-value"
+                        "grid__cell",
+                        "grid-col--align-right",
                       )}
                     >
                       <AmountView
@@ -244,9 +242,9 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                 <div
                   className={getAmountClasses(
                     orgTotal,
-                    "totals-by-year-row",
-                    "totals-by-year-total-col",
-                    "row-total"
+                    "grid__cell",
+                    "grid__total-col",
+                    "grid-col--align-right",
                   )}
                 >
                   <AmountView
@@ -257,12 +255,12 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                     badge={undefined}
                   />
                 </div>
-              </>
+              </Fragment>
             );
           })}
 
           {/* Totals row */}
-          <div className="totals-by-year-total-row">Total</div>
+          <div className="grid__cell grid__total-row">Total</div>
           {processedData.years.map((year) => {
             const amount = processedData.yearTotals[year] || 0;
             return (
@@ -270,8 +268,9 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                 key={`total-${year}`}
                 className={getAmountClasses(
                   amount,
-                  "totals-by-year-total-row",
-                  "column-total"
+                  "grid__cell",
+                  "grid__total-row",
+                  "grid-col--align-right",
                 )}
               >
                 <AmountView
@@ -287,8 +286,9 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
           <div
             className={getAmountClasses(
               processedData.grandTotal,
-              "totals-by-year-total-row",
-              "grand-total"
+              "grid__cell",
+              "grid__total-row",
+              "grid-col--align-right",
             )}
           >
             <AmountView

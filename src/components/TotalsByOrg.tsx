@@ -41,15 +41,15 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
 
   const [yearFilter, setYearFilter] = useSearchParam(
     "year",
-    yearFilterSearchParam,
+    yearFilterSearchParam
   );
   const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
     "tax",
-    taxStatusParam,
+    taxStatusParam
   );
   const [paymentKindFilter, setPaymentKindFilter] = useSearchParam(
     "type",
-    paymentKindParam,
+    paymentKindParam
   );
 
   const processedData = useMemo(() => {
@@ -57,7 +57,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
 
     if (yearFilter === undefined || yearFilter.kind === "all") {
       years = Array.from(
-        new Set(donationsData.donations.map((d) => extractYear(d.date))),
+        new Set(donationsData.donations.map((d) => extractYear(d.date)))
       ).sort((a, b) => a - b);
     } else {
       const [yearFrom, yearTo] = getYearRange({
@@ -86,7 +86,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
     const filteredOrgs = donationsData.orgs.filter((org) => {
       return matchesTaxStatusFilter(
         taxStatusFilter,
-        org.taxDeductible ?? false,
+        org.taxDeductible ?? false
       );
     });
 
@@ -146,13 +146,13 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
   };
 
   const updateTaxStatusFilter = (
-    taxStatusFilter: TaxStatusFilter | undefined,
+    taxStatusFilter: TaxStatusFilter | undefined
   ) => {
     setTaxStatusFilter(taxStatusFilter);
   };
 
   const updatePaymentKindFilter = (
-    paymentKindFilter: KindFilterParam | undefined,
+    paymentKindFilter: KindFilterParam | undefined
   ) => {
     setPaymentKindFilter(paymentKindFilter);
   };
@@ -210,12 +210,12 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
             const orgTotal = processedData.years.reduce(
               (sum, year) =>
                 sum + (processedData.orgYearTotals[org.id][year] || 0),
-              0,
+              0
             );
 
             return (
               <Fragment key={org.id}>
-                <div className="grid__cell">
+                <div className="grid__cell org-name">
                   <Link to={`/orgs/${org.id}`}>{org.name}</Link>
                 </div>
                 {processedData.years.map((year) => {
@@ -226,7 +226,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                       className={getAmountClasses(
                         amount,
                         "grid__cell",
-                        "grid-col--align-right",
+                        "grid-col--align-right"
                       )}
                     >
                       <AmountView
@@ -244,7 +244,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                     orgTotal,
                     "grid__cell",
                     "grid__total-col",
-                    "grid-col--align-right",
+                    "grid-col--align-right"
                   )}
                 >
                   <AmountView
@@ -270,7 +270,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
                   amount,
                   "grid__cell",
                   "grid__total-row",
-                  "grid-col--align-right",
+                  "grid-col--align-right"
                 )}
               >
                 <AmountView
@@ -288,7 +288,7 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
               processedData.grandTotal,
               "grid__cell",
               "grid__total-row",
-              "grid-col--align-right",
+              "grid-col--align-right"
             )}
           >
             <AmountView

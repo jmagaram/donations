@@ -10,7 +10,7 @@ const OrgGrid = ({ orgs }: OrgGridProps) => {
   return (
     <div className="grid orgs-grid">
       {/* Header */}
-      <div className="grid__header org-name-col">Name</div>
+      <div className="grid__header org-name">Name</div>
       <div className="grid__header grid-col--show-medium">Category</div>
       <div className="grid__header grid-col--show-large">Notes</div>
 
@@ -19,7 +19,7 @@ const OrgGrid = ({ orgs }: OrgGridProps) => {
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((org) => (
           <React.Fragment key={org.id}>
-            <div className="grid__cell org-name-col">
+            <div className="grid__cell org-name">
               <Link to={`/orgs/${org.id}`}>{org.name}</Link>
               {!org.taxDeductible && <span title="Not tax-deductible"> *</span>}
             </div>

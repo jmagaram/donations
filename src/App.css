@@ -148,6 +148,8 @@ a:hover {
 }
 
 .donations-grid .org-name,
+.orgs-grid .org-name,
+.totals-grid .org-name,
 .budget-grid .org-name,
 .budget-grid-simple .org-name {
     max-width: var(--width-30ch);
@@ -198,18 +200,18 @@ a:hover {
 }
 
 .orgs-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: var(--width-30ch);
 }
 
 @media (min-width: 768px) {
     .orgs-grid {
-        grid-template-columns: minmax(auto, var(--width-40ch)) 1fr;
+        grid-template-columns: minmax(auto, var(--width-30ch)) 1fr;
     }
 }
 
 @media (min-width: 1024px) {
     .orgs-grid {
-        grid-template-columns: minmax(auto, var(--width-40ch)) max-content 1fr;
+        grid-template-columns: minmax(auto, var(--width-30ch)) max-content 1fr;
     }
 }
 

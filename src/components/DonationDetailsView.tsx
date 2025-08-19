@@ -2,6 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import type { Donation } from "../donation";
 import type { Org } from "../organization";
 import AmountView from "./AmountView";
+import DateView from "./DateView";
 
 interface DonationDetailsViewProps {
   donation: Donation;
@@ -50,7 +51,9 @@ const DonationDetailsView = ({
           </>
         )}
         <dt>Date</dt>
-        <dd>{donation.date}</dd>
+        <dd>
+          <DateView date={donation.date} />
+        </dd>
         <dt>Amount</dt>
         <dd>
           <AmountView

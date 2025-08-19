@@ -3,6 +3,7 @@ import { type DonationDisplay } from "./DonationsView";
 import AmountView from "./AmountView";
 import { requiresWarning } from "../donation";
 import React from "react";
+import DateView from "./DateView";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -26,7 +27,9 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
       {donations.map((donation) => {
         return (
           <React.Fragment key={donation.id}>
-            <div className="grid__cell">{donation.date}</div>
+            <div className="grid__cell">
+              <DateView date={donation.date} />
+            </div>
             <div className="grid__cell grid-col--align-right">
               <Link to={`/donations/${donation.id}`}>
                 <AmountView

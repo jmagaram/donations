@@ -64,6 +64,10 @@
     --opacity-75: 0.75;
 }
 
+.future {
+    opacity: var(--opacity-half);
+}
+
 body {
     font-family: -apple-system, sans-serif;
 }

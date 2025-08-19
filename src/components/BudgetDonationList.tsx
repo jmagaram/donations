@@ -4,6 +4,7 @@ import AmountView from "./AmountView";
 import { getCurrentDateIso } from "../date";
 import type { Donation } from "../donation";
 import { requiresWarning } from "../donation";
+import DateView from "./DateView";
 
 interface BudgetDonationListProps {
   orgId: string;
@@ -63,7 +64,9 @@ const BudgetDonationList = ({ orgId, donations }: BudgetDonationListProps) => {
                 />
               </Link>
             </div>
-            <div className="grid__cell">{donation.date}</div>
+            <div className="grid__cell">
+              <DateView date={donation.date} />
+            </div>
           </Fragment>
         );
       })}

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { type Org } from "../organization";
+import React from "react";
 
 interface OrgGridProps {
   orgs: Org[];
@@ -7,23 +8,26 @@ interface OrgGridProps {
 
 const OrgGrid = ({ orgs }: OrgGridProps) => {
   return (
-    <div className="orgs-grid">
-      <div className="header">
-        <div className="name">Name</div>
-        <div className="category medium-screen">Category</div>
-        <div className="notes large-screen">Notes</div>
-      </div>
+    <div className="grid orgs-grid">
+      {/* Header */}
+      <div className="grid__header org-name-col">Name</div>
+      <div className="grid__header grid-col--show-medium">Category</div>
+      <div className="grid__header grid-col--show-large">Notes</div>
+
+      {/* Data Rows */}
       {orgs
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((org) => (
-          <div key={org.id} className="row">
-            <div className="name">
+          <React.Fragment key={org.id}>
+            <div className="grid__cell org-name-col">
               <Link to={`/orgs/${org.id}`}>{org.name}</Link>
               {!org.taxDeductible && <span title="Not tax-deductible"> *</span>}
             </div>
-            <div className="category medium-screen">{org.category || ""}</div>
-            <div className="notes large-screen">{org.notes}</div>
-          </div>
+            <div className="grid__cell grid-col--show-medium">
+              {org.category || ""}
+            </div>
+            <div className="grid__cell grid-col--show-large">{org.notes}</div>
+          </React.Fragment>
         ))}
     </div>
   );

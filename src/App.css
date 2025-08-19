@@ -61,12 +61,14 @@ a:hover {
     }
 }
 
+/* Date, Amount, Org */
 .donations-grid {
-    grid-template-columns: max-content max-content max-content;
+    grid-template-columns: repeat(3, max-content);
 }
 
+/* Date, Amount */
 .donations-grid--hide-org {
-    grid-template-columns: max-content max-content max-content;
+    grid-template-columns: repeat(2, max-content);
 }
 
 .donations-grid .org-name {
@@ -78,20 +80,24 @@ a:hover {
 }
 
 @media (min-width: 768px) {
+    /* Date, Amount, Org */
     .donations-grid {
-        grid-template-columns: repeat(4, max-content);
+        grid-template-columns: repeat(3, max-content);
     }
 
+    /* Date, Amount */
     .donations-grid--hide-org {
-        grid-template-columns: repeat(3, max-content);
+        grid-template-columns: repeat(2, max-content);
     }
 }
 
 @media (min-width: 1024px) {
+    /* Date, Amount, Org, Kind, PaymentMethod, Notes */
     .donations-grid {
         grid-template-columns: repeat(5, max-content) 1fr;
     }
 
+    /* Date, Amount, Kind, PaymentMethod, Notes */
     .donations-grid--hide-org {
         grid-template-columns: repeat(4, max-content) 1fr;
     }

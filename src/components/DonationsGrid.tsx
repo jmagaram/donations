@@ -18,11 +18,7 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
       <div className="grid__header">Date</div>
       <div className="grid__header grid-col--align-right">Amount</div>
       {showOrgName && <div className="grid__header org-name">Organization</div>}
-      <div
-        className={`grid__header ${showOrgName ? "grid-col--show-medium" : ""}`}
-      >
-        Kind
-      </div>
+      <div className="grid__header grid-col--show-large">Kind</div>
       <div className="grid__header grid-col--show-large">Paid by</div>
       <div className="grid__header grid-col--show-large">Notes</div>
 
@@ -43,18 +39,14 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
               </Link>
             </div>
             {showOrgName && (
-              <div className={`grid__cell org-name`}>
+              <div className={"grid__cell org-name"}>
                 <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
               </div>
             )}
-            <div
-              className={`grid__cell donation-kind ${
-                showOrgName ? "grid-col--show-medium" : ""
-              }`}
-            >
+            <div className="grid__cell grid-col--show-large donation-kind">
               {donation.kind}
             </div>
-            <div className={`grid__cell grid-col--show-large`}>
+            <div className="grid__cell grid-col--show-large">
               {donation.paymentMethod || ""}
             </div>
             <div className={`grid__cell grid-col--show-large`}>

@@ -26,13 +26,13 @@ const SetPassword = () => {
     <div>
       <h1>Set password</h1>
       {hasApiKey && (
-        <p className="instructions">
+        <p className="readable-text">
           Password is configured. If incorrect, you'll see a security warning
           when using the site.
         </p>
       )}
       {!hasApiKey && (
-        <p className="instructions">
+        <p className="readable-text">
           Enter your password to access the donation tracker. If incorrect,
           you'll see a security warning when using the site.
         </p>

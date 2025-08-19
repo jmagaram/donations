@@ -9,7 +9,7 @@ export interface StatusBoxProps {
 }
 
 const StatusBox = ({ header, content, kind, buttons }: StatusBoxProps) => {
-  const className = `status-box ${kind}`;
+  const className = `status-box readable-text ${kind}`;
 
   return (
     <div className={className}>

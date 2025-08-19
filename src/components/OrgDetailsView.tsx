@@ -87,7 +87,7 @@ const OrgDetailsView = ({
         )}
         {showNotes && (
           <>
-            <dd className="instructions">{organization.notes}</dd>
+            <dd className="readable-text">{organization.notes}</dd>
           </>
         )}
       </dl>
@@ -97,7 +97,7 @@ const OrgDetailsView = ({
         ) : (
           <div className="section">
             <div className="header">Donations</div>
-            <div className="content">No donations</div>
+            <div>No donations</div>
           </div>
         )}
       </div>

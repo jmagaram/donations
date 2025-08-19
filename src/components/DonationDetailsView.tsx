@@ -72,7 +72,7 @@ const DonationDetailsView = ({
         {showNotes && (
           <>
             <dt>Notes</dt>
-            <dd>{donation.notes}</dd>
+            <dd className="readable-text">{donation.notes}</dd>
           </>
         )}
       </dl>

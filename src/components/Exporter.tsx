@@ -9,13 +9,13 @@ interface ExporterProps {
 
 const Exporter = ({ donationsData }: ExporterProps) => {
   const [exportStatus, setExportStatus] = useState<StatusBoxProps | undefined>(
-    undefined
+    undefined,
   );
 
   const downloadFile = (
     content: string,
     filename: string,
-    mimeType: string
+    mimeType: string,
   ) => {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
@@ -80,7 +80,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     downloadFile(
       csvContent,
       "organizations-export.csv",
-      "text/csv;charset=utf-8;"
+      "text/csv;charset=utf-8;",
     );
     setExportStatus({
       content: `${orgsForExport.length} organizations exported to organizations-export.csv`,
@@ -96,7 +96,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
     downloadFile(
       jsonContent,
       "donations-data.json",
-      "application/json;charset=utf-8;"
+      "application/json;charset=utf-8;",
     );
     setExportStatus({
       content: `Complete data exported to donations-data.json (${donationsData.orgs.length} organizations, ${donationsData.donations.length} donations)`,
@@ -113,7 +113,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
           <h2>Donations</h2>
           <button onClick={handleExportDonations}>Export</button>
         </div>
-        <p>
+        <p className="readable-text">
           All donations are saved to a CSV file with columns for donationId,
           orgId, orgName, orgCategory, date, year, amount, kind, donationNotes,
           paymentMethod, and taxDeductible.
@@ -124,7 +124,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
           <h2>Organizations</h2>
           <button onClick={handleExportOrganizations}>Export</button>
         </div>
-        <p>
+        <p className="readable-text">
           All organizations are saved to a CSV file with columns for orgId,
           name, category, taxDeductible, webSite, and notes.
         </p>
@@ -134,7 +134,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
           <h2>Everything</h2>
           <button onClick={handleExportJson}>Export</button>
         </div>
-        <p>
+        <p className="readable-text">
           All organizations and donations are saved to a single JSON file. This
           is a <strong>comprehensive backup</strong> that can be restored later
           if needed.

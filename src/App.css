@@ -45,6 +45,14 @@ a:hover {
     gap: 0.25em;
 }
 
+.react-select-kind__control {
+    width: fit-content;
+}
+
+.form-field.payment-method {
+    width: 40ch;
+}
+
 .form-row {
     display: flex;
     gap: 1em;
@@ -55,14 +63,24 @@ a:hover {
     margin-bottom: 0;
 }
 
-.form-field #kind,
-.form-field #date,
-.form-field #amount,
-.form-field #category,
-.form-field #orgId,
-.form-field #paymentMethod,
-.form-field #taxDeductible {
+.form-control {
     width: fit-content;
+}
+
+.form-control.org-name {
+    width: 40ch;
+}
+
+input#webSite {
+    width: 40ch;
+}
+
+.form-control#amount {
+    width: 11ch;
+}
+
+.react-select-org__control {
+    max-width: 40ch;
 }
 
 .react-select-kind__control {
@@ -78,8 +96,14 @@ a:hover {
     max-width: 12ch;
 }
 
-.instructions {
-    max-width: 60ch;
+.readable-text {
+    width: 60ch;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-align: left;
+    line-height: 1.5;
 }
 
 .toolbar {
@@ -116,11 +140,6 @@ a:hover {
 
 .org-details .header {
     font-weight: bold;
-}
-
-.org-details .content {
-    margin-bottom: 1em;
-    white-space: pre-wrap;
 }
 
 .org-details .donation-grid > .header {
@@ -263,13 +282,6 @@ div.test-mode-banner {
 div.test-mode-banner a {
     color: black;
     text-decoration: underline;
-}
-
-.network-status {
-    margin-left: auto;
-    font-style: italic;
-    color: #666;
-    font-size: 0.9em;
 }
 
 .small-screen {
@@ -465,7 +477,6 @@ div.test-mode-banner a {
     padding: 0.5em;
     border-radius: 4px;
     border: 1px solid;
-    max-width: 50ch;
 }
 
 .status-box.error {
@@ -490,10 +501,6 @@ div.test-mode-banner a {
     color: #856404;
     border-color: #fdbf47;
     background-color: #fff3cd;
-}
-
-.status-box .content {
-    white-space: pre-line;
 }
 
 .status-box .buttons {
@@ -774,7 +781,6 @@ div.test-mode-banner a {
 }
 
 .exporter section p {
-    max-width: 50ch;
     margin-bottom: 0px;
     margin-top: 0px;
 }
@@ -788,10 +794,6 @@ div.test-mode-banner a {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-}
-
-.react-select-org__control {
-    min-width: 35ch;
 }
 
 .react-select-payment__control {

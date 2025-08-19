@@ -67,7 +67,7 @@ type CreateFinalDataResult = {
 const formatZodError = (
   error: z.ZodError,
   lineNumber: number,
-  orgName: string
+  orgName: string,
 ): string[] => {
   return error.issues.map((issue) => {
     const field = String(issue.path[0] || "unknown");
@@ -81,7 +81,7 @@ const formatZodError = (
 
 const convertDonationRowCsvToDonation = (
   row: DonationRowCsv,
-  orgId: string
+  orgId: string,
 ): Donation => {
   const donation = {
     id: makeId(),
@@ -129,7 +129,7 @@ const parseOrgCsv = (data: unknown[]): OrgParseResult => {
         errors.push(...formatZodError(parseError, lineNumber, orgName));
       } else {
         errors.push(
-          `Line ${lineNumber} - ${orgName}: Unknown validation error`
+          `Line ${lineNumber} - ${orgName}: Unknown validation error`,
         );
       }
     }
@@ -139,7 +139,7 @@ const parseOrgCsv = (data: unknown[]): OrgParseResult => {
 
 const parseDonationCsv = (
   data: unknown[],
-  orgs: Org[]
+  orgs: Org[],
 ): DonationParseResult => {
   const validDonations: Donation[] = [];
   const errors: string[] = [];
@@ -148,19 +148,19 @@ const parseDonationCsv = (
       const validatedRow = DonationRowCsvSchema.parse(row);
       const matchingOrg = orgs.find(
         (org) =>
-          org.name.toLowerCase() === validatedRow.Organization.toLowerCase()
+          org.name.toLowerCase() === validatedRow.Organization.toLowerCase(),
       );
       if (!matchingOrg) {
         errors.push(
           `Line ${index + 2} - ${
             validatedRow.Organization
-          }: Organization not found in organizations list`
+          }: Organization not found in organizations list`,
         );
         return;
       }
       const donation = convertDonationRowCsvToDonation(
         validatedRow,
-        matchingOrg.id
+        matchingOrg.id,
       );
       validDonations.push(donation);
     } catch (parseError) {
@@ -172,8 +172,8 @@ const parseDonationCsv = (
       } else {
         errors.push(
           `Line ${lineNumber} - ${orgName}: Unknown validation error - Raw data: ${JSON.stringify(
-            rowData
-          )}`
+            rowData,
+          )}`,
         );
       }
     }
@@ -216,7 +216,7 @@ const parseOrgFile = (file: File): Promise<OrgParseResult> => {
 
 const parseDonationFile = (
   file: File,
-  orgs: Org[]
+  orgs: Org[],
 ): Promise<DonationParseResult> => {
   return new Promise((resolve) => {
     Papa.parse(file, {
@@ -252,7 +252,7 @@ const parseDonationFile = (
 
 const createFinalData = (
   orgs: Org[],
-  donations: Donation[]
+  donations: Donation[],
 ): CreateFinalDataResult => {
   // Build DonationsData directly
   const donationData: DonationsData = { orgs, donations };
@@ -302,7 +302,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   };
 
   const handleDonationFileChange = (
-    event: React.ChangeEvent<HTMLInputElement>
+    event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const selectedFile = event.target.files?.[0];
     setDonationFile(selectedFile || undefined);

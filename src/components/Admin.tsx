@@ -28,7 +28,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
       alert(
         `Failed to load sample data: ${
           error instanceof Error ? error.message : "Unknown error"
-        }`
+        }`,
       );
     }
   };
@@ -36,7 +36,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
   const confirmDeleteAll = async () => {
     if (
       !confirm(
-        "Are you sure you want to delete ALL data? This cannot be undone."
+        "Are you sure you want to delete ALL data? This cannot be undone.",
       )
     ) {
       return;
@@ -89,7 +89,7 @@ const Admin = ({ storageProvider }: AdminProps) => {
       <h1>Admin</h1>
       <section>
         <h2>Test environment</h2>
-        <p className="instructions">{getModeDescription()}</p>
+        <p className="readable-text">{getModeDescription()}</p>
         <div className="toolbar">
           <button onClick={handleToggleMode} disabled={isSyncing}>
             {(() => {

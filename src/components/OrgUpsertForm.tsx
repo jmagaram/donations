@@ -61,9 +61,14 @@ const OrgUpsertForm = ({
     <div>
       <h1>{mode === "edit" ? "Edit organization" : "New organization"}</h1>
       <form onSubmit={handleSubmit(handleFormSubmit)}>
-        <div className="form-field">
+        <div className="form-field org-name">
           <label htmlFor="name">Name</label>
-          <input id="name" type="text" {...register("name")} />
+          <input
+            id="name"
+            type="text"
+            className="form-control org-name"
+            {...register("name")}
+          />
           {errors.name && (
             <span className="form-error">{errors.name.message}</span>
           )}
@@ -73,6 +78,7 @@ const OrgUpsertForm = ({
           <input
             id="category"
             type="text"
+            className="form-control"
             list="categories"
             spellCheck={false}
             autoComplete="off"
@@ -102,6 +108,7 @@ const OrgUpsertForm = ({
           <label htmlFor="taxDeductible">Tax status</label>
           <select
             id="taxDeductible"
+            className="form-control"
             {...register("taxDeductible", { setValueAs: (v) => v === "true" })}
             defaultValue={defaultValues.taxDeductible ? "true" : "false"}
           >
@@ -114,6 +121,7 @@ const OrgUpsertForm = ({
           <input
             id="webSite"
             type="text"
+            className="form-control"
             {...register("webSite")}
             autoCapitalize="off"
             autoCorrect="off"
@@ -127,7 +135,12 @@ const OrgUpsertForm = ({
         </div>
         <div className="form-field">
           <label htmlFor="notes">Notes</label>
-          <textarea id="notes" rows={5} {...register("notes")} />
+          <textarea
+            id="notes"
+            rows={5}
+            className="form-control readable-text"
+            {...register("notes")}
+          />
         </div>
         <div className="toolbar">
           <button type="submit">Save</button>

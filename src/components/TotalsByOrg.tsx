@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { type DonationsData } from "../donationsData";
 import { extractYear, getCurrentYear } from "../date";
 import AmountView from "./AmountView";
+import OrgNameView from "./OrgNameView";
 import { useSearchParam } from "../hooks/useSearchParam";
 import {
   yearFilterSearchParam,
@@ -216,7 +217,9 @@ const TotalsByOrg = ({ donationsData }: TotalsByOrgProps) => {
             return (
               <Fragment key={org.id}>
                 <div className="grid__cell org-name">
-                  <Link to={`/orgs/${org.id}`}>{org.name}</Link>
+                  <Link to={`/orgs/${org.id}`}>
+                    <OrgNameView name={org.name} taxDeductible={org.taxDeductible} />
+                  </Link>
                 </div>
                 {processedData.years.map((year) => {
                   const amount = processedData.orgYearTotals[org.id][year] || 0;

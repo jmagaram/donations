@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { type Org } from "../organization";
 import React from "react";
+import OrgNameView from "./OrgNameView";
 
 interface OrgGridProps {
   orgs: Org[];
@@ -21,8 +22,12 @@ const OrgGrid = ({ orgs }: OrgGridProps) => {
         .map((org) => (
           <React.Fragment key={org.id}>
             <div className="grid__cell org-name">
-              <Link to={`/orgs/${org.id}`}>{org.name}</Link>
-              {!org.taxDeductible && <span title="Not tax-deductible"> *</span>}
+              <Link to={`/orgs/${org.id}`}>
+                <OrgNameView
+                  name={org.name}
+                  taxDeductible={org.taxDeductible}
+                />
+              </Link>
             </div>
             <div className="grid__cell grid-col--show-medium">
               {org.category || ""}

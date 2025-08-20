@@ -21,6 +21,7 @@ export interface DonationDisplay {
   amount: number;
   orgId: string;
   orgName: string;
+  orgTaxDeductible: boolean;
   kind: DonationKind;
   notes: string;
   paymentMethod?: string;

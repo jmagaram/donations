@@ -125,12 +125,14 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
   filteredDonations.sort((a, b) => b.date.localeCompare(a.date));
 
   const donations: DonationDisplay[] = filteredDonations.map((donation) => {
+    const org = orgMap.get(donation.orgId);
     return {
       id: donation.id,
       date: donation.date,
       amount: donation.amount,
       orgId: donation.orgId,
-      orgName: orgMap.get(donation.orgId)?.name || "Unknown organization",
+      orgName: org?.name || "Unknown organization",
+      orgTaxDeductible: org?.taxDeductible ?? true,
       kind: donation.kind,
       notes: donation.notes,
       paymentMethod: donation.paymentMethod,

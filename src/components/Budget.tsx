@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { useMemo, Fragment } from "react";
 import AmountView from "./AmountView";
+import OrgNameView from "./OrgNameView";
 import {
   extractYear,
   getCurrentDateIso,
@@ -173,7 +174,9 @@ const Budget = ({ donationsData }: BudgetProps) => {
           {activeOrgs.map((orgData) => (
             <Fragment key={orgData.org.id}>
               <div className="grid__cell org-name">
-                <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
+                <Link to={`/orgs/${orgData.org.id}`}>
+                  <OrgNameView name={orgData.org.name} taxDeductible={orgData.org.taxDeductible} />
+                </Link>
               </div>
 
               {displayYears.map((year) => {
@@ -222,7 +225,9 @@ const Budget = ({ donationsData }: BudgetProps) => {
           {inactiveOrgs.map((orgData) => (
             <Fragment key={orgData.org.id}>
               <div className="grid__cell org-name">
-                <Link to={`/orgs/${orgData.org.id}`}>{orgData.org.name}</Link>
+                <Link to={`/orgs/${orgData.org.id}`}>
+                  <OrgNameView name={orgData.org.name} taxDeductible={orgData.org.taxDeductible} />
+                </Link>
               </div>
               <div className="grid__cell">
                 <BudgetDonationList

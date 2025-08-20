@@ -3,6 +3,7 @@ import type { Donation } from "../donation";
 import type { Org } from "../organization";
 import AmountView from "./AmountView";
 import DateView from "./DateView";
+import OrgNameView from "./OrgNameView";
 
 interface DonationDetailsViewProps {
   donation: Donation;
@@ -42,7 +43,9 @@ const DonationDetailsView = ({
       <dl>
         <dt>Organization</dt>
         <dd>
-          <Link to={`/orgs/${organization.id}`}>{organization.name}</Link>
+          <Link to={`/orgs/${organization.id}`}>
+            <OrgNameView name={organization.name} taxDeductible={organization.taxDeductible} />
+          </Link>
         </dd>
         {organization.taxDeductible === false && (
           <>

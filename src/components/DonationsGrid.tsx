@@ -4,6 +4,7 @@ import AmountView from "./AmountView";
 import { requiresWarning } from "../donation";
 import React from "react";
 import DateView from "./DateView";
+import OrgNameView from "./OrgNameView";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
@@ -43,7 +44,12 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
             </div>
             {showOrgName && (
               <div className={"grid__cell org-name"}>
-                <Link to={`/orgs/${donation.orgId}`}>{donation.orgName}</Link>
+                <Link to={`/orgs/${donation.orgId}`}>
+                  <OrgNameView 
+                    name={donation.orgName} 
+                    taxDeductible={donation.orgTaxDeductible} 
+                  />
+                </Link>
               </div>
             )}
             <div className="grid__cell grid-col--show-large donation-kind">

@@ -51,6 +51,7 @@ const OrgDetailsView = ({
     amount: d.amount,
     orgId: d.orgId,
     orgName: organization.name,
+    orgTaxDeductible: organization.taxDeductible,
     kind: d.kind,
     notes: d.notes,
     paymentMethod: d.paymentMethod,

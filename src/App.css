@@ -68,7 +68,8 @@
 }
 
 .future {
-    opacity: var(--opacity-half);
+    font-style: italic;
+    opacity: var(--opacity-75);
 }
 
 body {

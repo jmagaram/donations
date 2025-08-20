@@ -8,10 +8,11 @@ interface OrgGridProps {
 
 const OrgGrid = ({ orgs }: OrgGridProps) => {
   return (
-    <div className="grid orgs-grid">
+    <div className="grid grid--align-top orgs-grid">
       {/* Header */}
       <div className="grid__header org-name">Name</div>
       <div className="grid__header grid-col--show-medium">Category</div>
+      <div className="grid__header grid-col--show-medium">Website</div>
       <div className="grid__header grid-col--show-large">Notes</div>
 
       {/* Data Rows */}
@@ -25,6 +26,13 @@ const OrgGrid = ({ orgs }: OrgGridProps) => {
             </div>
             <div className="grid__cell grid-col--show-medium">
               {org.category || ""}
+            </div>
+            <div className="grid__cell grid-col--show-medium">
+              {org.webSite && (
+                <a href={org.webSite} target="_blank" rel="noopener noreferrer">
+                  {org.webSite}
+                </a>
+              )}
             </div>
             <div className="grid__cell grid-col--show-large">{org.notes}</div>
           </React.Fragment>

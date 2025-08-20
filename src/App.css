@@ -29,6 +29,9 @@
     /* Badge Colors */
     --color-pledge-badge: #6366f1;
 
+    /* Link Color */
+    --color-link: rgb(0, 0, 238);
+
     /* Spacing Scale */
     --space-xs: 0.25rem;
     --space-sm: 0.5rem;
@@ -79,6 +82,11 @@ button {
 
 a {
     text-decoration: none;
+    color: var(--color-link);
+}
+
+a:visited {
+    color: var(--color-link);
 }
 
 a:hover {

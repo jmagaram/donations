@@ -7,7 +7,7 @@ const OrgNameView = ({ name, taxDeductible }: OrgNameViewProps) => {
   return (
     <span>
       {name}
-      {taxDeductible && <span title="Not tax-deductible">†</span>}
+      {!taxDeductible && <span title="Not tax-deductible">†</span>}
     </span>
   );
 };

@@ -26,8 +26,8 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
     <header>
       <nav>
         <div>
-          <button type="button" className="large-screen" onClick={handleBack}>
-            ◁ Back
+          <button id="back-button" type="button" onClick={handleBack}>
+            ◁
           </button>
           <Link to="/">Home</Link>
           <Link to="/donations">Donations</Link>

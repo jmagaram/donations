@@ -830,6 +830,10 @@ dl {
     header nav div {
         gap: var(--space-sm);
     }
+
+    .form-field {
+        max-width: 95%;
+    }
 }
 
 /* Desktop: Keep header at top */

@@ -5,7 +5,11 @@ import Select, { type SingleValue } from "react-select";
 import CreatableSelect from "react-select/creatable";
 import { fuzzyOrgSearch } from "../fuzzy";
 import StatusBox from "./StatusBox";
-import { DonationUpsertFieldsSchema, defaultFields } from "../donation";
+import {
+  DonationKindSchema,
+  DonationUpsertFieldsSchema,
+  defaultFields,
+} from "../donation";
 import type { DonationUpsertFields } from "../donation";
 import type { DonationsData } from "../donationsData";
 import { findOrgById } from "../donationsData";

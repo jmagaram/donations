@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import SyncSpinner from "./SyncSpinner";
 import SignOut from "./SignOut";
 import {
@@ -29,15 +29,21 @@ const Header = ({ syncStatus, onSync }: HeaderProps) => {
           <button id="back-button" type="button" onClick={handleBack}>
             ◁
           </button>
-          <Link to="/">Home</Link>
-          <Link to="/donations">Donations</Link>
-          <Link to="/orgs">Orgs</Link>
-          <Link className="large-screen" to="/budget">
+          <NavLink to="/" end={true}>
+            Home
+          </NavLink>
+          <NavLink to="/donations" end={true}>
+            Donations
+          </NavLink>
+          <NavLink to="/orgs" end={true}>
+            Orgs
+          </NavLink>
+          <NavLink className="large-screen" to="/budget" end={true}>
             Plan
-          </Link>
-          <Link className="medium-screen" to="/reports">
+          </NavLink>
+          <NavLink className="medium-screen" to="/reports" end={true}>
             Reports
-          </Link>
+          </NavLink>
         </div>
         <div>
           <SyncSpinner status={syncStatus} sync={onSync} />

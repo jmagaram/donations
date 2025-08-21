@@ -379,6 +379,12 @@ header > nav > div > a {
     padding: 5px;
 }
 
+header > nav > div > a.active {
+    color: black;
+    font-weight: bold;
+    pointer-events: none;
+}
+
 header > nav > div > button {
     display: flex;
     flex-direction: row;

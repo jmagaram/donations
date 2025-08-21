@@ -54,7 +54,7 @@ const SyncSpinner = ({
           status.requiresSync || isDataStale(status.lastSuccessfulPull);
         if (needsSync) {
           return {
-            text: "Needs sync",
+            text: "Sync now",
             buttonClasses: `${baseClass} idle needs-sync`,
             isSpinning: false,
             isComplete: false,

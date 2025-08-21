@@ -444,7 +444,6 @@ div.test-mode-banner {
     z-index: 1000;
     margin: 0;
     margin-bottom: 2px;
-    border-radius: 0px;
     padding-top: var(--space-em-sm);
     padding-bottom: var(--space-em-sm);
     font-variant: small-caps;
@@ -805,5 +804,37 @@ dl {
 @keyframes glow {
     50% {
         box-shadow: 0 0 40px var(--color-error);
+    }
+}
+
+/* Mobile: Float header at bottom for thumb access */
+@media (max-width: 768px) {
+    header {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding-left: var(--space-md);
+        padding-right: var(--space-md);
+        padding-bottom: var(--space-lg);
+        padding-top: var(--space-md);
+        top: auto;
+        z-index: 1000;
+        background: var(--color-gray-light);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        border-top: 1px solid var(--color-gray-medium);
+        box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.1);
+    }
+}
+
+/* Desktop: Keep header at top */
+@media (min-width: 769px) {
+    header {
+        position: static;
+    }
+
+    #root {
+        padding-bottom: 0;
     }
 }

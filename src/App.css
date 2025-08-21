@@ -94,6 +94,12 @@ a:hover {
     text-decoration: underline;
 }
 
+@media (hover: none) {
+    header a:hover {
+        text-decoration: none;
+    }
+}
+
 .grid {
     display: grid;
 }

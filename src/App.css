@@ -409,6 +409,13 @@ header > nav > div > button:hover:not(:disabled) {
     background-color: rgba(0, 0, 0, 0.05);
 }
 
+/* On iOS don't leave a gray background after press back */
+@media (hover: none) {
+    header > nav > div > button:hover:not(:disabled) {
+        background-color: transparent;
+    }
+}
+
 .sync-status .sync-status-icon {
     height: 0.9rem;
     width: 0.9rem;

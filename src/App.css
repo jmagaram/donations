@@ -444,7 +444,7 @@ button.sync-status {
 
 .sync-status.syncing svg path,
 .sync-status.syncing svg circle {
-    stroke: var(--color-black);
+    stroke: var(--color-success);
 }
 
 .sync-status.error svg path,

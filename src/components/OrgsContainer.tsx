@@ -3,19 +3,8 @@ import { fuzzyOrgSearch } from "../fuzzy";
 import OrgsView from "./OrgsView";
 import { useSearchParams } from "react-router-dom";
 import { useSearchParam } from "../hooks/useSearchParam";
-import {
-  categoryFilterSearchParam,
-  matchesCategoryFilter,
-  type CategoryFilter,
-  getAvailableCategories,
-} from "../categoryFilter";
-import {
-  taxStatusParam,
-  matchesTaxStatusFilter,
-  type TaxStatusFilter,
-} from "../taxStatusFilter";
-import { useMemo } from "react";
 import { type SearchFilter, searchFilterParam } from "../searchFilter";
+import { type SortByFilter, sortByFilterParam } from "../sortByFilter";
 
 interface OrgsContainerProps {
   donationsData: DonationsData;
@@ -29,33 +18,37 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     "search",
     searchFilterParam
   );
-  const [categoryFilter, setCategoryFilter] = useSearchParam(
-    "category",
-    categoryFilterSearchParam
-  );
-  const [taxStatusFilter, setTaxStatusFilter] = useSearchParam(
-    "tax",
-    taxStatusParam
-  );
-  const availableCategories = useMemo(
-    () => getAvailableCategories(donationsData),
-    [donationsData]
+
+  const [sortByFilter, setSortByFilter] = useSearchParam(
+    "sort",
+    sortByFilterParam
   );
 
   let filteredOrgs = donationsData.orgs;
 
-  if (categoryFilter !== undefined) {
-    filteredOrgs = filteredOrgs.filter((org) =>
-      matchesCategoryFilter(categoryFilter, org.category)
-    );
-  }
-  if (taxStatusFilter !== undefined) {
-    filteredOrgs = filteredOrgs.filter((org) =>
-      matchesTaxStatusFilter(taxStatusFilter, org.taxDeductible ?? false)
-    );
-  }
   if (searchFilter !== undefined && searchFilter.trim() !== "") {
     filteredOrgs = fuzzyOrgSearch(filteredOrgs, searchFilter);
+  } else {
+    // Apply sorting only when no search filter is active
+    if (sortByFilter === "name") {
+      filteredOrgs.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sortByFilter === "category") {
+      filteredOrgs.sort((a, b) => {
+        if (a.category && b.category) {
+          if (a.category < b.category) return -1;
+          if (a.category > b.category) return 1;
+        }
+        return a.name.localeCompare(b.name);
+      });
+    } else if (sortByFilter === "tax-status") {
+      filteredOrgs.sort((a, b) => {
+        const aStatus = a.taxDeductible ? "Deductible" : "Not Deductible";
+        const bStatus = b.taxDeductible ? "Deductible" : "Not Deductible";
+        if (aStatus < bStatus) return -1;
+        if (aStatus > bStatus) return 1;
+        return a.name.localeCompare(b.name);
+      });
+    }
   }
 
   const handleClearFilters = () => {
@@ -63,34 +56,23 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
   };
 
   const updateSearchFilter = (value: SearchFilter) => {
-    // const trimmed = value.trim();
     const trimmed = value;
     setSearchFilter(trimmed === "" ? undefined : trimmed);
   };
 
-  const updateCategoryFilter = (value: CategoryFilter | undefined) => {
-    setCategoryFilter(value);
+  const updateSortByFilter = (value: SortByFilter | undefined) => {
+    setSortByFilter(value);
   };
 
-  const updateTaxStatusFilter = (value: TaxStatusFilter | undefined) => {
-    setTaxStatusFilter(value);
-  };
-
-  const hasActiveFilters =
-    searchFilter !== undefined ||
-    categoryFilter !== undefined ||
-    (taxStatusFilter !== undefined && taxStatusFilter !== "all");
+  const hasActiveFilters = searchFilter !== undefined;
 
   return (
     <OrgsView
       orgs={filteredOrgs}
       currentTextFilter={searchFilter ?? ""}
       textFilterChanged={updateSearchFilter}
-      categoryFilter={categoryFilter}
-      availableCategories={availableCategories}
-      categoryFilterChanged={updateCategoryFilter}
-      taxStatusFilter={taxStatusFilter}
-      taxStatusFilterChanged={updateTaxStatusFilter}
+      sortByFilter={sortByFilter}
+      sortByFilterChanged={updateSortByFilter}
       onClearFilters={handleClearFilters}
       hasActiveFilters={hasActiveFilters}
     />

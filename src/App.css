@@ -900,3 +900,30 @@ dl {
         padding-bottom: 0;
     }
 }
+
+.orgs-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.org-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.org-name {
+  font-weight: bold;
+}
+
+.category-name {
+  font-style: italic;
+}
+
+.org-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  margin-bottom: var(--space-lg);
+}

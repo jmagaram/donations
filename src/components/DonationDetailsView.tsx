@@ -22,10 +22,6 @@ const DonationDetailsView = ({
     navigate(`/donations/${donation.id}/edit`);
   };
 
-  const handleBack = () => {
-    navigate(-1);
-  };
-
   const handleDelete = () => {
     if (window.confirm("Are you sure you want to delete this donation?")) {
       onDelete();
@@ -44,7 +40,10 @@ const DonationDetailsView = ({
         <dt>Organization</dt>
         <dd>
           <Link to={`/orgs/${organization.id}`}>
-            <OrgNameView name={organization.name} taxDeductible={organization.taxDeductible} />
+            <OrgNameView
+              name={organization.name}
+              taxDeductible={organization.taxDeductible}
+            />
           </Link>
         </dd>
         {organization.taxDeductible === false && (
@@ -88,9 +87,6 @@ const DonationDetailsView = ({
         </button>
         <button type="button" onClick={handleDelete}>
           Delete
-        </button>
-        <button type="button" onClick={handleBack}>
-          Done
         </button>
       </div>
     </div>

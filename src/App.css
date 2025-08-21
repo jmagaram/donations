@@ -816,8 +816,8 @@ dl {
         right: 0;
         padding-left: var(--space-md);
         padding-right: var(--space-md);
-        padding-bottom: var(--space-lg);
-        padding-top: var(--space-md);
+        padding-bottom: 1.25rem;
+        padding-top: 0.75rem;
         top: auto;
         z-index: 1000;
         background: var(--color-gray-light);

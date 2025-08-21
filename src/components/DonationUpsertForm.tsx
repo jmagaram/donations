@@ -52,7 +52,7 @@ const DonationUpsertForm = ({
     mode === "add"
       ? {
           date: searchParams.get("date") || defaultValues.date,
-          kind: (searchParams.get("kind") as any) || defaultValues.kind,
+          kind: searchParams.get("kind") || defaultValues.kind,
           amount: searchParams.get("amount")
             ? parseFloat(searchParams.get("amount")!)
             : defaultValues.amount,

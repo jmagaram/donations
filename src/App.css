@@ -245,6 +245,28 @@ div.page-header {
     }
 }
 
+/* Selectable orgs grid with checkbox column */
+.orgs-grid--selectable {
+    grid-template-columns: max-content var(--width-30ch);
+}
+
+@media (min-width: 768px) {
+    .orgs-grid--selectable {
+        grid-template-columns:
+            max-content minmax(auto, var(--width-30ch))
+            max-content 1fr;
+    }
+}
+
+@media (min-width: 1024px) {
+    .orgs-grid--selectable {
+        grid-template-columns:
+            max-content
+            minmax(auto, var(--width-30ch))
+            max-content max-content 1fr;
+    }
+}
+
 .amount-view span:nth-last-child(2) {
     margin-right: var(--space-em-xs);
 }

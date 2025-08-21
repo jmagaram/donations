@@ -38,6 +38,9 @@ const OrgsView = ({
     <div>
       <div className="page-header">
         <h1>Orgs</h1>
+        <Link to="/recategorize" className="large-screen">
+          Recategorize
+        </Link>
         <Link to="/orgs/add">Add organization</Link>
       </div>
       <div className="toolbar">
@@ -72,7 +75,10 @@ const OrgsView = ({
       {orgs.length === 0 ? (
         <StatusBox content="No organizations found" kind="info" />
       ) : (
-        <OrgGrid orgs={orgs} />
+        <OrgGrid
+          orgs={[...orgs].sort((a, b) => a.name.localeCompare(b.name))}
+          mode="view"
+        />
       )}
     </div>
   );

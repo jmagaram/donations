@@ -22,6 +22,7 @@ import TotalsByCategory from "./components/TotalsByCategory";
 import Budget from "./components/Budget";
 import SyncStatusBox from "./components/SyncStatusBox";
 import Admin from "./components/Admin";
+import Recategorize from "./components/Recategorize";
 import "./App.css";
 import { useState, useEffect, useCallback } from "react";
 import { type DonationsData, DonationsDataSchema } from "./donationsData";
@@ -249,6 +250,15 @@ const AppContent = () => {
         <Route
           path="/admin"
           element={<Admin storageProvider={offlineStore} />}
+        />
+        <Route
+          path="/recategorize"
+          element={
+            <Recategorize
+              donationsData={donationsData}
+              setDonationsData={setDonationsData}
+            />
+          }
         />
       </Routes>
     </>

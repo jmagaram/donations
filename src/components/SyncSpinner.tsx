@@ -44,7 +44,7 @@ const SyncSpinner = ({
     switch (status.kind) {
       case "syncing":
         return {
-          text: "Sync...",
+          text: "",
           buttonClasses: `${baseClass} syncing`,
           isSpinning: true,
           isComplete: false,

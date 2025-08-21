@@ -425,6 +425,10 @@ header > nav > div > button:hover:not(:disabled) {
     }
 }
 
+button.sync-status {
+    min-width: 1ch;
+}
+
 .sync-status .sync-status-icon {
     height: 0.9rem;
     width: 0.9rem;

@@ -349,6 +349,12 @@ header {
     padding: var(--space-em-xs) var(--space-em-sm);
 }
 
+header button#back-button {
+    min-width: 4ch;
+    display: flex;
+    justify-content: center;
+}
+
 header > nav {
     display: flex;
     justify-content: space-between;

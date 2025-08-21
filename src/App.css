@@ -94,6 +94,15 @@ a:hover {
     text-decoration: underline;
 }
 
+h1 {
+    margin-top: var(--space-md);
+    margin-bottom: var(--space-md);
+}
+
+div.page-header {
+    margin-top: 0;
+}
+
 @media (hover: none) {
     header a:hover {
         text-decoration: none;

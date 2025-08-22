@@ -33,7 +33,7 @@ export const fuseConfigForOrgs = (): IFuseOptions<SearchableOrg> => ({
     { name: "notes", weight: 2 },
   ],
   includeScore: true,
-  threshold: 0.6,
+  threshold: 0.4,
   shouldSort: true,
   useExtendedSearch: false,
 });
@@ -59,7 +59,7 @@ export interface SearchableDonation {
 
 export const createSearchableDonations = (
   donations: Donation[],
-  orgs: Org[],
+  orgs: Org[]
 ): {
   searchableDonations: SearchableDonation[];
   yearRange: YearRange | undefined;
@@ -98,7 +98,7 @@ export const createSearchableDonations = (
     {
       searchableDonations: [] as SearchableDonation[],
       yearRange: undefined as YearRange | undefined,
-    },
+    }
   );
 };
 
@@ -134,7 +134,7 @@ export type SearchConfig = {
 const searchByText = (
   searchableDonations: SearchableDonation[],
   search: string,
-  textScoreCutoff: number,
+  textScoreCutoff: number
 ): string[] => {
   const fuse = new Fuse(searchableDonations, fuseConfigForDonations());
   const results = fuse.search(search.trim());
@@ -154,7 +154,7 @@ const searchByText = (
 const searchByAmount = (
   donations: Donation[],
   search: string,
-  amountTolerance: number,
+  amountTolerance: number
 ): string[] => {
   const amount = parseCurrency(search);
   if (amount === undefined) {
@@ -166,7 +166,7 @@ const searchByAmount = (
         target: amount,
         value: donation.amount,
         tolerancePercent: amountTolerance,
-      }),
+      })
     )
     .map((donation) => donation.id);
 };
@@ -184,7 +184,7 @@ const searchByDate = (
   search: string,
   dateSearchToleranceDays: number,
   maxSearchRangeDays: number,
-  yearRange: YearRange | undefined,
+  yearRange: YearRange | undefined
 ): string[] => {
   if (!yearRange) {
     return [];
@@ -200,7 +200,7 @@ const searchByDate = (
   const paddedRanges = dateRanges
     .map((range) => padDateRange(range, dateSearchToleranceDays))
     .filter(
-      (paddedRange) => fullDaysInRange(paddedRange) <= maxSearchRangeDays,
+      (paddedRange) => fullDaysInRange(paddedRange) <= maxSearchRangeDays
     );
 
   const matchingDonationIds = new Set<string>();
@@ -220,24 +220,27 @@ export const fuzzyDonationSearch = (
   donations: Donation[],
   orgs: Org[],
   search: string,
-  config: SearchConfig,
+  config: SearchConfig
 ): Donation[] => {
   if (!search || search.trim() === "" || donations.length === 0) {
     return donations;
   }
 
-  const { searchableDonations, yearRange } = createSearchableDonations(donations, orgs);
+  const { searchableDonations, yearRange } = createSearchableDonations(
+    donations,
+    orgs
+  );
 
   const textMatchIds = searchByText(
     searchableDonations,
     search,
-    config.textScoreCutoff,
+    config.textScoreCutoff
   );
 
   const amountMatchIds = searchByAmount(
     donations,
     search,
-    config.amountTolerancePercent,
+    config.amountTolerancePercent
   );
 
   const dateMatchIds = searchByDate(
@@ -245,7 +248,7 @@ export const fuzzyDonationSearch = (
     search,
     config.dateSearchToleranceDays,
     config.maxSearchRangeDays,
-    yearRange,
+    yearRange
   );
 
   const allIds = new Set([...textMatchIds, ...amountMatchIds, ...dateMatchIds]);

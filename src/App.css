@@ -179,7 +179,8 @@ div.page-header {
 .orgs-grid .org-name,
 .totals-grid .org-name,
 .budget-grid .org-name,
-.budget-grid-simple .org-name {
+.budget-grid-simple .org-name,
+.org-card .org-name {
     max-width: var(--width-30ch);
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -902,5 +903,60 @@ dl {
 
     #root {
         padding-bottom: 0;
+    }
+}
+
+.org-card {
+    /* background: var(--color-white); */
+    border-radius: var(--border-radius);
+    padding: var(--space-sm);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.card-shadow {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.org-card__notes {
+    white-space: pre-wrap;
+    font-size:var(--font-size-xs)
+}
+
+.org-card__donations-grid {
+    display:grid;
+    grid-template-columns: max-content max-content;
+    gap:0.0rem 0.5rem;
+}
+
+.org-list {
+    display: flex;
+    flex-direction: row;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    align-items: flex-start;
+}
+
+.org-card {
+    /* Use character-based widths for predictable text-driven sizing */
+    min-width: var(--width-20ch); /* 20ch */
+    max-width: var(--width-30ch); /* 30ch */
+    /* Calculate one third of the container while subtracting the two gaps
+       that appear between three flex items. This makes columns more exact
+       when using `.org-list { gap: var(--space-md); }`. */
+    width: calc((100% - (2 * var(--space-md))) / 3);
+    box-sizing: border-box; /* include padding in width for predictable layout */
+}
+
+@media (max-width: 768px) {
+    .org-card {
+        width: calc(50% - var(--space-sm));
+    }
+}
+
+@media (max-width: 480px) {
+    .org-card {
+        width: 100%;
     }
 }

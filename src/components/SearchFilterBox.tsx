@@ -47,6 +47,13 @@ const SearchFilterBox = ({
           value={inputValue}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
+          spellCheck={false}
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="off"
+          data-gramm="false"
+          data-gramm_editor="false"
+          data-enable-grammarly="false"
         />
       </div>
     </div>

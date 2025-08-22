@@ -8,18 +8,23 @@ import OrgNameView from "./OrgNameView";
 
 interface DonationsGridProps {
   donations: DonationDisplay[];
-  showOrgName: boolean;
+  showOrg: boolean;
 }
 
-const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
+const DonationsGrid = ({ donations, showOrg }: DonationsGridProps) => {
   return (
     <div
-      className={`grid donations-grid ${!showOrgName ? "donations-grid--hide-org" : ""}`}
+      className={`grid donations-grid ${
+        !showOrg ? "donations-grid--hide-org" : ""
+      }`}
     >
       {/* Header */}
       <div className="grid__header">Date</div>
       <div className="grid__header grid-col--align-right">Amount</div>
-      {showOrgName && <div className="grid__header org-name">Organization</div>}
+      {showOrg && <div className="grid__header org-name">Organization</div>}
+      {showOrg && (
+        <div className="grid__header grid-col--show-large">Category</div>
+      )}
       <div className="grid__header grid-col--show-large">Kind</div>
       <div className="grid__header grid-col--show-large">Paid by</div>
       <div className="grid__header grid-col--show-large">Notes</div>
@@ -42,14 +47,19 @@ const DonationsGrid = ({ donations, showOrgName }: DonationsGridProps) => {
                 />
               </Link>
             </div>
-            {showOrgName && (
+            {showOrg && (
               <div className={"grid__cell org-name"}>
                 <Link to={`/orgs/${donation.orgId}`}>
-                  <OrgNameView 
-                    name={donation.orgName} 
-                    taxDeductible={donation.orgTaxDeductible} 
+                  <OrgNameView
+                    name={donation.orgName}
+                    taxDeductible={donation.orgTaxDeductible}
                   />
                 </Link>
+              </div>
+            )}
+            {showOrg && (
+              <div className="grid__cell grid-col--show-large">
+                {donation.orgCategory ?? ""}
               </div>
             )}
             <div className="grid__cell grid-col--show-large donation-kind">

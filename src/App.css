@@ -216,9 +216,9 @@ div.page-header {
 }
 
 @media (min-width: 1024px) {
-    /* Date, Amount, Org, Kind, PaymentMethod, Notes */
+    /* Date, Amount, Org, Category, Kind, PaymentMethod, Notes */
     .donations-grid {
-        grid-template-columns: repeat(5, max-content) 1fr;
+        grid-template-columns: repeat(6, max-content) 1fr;
     }
 
     /* Date, Amount, Kind, PaymentMethod, Notes */

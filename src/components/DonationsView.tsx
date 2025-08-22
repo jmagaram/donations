@@ -22,6 +22,7 @@ export interface DonationDisplay {
   orgId: string;
   orgName: string;
   orgTaxDeductible: boolean;
+  orgCategory?: string | undefined;
   kind: DonationKind;
   notes: string;
   paymentMethod?: string;
@@ -185,23 +186,6 @@ const DonationsView = ({
           id="donation-type-filter"
         />
         <div className="toolbar-item medium-screen large-screen">
-          <label htmlFor="sort-filter">Sort</label>
-          <select
-            id="sort-filter"
-            value={sortBy ?? "date"}
-            onChange={(e) =>
-              sortByChanged(
-                e.target.value === "date" ? undefined : e.target.value
-              )
-            }
-          >
-            <option value="date">Date</option>
-            <option value="amount">Amount</option>
-            <option value="name">Name</option>
-            <option value="category">Category</option>
-          </select>
-        </div>
-        <div className="toolbar-item medium-screen large-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select
             id="amount-filter"
@@ -258,6 +242,23 @@ const DonationsView = ({
             />
           </>
         )}
+        <div className="toolbar-item large-screen">
+          <label htmlFor="sort-filter">Sort</label>
+          <select
+            id="sort-filter"
+            value={sortBy ?? "date"}
+            onChange={(e) =>
+              sortByChanged(
+                e.target.value === "date" ? undefined : e.target.value
+              )
+            }
+          >
+            <option value="date">Date</option>
+            <option value="amount">Amount</option>
+            <option value="name">Name</option>
+            <option value="category">Category</option>
+          </select>
+        </div>
         {hasActiveFilters && (
           <div className="toolbar-item">
             <button type="button" onClick={onClearFilters}>
@@ -269,7 +270,7 @@ const DonationsView = ({
       {donations.length === 0 ? (
         <StatusBox content="No donations found" kind="info" />
       ) : (
-        <DonationsGrid donations={donations} showOrgName={true} />
+        <DonationsGrid donations={donations} showOrg={true} />
       )}
     </div>
   );

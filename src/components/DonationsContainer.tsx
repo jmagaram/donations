@@ -5,6 +5,9 @@ import {
   matchesAmountFilter,
   matchesYearFilter,
   type Donation,
+  sortByDateDesc,
+  sortByAmountDesc,
+  sortByCategoryAZ,
 } from "../donation";
 import { type DonationsData } from "../donationsData";
 import DonationsView, { type DonationDisplay } from "./DonationsView";
@@ -141,25 +144,21 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     filteredDonations = performFuzzySearch(filteredDonations, searchFilter);
   }
 
-  // Apply sorting based on sortBy param. Default: date descending
   filteredDonations.sort((a, b) => {
     const key = sortBy ?? "date";
     switch (key) {
       case "amount":
-        return b.amount - a.amount; // largest first
+        return sortByAmountDesc(a, b);
       case "name": {
         const nameA = (orgMap.get(a.orgId)?.name || "").toLowerCase();
         const nameB = (orgMap.get(b.orgId)?.name || "").toLowerCase();
         return nameA.localeCompare(nameB);
       }
-      case "category": {
-        const catA = (orgMap.get(a.orgId)?.category || "").toLowerCase();
-        const catB = (orgMap.get(b.orgId)?.category || "").toLowerCase();
-        return catA.localeCompare(catB);
-      }
+      case "category":
+        return sortByCategoryAZ(a, b, orgMap);
       case "date":
       default:
-        return b.date.localeCompare(a.date);
+        return sortByDateDesc(a, b);
     }
   });
 
@@ -171,6 +170,7 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       amount: donation.amount,
       orgId: donation.orgId,
       orgName: org?.name || "Unknown organization",
+      orgCategory: org?.category,
       orgTaxDeductible: org?.taxDeductible ?? true,
       kind: donation.kind,
       notes: donation.notes,

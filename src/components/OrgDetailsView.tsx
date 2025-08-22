@@ -94,7 +94,7 @@ const OrgDetailsView = ({
       </dl>
       <div className="section">
         {donations.length > 0 ? (
-          <DonationsGrid donations={donationsForDisplay} showOrgName={false} />
+          <DonationsGrid donations={donationsForDisplay} showOrg={false} />
         ) : (
           <div className="section">
             <div className="header">Donations</div>

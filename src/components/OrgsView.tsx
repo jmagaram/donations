@@ -5,7 +5,7 @@ import StatusBox from "./StatusBox";
 import SearchFilterBox from "./SearchFilterBox";
 import CategoryPicker from "./CategoryPicker";
 import TaxStatusPicker from "./TaxStatusPicker";
-import OrgGrid from "./OrgGrid";
+import OrgCard from "./OrgCard";
 import { getCurrentDateIso, isOlderThanDays, isFutureDate } from "../date";
 import { type SearchFilter } from "../searchFilter";
 import { type CategoryFilter } from "../categoryFilter";
@@ -109,22 +109,28 @@ const OrgsView = ({
       ) : (
         <div>
           {activeOrgs.length > 0 && (
-            <OrgGrid
-              orgs={[...activeOrgs]
-                .map((o) => o.org)
-                .sort((a, b) => a.name.localeCompare(b.name))}
-              mode="view"
-            />
+            <div className="org-list">
+              {[...activeOrgs]
+                .sort((a, b) => a.org.name.localeCompare(b.org.name))
+                .map((o) => (
+                  <OrgCard key={o.org.id} org={o.org} donations={o.donations} />
+                ))}
+            </div>
           )}
           {inactiveOrgs.length > 0 && (
             <>
               <h2>Inactive orgs</h2>
-              <OrgGrid
-                orgs={[...inactiveOrgs]
-                  .map((o) => o.org)
-                  .sort((a, b) => a.name.localeCompare(b.name))}
-                mode="view"
-              />
+              <div className="org-list">
+                {[...inactiveOrgs]
+                  .sort((a, b) => a.org.name.localeCompare(b.org.name))
+                  .map((o) => (
+                    <OrgCard
+                      key={o.org.id}
+                      org={o.org}
+                      donations={o.donations}
+                    />
+                  ))}
+              </div>
             </>
           )}
         </div>

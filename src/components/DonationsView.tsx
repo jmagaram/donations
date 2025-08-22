@@ -166,25 +166,6 @@ const DonationsView = ({
           className="toolbar-item large-screen"
           id="year-filter"
         />
-        <CategoryPicker
-          value={categoryFilter}
-          availableCategories={availableCategories}
-          onChange={categoryFilterChanged}
-          className="toolbar-item large-screen"
-          id="category-filter"
-        />
-        <TaxStatusPicker
-          value={taxStatusFilter}
-          onChange={taxStatusFilterChanged}
-          className="toolbar-item large-screen"
-          id="tax-status-filter"
-        />
-        <KindPicker
-          value={paymentKindFilter}
-          onChange={paymentKindFilterChanged}
-          className="toolbar-item large-screen"
-          id="donation-type-filter"
-        />
         <div className="toolbar-item medium-screen large-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select
@@ -242,6 +223,25 @@ const DonationsView = ({
             />
           </>
         )}
+        <TaxStatusPicker
+          value={taxStatusFilter}
+          onChange={taxStatusFilterChanged}
+          className="toolbar-item large-screen"
+          id="tax-status-filter"
+        />
+        <CategoryPicker
+          value={categoryFilter}
+          availableCategories={availableCategories}
+          onChange={categoryFilterChanged}
+          className="toolbar-item large-screen"
+          id="category-filter"
+        />
+        <KindPicker
+          value={paymentKindFilter}
+          onChange={paymentKindFilterChanged}
+          className="toolbar-item large-screen"
+          id="donation-type-filter"
+        />
         <div className="toolbar-item large-screen">
           <label htmlFor="sort-filter">Sort</label>
           <select

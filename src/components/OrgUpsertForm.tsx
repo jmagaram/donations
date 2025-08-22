@@ -110,7 +110,6 @@ const OrgUpsertForm = ({
             id="taxDeductible"
             className="form-control"
             {...register("taxDeductible", { setValueAs: (v) => v === "true" })}
-            defaultValue={defaultValues.taxDeductible ? "true" : "false"}
           >
             <option value="true">Charity (tax-deductible)</option>
             <option value="false">Not tax-deductible</option>

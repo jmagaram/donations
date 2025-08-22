@@ -109,8 +109,11 @@ const OrgUpsertForm = ({
           <select
             id="taxDeductible"
             className="form-control"
-            {...register("taxDeductible", { setValueAs: (v) => v === "true" })}
-            defaultValue={defaultValues.taxDeductible ? "true" : "false"}
+            {...register("taxDeductible", {
+              // Some browsers (notably iOS Safari) may provide the value as a boolean
+              // instead of a string. Accept both 'true' (string) and true (boolean).
+              setValueAs: (v) => v === true || v === "true",
+            })}
           >
             <option value="true">Charity (tax-deductible)</option>
             <option value="false">Not tax-deductible</option>

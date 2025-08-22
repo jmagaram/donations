@@ -25,7 +25,6 @@ const DonationsGrid = ({ donations, showOrg }: DonationsGridProps) => {
       {showOrg && (
         <div className="grid__header grid-col--show-large">Category</div>
       )}
-      <div className="grid__header grid-col--show-large">Kind</div>
       <div className="grid__header grid-col--show-large">Paid by</div>
       <div className="grid__header grid-col--show-large">Notes</div>
 
@@ -62,9 +61,6 @@ const DonationsGrid = ({ donations, showOrg }: DonationsGridProps) => {
                 {donation.orgCategory ?? ""}
               </div>
             )}
-            <div className="grid__cell grid-col--show-large donation-kind">
-              {donation.kind}
-            </div>
             <div className="grid__cell grid-col--show-large">
               {donation.paymentMethod || ""}
             </div>

@@ -31,6 +31,8 @@ interface DonationsViewProps {
   donations: DonationDisplay[];
   currentFilter: SearchFilter;
   textFilterChanged: (filter: SearchFilter) => void;
+  sortBy: string | undefined;
+  sortByChanged: (value: string | undefined) => void;
   yearFilter: YearFilter | undefined;
   minYear: number;
   maxYear: number;
@@ -52,6 +54,8 @@ const DonationsView = ({
   donations,
   currentFilter,
   textFilterChanged,
+  sortBy,
+  sortByChanged,
   yearFilter,
   minYear,
   maxYear,
@@ -180,6 +184,23 @@ const DonationsView = ({
           className="toolbar-item large-screen"
           id="donation-type-filter"
         />
+        <div className="toolbar-item medium-screen large-screen">
+          <label htmlFor="sort-filter">Sort</label>
+          <select
+            id="sort-filter"
+            value={sortBy ?? "date"}
+            onChange={(e) =>
+              sortByChanged(
+                e.target.value === "date" ? undefined : e.target.value
+              )
+            }
+          >
+            <option value="date">Date</option>
+            <option value="amount">Amount</option>
+            <option value="name">Name</option>
+            <option value="category">Category</option>
+          </select>
+        </div>
         <div className="toolbar-item medium-screen large-screen">
           <label htmlFor="amount-filter">Amount</label>
           <select

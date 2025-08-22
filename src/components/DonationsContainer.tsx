@@ -13,6 +13,7 @@ import { fuzzyDonationSearch } from "../fuzzy";
 import { getYearRange, yearFilterSearchParam } from "../yearFilter";
 import { amountFilterSearchParam } from "../amountFilter";
 import { useSearchParam } from "../hooks/useSearchParam";
+import type { SearchParam } from "../hooks/useSearchParam";
 import {
   categoryFilterSearchParam,
   matchesCategoryFilter,
@@ -68,6 +69,24 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     paymentKindParam
   );
 
+  const sortSearchParam: SearchParam<string> = {
+    parse: (v: string | undefined) => {
+      if (v === undefined) return undefined;
+      const normalized = v.trim().toLowerCase();
+      if (normalized === "" || normalized === "date") return undefined;
+      if (["name", "category", "amount", "date"].includes(normalized))
+        return normalized;
+      return undefined;
+    },
+    encode: (v: string) => {
+      if (!v) return undefined;
+      if (v === "date") return undefined;
+      return v;
+    },
+  };
+
+  const [sortBy, setSortBy] = useSearchParam("sort", sortSearchParam);
+
   const [yearFrom, yearTo] = yearFilter
     ? getYearRange({
         yearFilter,
@@ -122,7 +141,27 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
     filteredDonations = performFuzzySearch(filteredDonations, searchFilter);
   }
 
-  filteredDonations.sort((a, b) => b.date.localeCompare(a.date));
+  // Apply sorting based on sortBy param. Default: date descending
+  filteredDonations.sort((a, b) => {
+    const key = sortBy ?? "date";
+    switch (key) {
+      case "amount":
+        return b.amount - a.amount; // largest first
+      case "name": {
+        const nameA = (orgMap.get(a.orgId)?.name || "").toLowerCase();
+        const nameB = (orgMap.get(b.orgId)?.name || "").toLowerCase();
+        return nameA.localeCompare(nameB);
+      }
+      case "category": {
+        const catA = (orgMap.get(a.orgId)?.category || "").toLowerCase();
+        const catB = (orgMap.get(b.orgId)?.category || "").toLowerCase();
+        return catA.localeCompare(catB);
+      }
+      case "date":
+      default:
+        return b.date.localeCompare(a.date);
+    }
+  });
 
   const donations: DonationDisplay[] = filteredDonations.map((donation) => {
     const org = orgMap.get(donation.orgId);
@@ -170,6 +209,8 @@ const DonationsContainer = ({ donationsData }: DonationsContainerProps) => {
       donations={donations}
       currentFilter={searchFilter ?? ""}
       textFilterChanged={handleTextFilterChange}
+      sortBy={sortBy}
+      sortByChanged={setSortBy}
       yearFilter={yearFilter}
       minYear={minYear}
       maxYear={maxYear}

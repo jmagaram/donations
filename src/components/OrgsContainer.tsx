@@ -1,6 +1,7 @@
 import { type DonationsData } from "../donationsData";
 import { fuzzyOrgSearch } from "../fuzzy";
 import OrgsView from "./OrgsView";
+import { type Donation, sortByDateDesc } from "../donation";
 import { useSearchParams } from "react-router-dom";
 import { useSearchParam } from "../hooks/useSearchParam";
 import {
@@ -80,10 +81,25 @@ const OrgsContainer = ({ donationsData }: OrgsContainerProps) => {
     searchFilter !== undefined ||
     categoryFilter !== undefined ||
     (taxStatusFilter !== undefined && taxStatusFilter !== "all");
+  // For each org, find up to 3 most recent donations and include only date/amount/kind
+  const orgsWithDonations = filteredOrgs.map((org) => {
+    const donationsForOrg = donationsData.donations
+      .filter((d) => d.orgId === org.id)
+      .sort(sortByDateDesc)
+      .slice(0, 3)
+      .map(
+        (d) =>
+          ({ date: d.date, amount: d.amount, kind: d.kind } as Pick<
+            Donation,
+            "date" | "amount" | "kind"
+          >)
+      );
+    return { org, donations: donationsForOrg };
+  });
 
   return (
     <OrgsView
-      orgs={filteredOrgs}
+      orgs={orgsWithDonations}
       currentTextFilter={searchFilter ?? ""}
       textFilterChanged={updateSearchFilter}
       categoryFilter={categoryFilter}

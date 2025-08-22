@@ -1,16 +1,23 @@
 import { Link } from "react-router-dom";
 import { type Org } from "../organization";
+import { type Donation } from "../donation";
 import StatusBox from "./StatusBox";
 import SearchFilterBox from "./SearchFilterBox";
 import CategoryPicker from "./CategoryPicker";
 import TaxStatusPicker from "./TaxStatusPicker";
 import OrgGrid from "./OrgGrid";
+import { getCurrentDateIso, isOlderThanDays, isFutureDate } from "../date";
 import { type SearchFilter } from "../searchFilter";
 import { type CategoryFilter } from "../categoryFilter";
 import { type TaxStatusFilter } from "../taxStatusFilter";
 
+interface OrgWithDonations {
+  org: Org;
+  donations: Pick<Donation, "date" | "amount" | "kind">[];
+}
+
 interface OrgsViewProps {
-  orgs: Org[];
+  orgs: OrgWithDonations[];
   currentTextFilter: SearchFilter;
   textFilterChanged: (filter: SearchFilter) => void;
   categoryFilter: CategoryFilter | undefined;
@@ -34,6 +41,31 @@ const OrgsView = ({
   onClearFilters,
   hasActiveFilters,
 }: OrgsViewProps) => {
+  // If there's a search string, show all orgs in the top section and hide inactive
+  const isSearching = currentTextFilter.trim() !== "";
+
+  // Determine active vs inactive orgs based on recent/future donations (5 years tolerance)
+  const now = getCurrentDateIso();
+  const fiveYearsDays = 5 * 365;
+  let activeOrgs: typeof orgs = [];
+  let inactiveOrgs: typeof orgs = [];
+  if (isSearching) {
+    activeOrgs = orgs;
+    inactiveOrgs = [];
+  } else {
+    activeOrgs = orgs.filter((o) =>
+      o.donations.some(
+        (d) =>
+          !isOlderThanDays({
+            now,
+            other: d.date,
+            toleranceDays: fiveYearsDays,
+          }) || isFutureDate({ now, other: d.date })
+      )
+    );
+    inactiveOrgs = orgs.filter((o) => !activeOrgs.includes(o));
+  }
+
   return (
     <div>
       <div className="page-header">
@@ -75,10 +107,27 @@ const OrgsView = ({
       {orgs.length === 0 ? (
         <StatusBox content="No organizations found" kind="info" />
       ) : (
-        <OrgGrid
-          orgs={[...orgs].sort((a, b) => a.name.localeCompare(b.name))}
-          mode="view"
-        />
+        <div>
+          {activeOrgs.length > 0 && (
+            <OrgGrid
+              orgs={[...activeOrgs]
+                .map((o) => o.org)
+                .sort((a, b) => a.name.localeCompare(b.name))}
+              mode="view"
+            />
+          )}
+          {inactiveOrgs.length > 0 && (
+            <>
+              <h2>Inactive orgs</h2>
+              <OrgGrid
+                orgs={[...inactiveOrgs]
+                  .map((o) => o.org)
+                  .sort((a, b) => a.name.localeCompare(b.name))}
+                mode="view"
+              />
+            </>
+          )}
+        </div>
       )}
     </div>
   );

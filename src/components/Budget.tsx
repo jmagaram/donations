@@ -102,8 +102,9 @@ const categorizeOrganizations = (
     const hasRecentActivity =
       Object.keys(orgData.years).length > 0 ||
       orgData.unresolvedItems.length > 0;
-
-    if (hasRecentActivity) {
+    const hasUnresolved = orgData.unresolvedItems.length > 0;
+    const isArchived = orgData.org.archived;
+    if (hasUnresolved || (!isArchived && hasRecentActivity)) {
       activeOrgs.push(orgData);
     } else {
       inactiveOrgs.push(orgData);

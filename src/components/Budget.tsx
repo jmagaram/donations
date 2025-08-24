@@ -31,6 +31,95 @@ interface OrgBudgetData {
   unresolvedItems: Donation[]; // ideas, pledges, future paid
 }
 
+// Returns map of org ID to budget data
+const buildOrgBudgetData = (
+  orgs: Org[],
+  donations: Donation[],
+  displayYears: number[],
+  currentDate: string,
+): Map<string, OrgBudgetData> => {
+  const processedOrgDataMap = new Map<string, OrgBudgetData>();
+
+  orgs.forEach((org) => {
+    processedOrgDataMap.set(org.id, {
+      org,
+      years: {},
+      unresolvedItems: [],
+    });
+  });
+
+  donations.forEach((donation) => {
+    const orgData = processedOrgDataMap.get(donation.orgId);
+    if (!orgData) return; // Skip donations for missing orgs
+
+    const isFuture = compareDatesDesc(donation.date, currentDate) < 0;
+    const year = extractYear(donation.date);
+
+    if (
+      donation.kind === "idea" ||
+      donation.kind === "pledge" ||
+      (donation.kind === "paid" && isFuture)
+    ) {
+      // Unresolved items: ideas (any date), pledges (any date), future paid (errors)
+      orgData.unresolvedItems.push(donation);
+    } else if (
+      donation.kind === "paid" &&
+      !isFuture &&
+      displayYears.includes(year)
+    ) {
+      // Historical paid donations - add to year totals
+      if (!orgData.years[year]) {
+        orgData.years[year] = {
+          amount: 0,
+          hasPledged: false,
+          hasUnknown: false,
+          pledgedAmount: 0,
+          paidAmount: 0,
+        };
+      }
+
+      const yearData = orgData.years[year];
+      yearData.amount += donation.amount;
+      yearData.paidAmount += donation.amount;
+    }
+  });
+
+  // Sort unresolved items by date (newest first)
+  processedOrgDataMap.forEach((orgData) => {
+    orgData.unresolvedItems.sort((a, b) => compareDatesDesc(a.date, b.date));
+  });
+
+  return processedOrgDataMap;
+};
+
+const categorizeOrganizations = (
+  orgDataArray: OrgBudgetData[],
+): { activeOrgs: OrgBudgetData[]; inactiveOrgs: OrgBudgetData[] } => {
+  const activeOrgs: OrgBudgetData[] = [];
+  const inactiveOrgs: OrgBudgetData[] = [];
+
+  orgDataArray.forEach((orgData) => {
+    const hasRecentActivity =
+      Object.keys(orgData.years).length > 0 ||
+      orgData.unresolvedItems.length > 0;
+
+    if (hasRecentActivity) {
+      activeOrgs.push(orgData);
+    } else {
+      inactiveOrgs.push(orgData);
+    }
+  });
+
+  // Sort each group alphabetically
+  const sortByName = (a: OrgBudgetData, b: OrgBudgetData) =>
+    a.org.name.localeCompare(b.org.name);
+
+  activeOrgs.sort(sortByName);
+  inactiveOrgs.sort(sortByName);
+
+  return { activeOrgs, inactiveOrgs };
+};
+
 const Budget = ({ donationsData }: BudgetProps) => {
   const currentYear = getCurrentYear();
   const currentDate = getCurrentDateIso();
@@ -39,114 +128,20 @@ const Budget = ({ donationsData }: BudgetProps) => {
     const displayYears = [currentYear - 2, currentYear - 1, currentYear];
     const { orgs, donations } = donationsData;
 
-    // Create org data with year totals and budget items
-    const orgDataMap = new Map<string, OrgBudgetData>();
+    const budgetData = buildOrgBudgetData(
+      orgs,
+      donations,
+      displayYears,
+      currentDate,
+    );
 
-    // Initialize all orgs
-    orgs.forEach((org) => {
-      orgDataMap.set(org.id, {
-        org,
-        years: {},
-        unresolvedItems: [],
-      });
-    });
-
-    // Process donations
-    donations.forEach((donation) => {
-      const orgData = orgDataMap.get(donation.orgId);
-      if (!orgData) return; // Skip donations for missing orgs
-
-      const isFuture = compareDatesDesc(donation.date, currentDate) < 0;
-      const year = extractYear(donation.date);
-
-      if (
-        donation.kind === "idea" ||
-        donation.kind === "pledge" ||
-        (donation.kind === "paid" && isFuture)
-      ) {
-        // Unresolved items: ideas (any date), pledges (any date), future paid (errors)
-        orgData.unresolvedItems.push(donation);
-      } else if (
-        donation.kind === "paid" &&
-        !isFuture &&
-        displayYears.includes(year)
-      ) {
-        // Historical paid donations - add to year totals
-        if (!orgData.years[year]) {
-          orgData.years[year] = {
-            amount: 0,
-            hasPledged: false,
-            hasUnknown: false,
-            pledgedAmount: 0,
-            paidAmount: 0,
-          };
-        }
-
-        const yearData = orgData.years[year];
-        yearData.amount += donation.amount;
-        yearData.paidAmount += donation.amount;
-      }
-    });
-
-    // Sort unresolved items by date (newest first)
-    orgDataMap.forEach((orgData) => {
-      orgData.unresolvedItems.sort((a, b) => compareDatesDesc(a.date, b.date));
-    });
-
-    // Convert to array and sort organizations
-    const orgDataArray = Array.from(orgDataMap.values());
-
-    // Separate active and inactive orgs
-    const activeOrgs: OrgBudgetData[] = [];
-    const inactiveOrgs: OrgBudgetData[] = [];
-
-    orgDataArray.forEach((orgData) => {
-      const hasRecentActivity =
-        Object.keys(orgData.years).length > 0 ||
-        orgData.unresolvedItems.length > 0;
-
-      if (hasRecentActivity) {
-        activeOrgs.push(orgData);
-      } else {
-        inactiveOrgs.push(orgData);
-      }
-    });
-
-    // Sort each group alphabetically
-    const sortByName = (a: OrgBudgetData, b: OrgBudgetData) =>
-      a.org.name.localeCompare(b.org.name);
-
-    activeOrgs.sort(sortByName);
-    inactiveOrgs.sort(sortByName);
-
-    // Calculate totals for active orgs only
-    const yearTotals: Record<number, number> = {};
-    let budgetTotal = 0;
-
-    displayYears.forEach((year) => {
-      yearTotals[year] = 0;
-    });
-
-    activeOrgs.forEach((orgData) => {
-      // Sum year amounts
-      displayYears.forEach((year) => {
-        const yearData = orgData.years[year];
-        if (yearData) {
-          yearTotals[year] += yearData.amount;
-        }
-      });
-
-      // Sum budget amounts
-      orgData.unresolvedItems.forEach((donation) => {
-        budgetTotal += donation.amount;
-      });
-    });
+    // Convert to array and categorize organizations using extracted function
+    const orgDataArray = Array.from(budgetData.values());
+    const { activeOrgs, inactiveOrgs } = categorizeOrganizations(orgDataArray);
 
     return {
       activeOrgs,
       inactiveOrgs,
-      yearTotals,
-      budgetTotal,
       displayYears,
     };
   }, [donationsData, currentDate, currentYear]);
@@ -175,7 +170,10 @@ const Budget = ({ donationsData }: BudgetProps) => {
             <Fragment key={orgData.org.id}>
               <div className="grid__cell org-name">
                 <Link to={`/orgs/${orgData.org.id}`}>
-                  <OrgNameView name={orgData.org.name} taxDeductible={orgData.org.taxDeductible} />
+                  <OrgNameView
+                    name={orgData.org.name}
+                    taxDeductible={orgData.org.taxDeductible}
+                  />
                 </Link>
               </div>
 
@@ -226,7 +224,10 @@ const Budget = ({ donationsData }: BudgetProps) => {
             <Fragment key={orgData.org.id}>
               <div className="grid__cell org-name">
                 <Link to={`/orgs/${orgData.org.id}`}>
-                  <OrgNameView name={orgData.org.name} taxDeductible={orgData.org.taxDeductible} />
+                  <OrgNameView
+                    name={orgData.org.name}
+                    taxDeductible={orgData.org.taxDeductible}
+                  />
                 </Link>
               </div>
               <div className="grid__cell">

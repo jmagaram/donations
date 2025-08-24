@@ -64,8 +64,11 @@ const OrgDetailsView = ({
 
   return (
     <div className="org-details">
-      <h1>{organization.name}</h1>
-      {donations.length > 8 && <Toolbar />}
+      <h1>
+        {organization.name}
+        {organization.archived && <span className="archived">(Archived)</span>}
+      </h1>
+      <Toolbar />
       <dl>
         {showCategory && (
           <>
@@ -102,7 +105,6 @@ const OrgDetailsView = ({
           </div>
         )}
       </div>
-      <Toolbar />
     </div>
   );
 };

@@ -12,6 +12,7 @@ export const OrgRowCsvSchema = z.object({
   OrgName: OrgNameSchema,
   Category: z.string(),
   TaxDeductible: z.enum(["Yes", "yes", "No", "no"]),
+  Archived: z.enum(["Yes", "yes", "No", "no"]),
   WebSite: z.string(),
   Notes: OrgNotesSchema,
 });

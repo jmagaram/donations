@@ -79,6 +79,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         OrgName: org.name,
         Category: org.category || "",
         TaxDeductible: (org.taxDeductible ? "Yes" : "No") as "Yes" | "No",
+        Archived: (org.archived ? "Yes" : "No") as "Yes" | "No",
         WebSite: org.webSite || "",
         Notes: org.notes,
       };
@@ -137,7 +138,7 @@ const Exporter = ({ donationsData }: ExporterProps) => {
         </div>
         <p className="readable-text">
           All organizations are saved to a CSV file with columns for OrgName,
-          Category, TaxDeductible, WebSite, and Notes.
+          Category, TaxDeductible, WebSite, Archived, and Notes.
         </p>
       </section>
       <section>

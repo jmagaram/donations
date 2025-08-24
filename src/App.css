@@ -962,3 +962,10 @@ dl {
     max-width: 100%;
   }
 }
+
+h1 span.archived {
+  margin-left: var(--space-em-xs);
+  opacity: var(--opacity-half);
+  font-variant: small-caps;
+  font-size: smaller;
+}

@@ -68,6 +68,7 @@ const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
     name: row.OrgName,
     category: row.Category.trim().length > 0 ? row.Category.trim() : undefined,
     taxDeductible: row.TaxDeductible === "Yes" || row.TaxDeductible === "yes",
+    archived: row.Archived === "Yes" || row.Archived === "yes",
     webSite: row.WebSite.trim().length > 0 ? row.WebSite.trim() : undefined,
     notes: row.Notes,
   };
@@ -519,6 +520,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 • Category: Organization category (optional)
 • TaxDeductible: "Yes" or "No" (required)
 • WebSite: URL, usually start with http:// or https:// (optional)
+• Archived: "Yes" or "No" (optional)
 • Notes: Any notes (can be multi-line)
 
 Donations CSV

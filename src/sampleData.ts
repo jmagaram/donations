@@ -10,7 +10,9 @@ const randomDate = (): string => {
   const year = randomInt(2010, 2025);
   const month = randomInt(1, 12);
   const day = randomInt(1, 28);
-  return `${year}-${month.toString().padStart(2, "0")}-${day.toString().padStart(2, "0")}`;
+  return `${year}-${month.toString().padStart(2, "0")}-${day
+    .toString()
+    .padStart(2, "0")}`;
 };
 
 const randomAmount = (): number => randomInt(10, 10000);
@@ -26,6 +28,8 @@ const randomPaymentMethod = (): string | undefined => {
   const methods = ["", "Check", "Credit card", "Stock", "Transfer"];
   return methods[randomInt(0, methods.length - 1)] || undefined;
 };
+
+const randomArchived = (): boolean => Math.random() < 0.1;
 
 const randomNotes = (): string => {
   const notes = ["Luncheon", "Auction", "", "Recommended by friend"];
@@ -424,7 +428,7 @@ export const sampleData = (): DonationsData | undefined => {
   let result = empty();
 
   for (const org of orgsArray) {
-    const newOrg = { ...org, id: makeId() };
+    const newOrg = { ...org, archived: randomArchived(), id: makeId() };
     const dataWithOrg = orgAdd(result, newOrg);
     if (!dataWithOrg) return undefined;
 

@@ -145,6 +145,19 @@ const OrgUpsertForm = ({
             {...register("notes")}
           />
         </div>
+        {mode === "edit" && (
+          <div className="form-field form-field--medium">
+            <label htmlFor="archived">
+              <input
+                id="archived"
+                type="checkbox"
+                {...register("archived")}
+                style={{ marginRight: "0.5em" }}
+              />
+              Archived
+            </label>
+          </div>
+        )}
         <div className="toolbar">
           <button type="submit">Save</button>
           <button type="button" onClick={() => navigate(-1)}>

@@ -6,6 +6,7 @@ export const OrgIdSchema = IdSchema;
 export const OrgNameSchema = z.string().trim().min(1);
 export const OrgCategorySchema = z.string().trim().optional();
 export const OrgTaxDeductibleSchema = z.boolean();
+export const OrgArchivedSchema = z.boolean();
 export const OrgWebSiteSchema = z
   .union([
     z
@@ -38,6 +39,7 @@ export const OrgSchema = z.object({
   name: OrgNameSchema,
   category: OrgCategorySchema,
   taxDeductible: OrgTaxDeductibleSchema,
+  archived: OrgArchivedSchema,
   webSite: OrgWebSiteSchema,
   notes: OrgNotesSchema,
 });
@@ -48,6 +50,7 @@ export const OrgUpsertFieldsSchema = z.object({
   name: OrgNameSchema.min(1, "Name is required"),
   category: OrgCategorySchema.or(z.literal("")),
   taxDeductible: OrgTaxDeductibleSchema,
+  archived: OrgArchivedSchema,
   webSite: OrgWebSiteSchema.or(z.literal("")),
   notes: OrgNotesSchema,
 });
@@ -58,6 +61,7 @@ export const defaultFields: OrgUpsertFields = {
   name: "",
   category: "",
   taxDeductible: true,
+  archived: false,
   webSite: "",
   notes: "",
 };

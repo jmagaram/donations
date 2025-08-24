@@ -31,7 +31,11 @@ const OrgDetailsView = ({
       </button>
       <button
         onClick={() => {
-          if (window.confirm("Delete organization and all donations?")) {
+          if (
+            window.confirm(
+              "Delete this organization and all donations made to it?",
+            )
+          ) {
             onDelete(organization!.id);
           }
         }}

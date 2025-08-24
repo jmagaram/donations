@@ -3,51 +3,15 @@ import Papa from "papaparse";
 import { z } from "zod";
 import { makeId } from "../nanoId";
 import StatusBox, { type StatusBoxProps } from "./StatusBox";
-
-import {
-  DonationAmountSchema,
-  DonationKindSchema,
-  DonationSchema,
-  type Donation,
-} from "../donation";
-import {
-  type Org,
-  OrgNameSchema,
-  OrgNotesSchema,
-  OrgSchema,
-} from "../organization";
+import { DonationSchema, type Donation } from "../donation";
+import { type Org, OrgSchema } from "../organization";
 import { type DonationsData, DonationsDataSchema } from "../donationsData";
-import { DateIsoSchema } from "../date";
-
-const OrgRowCsvSchema = z.object({
-  Organization: OrgNameSchema,
-  Category: z.string().optional().default(""),
-  TaxDeductible: z.enum(["Yes", "yes", "No", "no"]),
-  WebSite: z.string().optional().or(z.literal("")),
-  Notes: OrgNotesSchema.optional().default(""),
-});
-
-type OrgRowCsv = z.infer<typeof OrgRowCsvSchema>;
-
-const DonationRowCsvSchema = z.object({
-  Organization: OrgNameSchema,
-  Date: DateIsoSchema,
-  Amount: z
-    .string()
-    .transform((val) => {
-      const parsed = parseFloat(val);
-      if (isNaN(parsed)) {
-        throw new Error("Invalid amount format");
-      }
-      return parsed;
-    })
-    .pipe(DonationAmountSchema),
-  Kind: DonationKindSchema,
-  Notes: z.string().optional().default(""),
-  PaymentMethod: z.string().optional().default(""),
-});
-
-type DonationRowCsv = z.infer<typeof DonationRowCsvSchema>;
+import {
+  OrgRowCsvSchema,
+  type OrgRowCsv,
+  DonationRowImportCsvSchema,
+  type DonationRowImportCsv,
+} from "../csvSchemas";
 
 type OrgParseResult = {
   orgs: Org[];
@@ -80,10 +44,10 @@ const formatZodError = (
 };
 
 const convertDonationRowCsvToDonation = (
-  row: DonationRowCsv,
+  row: DonationRowImportCsv,
   orgId: string,
 ): Donation => {
-  const donation = {
+  const donation: Donation = {
     id: makeId(),
     orgId: orgId,
     date: row.Date,
@@ -99,15 +63,12 @@ const convertDonationRowCsvToDonation = (
 };
 
 const convertOrgRowCsvToOrg = (row: OrgRowCsv): Org => {
-  const org = {
+  const org: Org = {
     id: makeId(),
-    name: row.Organization,
-    category:
-      row.Category && row.Category.trim().length > 0
-        ? row.Category.trim()
-        : undefined,
+    name: row.OrgName,
+    category: row.Category.trim().length > 0 ? row.Category.trim() : undefined,
     taxDeductible: row.TaxDeductible === "Yes" || row.TaxDeductible === "yes",
-    webSite: row.WebSite && row.WebSite.length > 0 ? row.WebSite : undefined,
+    webSite: row.WebSite.trim().length > 0 ? row.WebSite.trim() : undefined,
     notes: row.Notes,
   };
   return OrgSchema.parse(org);
@@ -123,7 +84,7 @@ const parseOrgCsv = (data: unknown[]): OrgParseResult => {
       orgs.push(org);
     } catch (parseError) {
       const rowData = row as Record<string, unknown>;
-      const orgName = String(rowData?.Organization || "Unknown");
+      const orgName = String(rowData?.Name || "Unknown");
       const lineNumber = index + 2;
       if (parseError instanceof z.ZodError) {
         errors.push(...formatZodError(parseError, lineNumber, orgName));
@@ -145,15 +106,14 @@ const parseDonationCsv = (
   const errors: string[] = [];
   data.forEach((row, index) => {
     try {
-      const validatedRow = DonationRowCsvSchema.parse(row);
+      const validatedRow = DonationRowImportCsvSchema.parse(row);
       const matchingOrg = orgs.find(
-        (org) =>
-          org.name.toLowerCase() === validatedRow.Organization.toLowerCase(),
+        (org) => org.name.toLowerCase() === validatedRow.Name.toLowerCase(),
       );
       if (!matchingOrg) {
         errors.push(
           `Line ${index + 2} - ${
-            validatedRow.Organization
+            validatedRow.Name
           }: Organization not found in organizations list`,
         );
         return;
@@ -165,7 +125,7 @@ const parseDonationCsv = (
       validDonations.push(donation);
     } catch (parseError) {
       const rowData = row as Record<string, unknown>;
-      const orgName = String(rowData?.Organization || "Unknown");
+      const orgName = String(rowData?.Name || "Unknown");
       const lineNumber = index + 2;
       if (parseError instanceof z.ZodError) {
         errors.push(...formatZodError(parseError, lineNumber, orgName));
@@ -254,9 +214,7 @@ const createFinalData = (
   orgs: Org[],
   donations: Donation[],
 ): CreateFinalDataResult => {
-  // Build DonationsData directly
   const donationData: DonationsData = { orgs, donations };
-  // Validate with Zod
   const validation = DonationsDataSchema.safeParse(donationData);
   if (validation.success) {
     return {
@@ -264,7 +222,6 @@ const createFinalData = (
       errors: [],
     };
   } else {
-    // Collect all Zod errors
     const errors = validation.error.issues.map((issue) => {
       const field = issue.path.length > 0 ? issue.path.join(".") : "unknown";
       return `Field: ${field} - ${issue.message}`;
@@ -290,7 +247,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
   const [status, setStatus] = useState<StatusBoxProps | undefined>(undefined);
   const [orgErrors, setOrgErrors] = useState<string[]>([]);
   const [donationErrors, setDonationErrors] = useState<string[]>([]);
-  // Removed jsonErrors state, will show errors in StatusBox content
   const [isWorking, setIsWorking] = useState(false);
 
   const handleOrgFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -431,7 +387,6 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 
     setDonationErrors(donationImportErrors);
 
-    // Only proceed to build and validate DonationsData if there are no CSV parsing errors
     if (orgImportErrors.length === 0 && donationImportErrors.length === 0) {
       const result = createFinalData(orgs, donations);
       if (result.donationData) {
@@ -567,7 +522,7 @@ const Importer = ({ setDonationsData }: ImportContainerProps) => {
 • Notes: Any notes (can be multi-line)
 
 Donations CSV
-• Organization: Must match organization name exactly (required)
+• Name: Must match organization name exactly (required)
 • Date: YYYY-MM-DD format (required)
 • Amount: Plain number, without currency symbol. Like 432.33 (required)
 • Kind: "idea", "pledge", "paid", or "unknown" (required)

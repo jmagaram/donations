@@ -6,7 +6,6 @@ import SearchFilterBox from "./SearchFilterBox";
 import CategoryPicker from "./CategoryPicker";
 import TaxStatusPicker from "./TaxStatusPicker";
 import OrgCard from "./OrgCard";
-import { getCurrentDateIso, isOlderThanDays, isFutureDate } from "../date";
 import { type SearchFilter } from "../searchFilter";
 import { type CategoryFilter } from "../categoryFilter";
 import { type TaxStatusFilter } from "../taxStatusFilter";
@@ -41,28 +40,15 @@ const OrgsView = ({
   onClearFilters,
   hasActiveFilters,
 }: OrgsViewProps) => {
-  // If there's a search string, show all orgs in the top section and hide inactive
   const isSearching = currentTextFilter.trim() !== "";
 
-  // Determine active vs inactive orgs based on recent/future donations (5 years tolerance)
-  const now = getCurrentDateIso();
-  const fiveYearsDays = 5 * 365;
   let activeOrgs: typeof orgs = [];
   let inactiveOrgs: typeof orgs = [];
   if (isSearching) {
     activeOrgs = orgs;
     inactiveOrgs = [];
   } else {
-    activeOrgs = orgs.filter((o) =>
-      o.donations.some(
-        (d) =>
-          !isOlderThanDays({
-            now,
-            other: d.date,
-            toleranceDays: fiveYearsDays,
-          }) || isFutureDate({ now, other: d.date })
-      )
-    );
+    activeOrgs = orgs.filter((o) => o.org.archived === false);
     inactiveOrgs = orgs.filter((o) => !activeOrgs.includes(o));
   }
 
@@ -119,7 +105,7 @@ const OrgsView = ({
           )}
           {inactiveOrgs.length > 0 && (
             <>
-              <h2>Inactive orgs</h2>
+              <h2>Archived</h2>
               <div className="org-list">
                 {[...inactiveOrgs]
                   .sort((a, b) => a.org.name.localeCompare(b.org.name))

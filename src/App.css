@@ -76,6 +76,12 @@ body {
   font-family: -apple-system, sans-serif;
 }
 
+input,
+textarea,
+select {
+  font-size: 16px;
+}
+
 button {
   width: fit-content;
   min-width: var(--width-8ch);
